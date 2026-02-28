@@ -127,7 +127,30 @@ function isAdmin(msg) {
     if (cleanMessage === ".rank") return showRank(msg);
     if (cleanMessage === ".stats") return showStats(msg);
     if (cleanMessage === "list reminders") return await listReminders(msg);
+    // ==========================================
+    // 1. EXACT COMMANDS (System, Stats, Menus)
+    // ==========================================
+    
+    // 📢 Admin Cloud Announcement
+    if (cleanMessage === "update" || cleanMessage === ".update") {
+        if (!isAdmin(msg)) {
+            await msg.reply("⛔ Access Denied. Only the Architect can broadcast updates.");
+            return true;
+        }
+        
+        const updateText = `
+🔥 CyberBot is now LIVE 24/7! 🤖
 
+The bot is officially deployed on cloud server and will stay online all the time.
+You can now use all features anytime — AI, OSINT tools, notes, leaderboard, reminders and more 🚀
+No downtime. No sleeping.
+
+CyberBot never rests 😎🔥
+        `.trim();
+
+        await msg.reply(updateText);
+        return true;
+    }
     // ==========================================
     // 2. PREFIX COMMANDS (Tools, OSINT, AI)
     // ==========================================
@@ -1062,5 +1085,6 @@ async function handleDecode(msg, cleanMessage) {
     await msg.reply(`[+] Decrypted Payload:\n\`\`\`${decoded}\`\`\``);
     return true;
 }
+
 
 client.initialize();
