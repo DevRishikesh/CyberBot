@@ -53,7 +53,7 @@ Powered by a custom **Keyword Matrix**, the bot understands natural human text w
 
 ### 1. Clone the Repository
 ```bash
-git clone [https://github.com/DevRishikesh/cyberbot.git](https://github.com/DevRishikesh/cyberbot.git)
+git clone [https://github.com/DevRishikesh/CyberBot.git](https://github.com/DevRishikesh/CyberBot.git)
 cd cyberbot
 2. Install Dependencies
 Bash
