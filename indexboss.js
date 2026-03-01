@@ -194,7 +194,7 @@ CyberBot never rests 😎🔥
         return true;
     }
 		// 🔥 Admin - Change Day Order
-if (cleanMessage.startsWith(".setday")) {
+if (cleanMessage.includes(".setday")) {
 
     if (!isAdmin(msg)) {
         await msg.reply("⛔ Admin only.");
@@ -1230,6 +1230,7 @@ Have a productive day! 🚀
 }
 
 client.initialize();
+
 
 
 
