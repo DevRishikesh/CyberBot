@@ -40,7 +40,10 @@ client.on('qr', (qr) => {
 
 client.on('ready', () => {
     console.log('🔥 CyberBot is online and ready!');
-
+	// 🔥 Morning Day Order Announcement at 7:00 AM
+    schedule.scheduleJob('0 7 * * *', async function () {
+        await sendMorningDayOrder();
+    });
     // 🔥 Schedule daily leaderboard at 10 PM
     schedule.scheduleJob('0 22 * * *', async function () {
         await sendDailyLeaderboard();
@@ -81,6 +84,43 @@ client.on('message_revoke_everyone', async (after, before) => {
         }
     }
 });
+
+// 🔥 The Day Order Engine
+const MAX_DAY_ORDER = 6; 
+
+const dayOrderSchedule = {
+    1: { 
+        subjects: "ESS, TOC, AIML, ESS, OSS, CCS, Library", 
+        hasLab: false 
+    },
+    2: { 
+        subjects: "OSS, DMSS, Lab Session, Lab Session, AIML", 
+        hasLab: true,
+        labB1: "💻 DMSS Lab & OSS Lab", bringB1: "DMSS & OSS Observation and Record", 
+        labB2: "🤖 AIML Lab & CCS Lab", bringB2: "AIML & CCS Observation and Record" 
+    },
+    3: { 
+        subjects: "TOC, ESS, TOC, DMSS, AIML, CCS, OSS", 
+        hasLab: false 
+    },
+    4: { 
+        subjects: "DMSS, CCS, Lab Session, AIML, TOC/Sports, ESS/Sports", 
+        hasLab: true,
+        labB1: "🤖 AIML Lab", bringB1: "AIML Observation and Record", 
+        labB2: "💻 DMSS Lab", bringB2: "DMSS Observation and Record" 
+    },
+    5: { 
+        subjects: "AIML, OSS, ESS, DMSS, CCS, TOC, DMSS", 
+        hasLab: false 
+    },
+    6: { 
+        subjects: "CCS, OSS, SET CLASS, Lab Session, TOC", 
+        hasLab: true,
+        labB1: "🔐 CCS Lab", bringB1: "CCS Observation and Record", 
+        labB2: "💻 OSS Lab", bringB2: "OSS Observation and Record" 
+    }
+};
+
 //msg getting
 client.on('message', async msg => {
 
@@ -1108,4 +1148,48 @@ Fork it if you want, but don't forget to star it. ⚡
     return true;
 }
 
+//broadcast function
+
+async function sendMorningDayOrder() {
+    let currentDay = db.data.currentDayOrder;
+    const scheduleData = dayOrderSchedule[currentDay];
+
+    if (!scheduleData) return; // Failsafe
+
+    let labText = "";
+    if (scheduleData.hasLab) {
+        labText = `👥 *BATCH 1:*\n🔬 Lab: ${scheduleData.labB1}\n🎒 Bring: ${scheduleData.bringB1}\n\n👥 *BATCH 2:*\n🔬 Lab: ${scheduleData.labB2}\n🎒 Bring: ${scheduleData.bringB2}`;
+    } else {
+        labText = `🔬 *Lab:* No Lab Today\n🎒 *Bring:* Just yourself and your brain cells`;
+    }
+
+    const message = `
+🌅 *WAKE UP! COLLEGE UPDATE* 🌅
+━━━━━━━━━━━━━━━━━━━━
+📅 *Today is Day Order:* ${currentDay}
+
+📚 *Classes:* ${scheduleData.subjects}
+
+${labText}
+━━━━━━━━━━━━━━━━━━━━
+Have a productive day! 🚀
+    `.trim();
+
+    // Broadcast to all active groups
+    const groups = [...new Set(db.data.xp.map(u => u.groupId))];
+    for (const groupId of groups) {
+        await client.sendMessage(groupId, message);
+    }
+
+    // 🔥 Auto-increment for tomorrow
+    currentDay++;
+    if (currentDay > MAX_DAY_ORDER) {
+        currentDay = 1;
+    }
+    
+    db.data.currentDayOrder = currentDay;
+    await db.write();
+}
+
 client.initialize();
+
