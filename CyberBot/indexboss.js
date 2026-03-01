@@ -1,17 +1,26 @@
-const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
-const qrcode = require('qrcode-terminal');
-const path = require('path');
-const axios = require("axios");
-require('dotenv').config();
-const schedule = require("node-schedule");
-const chrono = require("chrono-node");
+import whatsapp from 'whatsapp-web.js';
+const { Client, LocalAuth, MessageMedia } = whatsapp;
+import qrcode from 'qrcode-terminal';
+import path from 'path';
+import axios from 'axios';
+import 'dotenv/config';
+import schedule from 'node-schedule';
+import chrono from 'chrono-node';
+import yts from 'yt-search';
+import Parser from 'rss-parser';
+import { fileURLToPath } from 'url';
+
+// ⚠️ Must include the .js extension when importing local files in ESM!
+import { db, initDB } from './db.js';
+
+// Recreate __dirname for ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const parser = new Parser();
 const reminders = {};
 const GROQ_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY2;
-const yts = require("yt-search");
-const Parser = require('rss-parser');
-const parser = new Parser();
-///const API_KEY = process.env.GEMINI_API_KEY;
+//const GEMINI_API_KEY = process.env.GEMINI_API_KEY2;
 const { db, initDB } = require('./db');
 
 (async () => {
