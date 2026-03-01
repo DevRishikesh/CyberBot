@@ -22,7 +22,7 @@ const client = new Client({
     puppeteer: {
         headless: true,
         // Pointing to your local Chrome installation:
-        executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+        ///executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
         args: ['--no-sandbox', '--disable-setuid-sandbox']
     }
 });
@@ -1208,5 +1208,6 @@ Have a productive day! 🚀
 }
 
 client.initialize();
+
 
 
