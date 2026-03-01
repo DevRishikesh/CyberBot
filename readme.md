@@ -5,7 +5,7 @@
 ![Runtime](https://img.shields.io/badge/Runtime-Node.js-blue)
 ![Status](https://img.shields.io/badge/Status-Active-success)
 
-Architected by **Vasu Devan** (@sanddyman), CyberBot is a high-performance, WhatsApp-integrated artificial intelligence and utility terminal. Designed to replace standard, boring chatbots, it operates with a brutalist, Linux-style aesthetic. It acts as a central hub for academics, a socially dominant conversational AI, and a pocket-sized cybersecurity recon tool.
+Architected by **Rishikesh Ragav** (@DevRishikesh), CyberBot is a high-performance, WhatsApp-integrated artificial intelligence and utility terminal. Designed to replace standard, boring chatbots, it operates with a brutalist, Linux-style aesthetic. It acts as a central hub for academics, a socially dominant conversational AI, and a pocket-sized cybersecurity recon tool.
 
 ---
 
