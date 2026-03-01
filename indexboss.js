@@ -532,6 +532,18 @@ async function handleHelp(msg) {
   .encode <txt> :: Base64 Cryptography
   .decode <txt> :: Reverse Cryptography
 
+📅 *DAY ORDER SYSTEM* 
+Get instant updates on classes, labs, and what to bring.
+
+*Commands:*
+• *.today* :: Displays today's Day Order, full subject list, and lab requirements (Batch 1 & Batch 2).
+
+*Admin Commands:*
+• *.setday <1-6>* :: Force-change the current Day Order in the database.
+
+*Automated Features:*
+🌅 *Morning Broadcast:* Every day at 7:00 AM, the bot automatically sends the current Day Order to all active groups and increments the day for tomorrow.
+
 🧠 *AI MODE*
 Use */ai* for smart replies.
 Example:
@@ -1252,6 +1264,7 @@ Have a productive day! 🚀
 }
 
 client.initialize();
+
 
 
 
