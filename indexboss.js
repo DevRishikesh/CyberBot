@@ -201,7 +201,23 @@ CyberBot never rests 😎🔥
     if (cleanMessage.startsWith(".decode")) return await handleDecode(msg, cleanMessage);
     if (cleanMessage.startsWith(".ip ")) return await handleIPLookup(msg, cleanMessage);
     if (cleanMessage.startsWith("send link for")) return await handleYTLink(msg, cleanMessage);
+	    // Check today's schedule manually
+    if (cleanMessage === ".today") {
+        let currentDay = db.data.currentDayOrder;
+        const scheduleData = dayOrderSchedule[currentDay];
+        
+        let labText = "";
+        if (scheduleData.hasLab) {
+            labText = `👥 *Batch 1:*\n🔬 Lab: ${scheduleData.labB1}\n🎒 Bring: ${scheduleData.bringB1}\n\n👥 *Batch 2:*\n🔬 Lab: ${scheduleData.labB2}\n🎒 Bring: ${scheduleData.bringB2}`;
+        } else {
+            labText = `🔬 *Lab:* No Lab Today\n🎒 *Bring:* Just yourself and your brain cells`;
+        }
 
+        const replyMsg = `📅 *Day Order ${currentDay}*\n📚 ${scheduleData.subjects}\n\n${labText}`;
+        
+        await msg.reply(replyMsg);
+        return true;
+    }
     // ==========================================
     // 3. SMART ENGINES & KEYWORD TRIGGERS
     // ==========================================
@@ -1192,4 +1208,5 @@ Have a productive day! 🚀
 }
 
 client.initialize();
+
 
