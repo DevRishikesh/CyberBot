@@ -21,7 +21,6 @@ const parser = new Parser();
 const reminders = {};
 const GROQ_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY2;
-const { db, initDB } = require('./db');
 
 (async () => {
     await initDB();
