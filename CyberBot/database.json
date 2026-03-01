@@ -1,0 +1,524 @@
+{
+  "reminders": [],
+  "tasks": [],
+  "xp": [
+    {
+      "userId": "47120170102869@lid",
+      "groupId": "120363422750893056@g.us",
+      "xp": 900,
+      "messages": 180,
+      "level": 10
+    },
+    {
+      "userId": "47120170102869@lid",
+      "groupId": "120363331198553356@g.us",
+      "xp": 495,
+      "messages": 99,
+      "level": 5
+    },
+    {
+      "userId": "28278433833185@lid",
+      "groupId": "120363331198553356@g.us",
+      "xp": 120,
+      "messages": 24,
+      "level": 2
+    },
+    {
+      "userId": "35275036188923@lid",
+      "groupId": "120363422750893056@g.us",
+      "xp": 35,
+      "messages": 7,
+      "level": 1
+    },
+    {
+      "userId": "231949977284768@lid",
+      "groupId": "120363417482796758@g.us",
+      "xp": 185,
+      "messages": 37,
+      "level": 2
+    },
+    {
+      "userId": "118743564845310@lid",
+      "groupId": "120363331198553356@g.us",
+      "xp": 20,
+      "messages": 4,
+      "level": 1
+    },
+    {
+      "userId": "139148820222107@lid",
+      "groupId": "120363331198553356@g.us",
+      "xp": 145,
+      "messages": 29,
+      "level": 2
+    },
+    {
+      "userId": "120363422758622971@g.us",
+      "groupId": "120363422758622971@g.us",
+      "xp": 10,
+      "messages": 2,
+      "level": 1
+    },
+    {
+      "userId": "47120170102869@lid",
+      "groupId": "120363422758622971@g.us",
+      "xp": 30,
+      "messages": 6,
+      "level": 1
+    },
+    {
+      "userId": "139148820222107@lid",
+      "groupId": "120363422758622971@g.us",
+      "xp": 25,
+      "messages": 5,
+      "level": 1
+    },
+    {
+      "userId": "64403454087182@lid",
+      "groupId": "120363422758622971@g.us",
+      "xp": 30,
+      "messages": 6,
+      "level": 1
+    },
+    {
+      "userId": "867051314767696@bot",
+      "groupId": "120363422758622971@g.us",
+      "xp": 10,
+      "messages": 2,
+      "level": 1
+    },
+    {
+      "userId": "47120170102869@lid",
+      "groupId": "120363417482796758@g.us",
+      "xp": 315,
+      "messages": 63,
+      "level": 4
+    },
+    {
+      "userId": "249048611176453@lid",
+      "groupId": "120363331198553356@g.us",
+      "xp": 15,
+      "messages": 3,
+      "level": 1
+    },
+    {
+      "userId": "101421827502183@lid",
+      "groupId": "120363331198553356@g.us",
+      "xp": 40,
+      "messages": 8,
+      "level": 1
+    },
+    {
+      "userId": "232061562577068@lid",
+      "groupId": "120363417482796758@g.us",
+      "xp": 25,
+      "messages": 5,
+      "level": 1
+    },
+    {
+      "userId": "246462906675322@lid",
+      "groupId": "120363422750893056@g.us",
+      "xp": 40,
+      "messages": 8,
+      "level": 1
+    },
+    {
+      "userId": "184907603157224@lid",
+      "groupId": "120363417482796758@g.us",
+      "xp": 25,
+      "messages": 5,
+      "level": 1
+    },
+    {
+      "userId": "114452691197972@lid",
+      "groupId": "120363417482796758@g.us",
+      "xp": 50,
+      "messages": 10,
+      "level": 1
+    },
+    {
+      "userId": "64403454087182@lid",
+      "groupId": "120363331198553356@g.us",
+      "xp": 45,
+      "messages": 9,
+      "level": 1
+    },
+    {
+      "userId": "276038034657323@lid",
+      "groupId": "120363331198553356@g.us",
+      "xp": 170,
+      "messages": 34,
+      "level": 2
+    },
+    {
+      "userId": "179882206187585@lid",
+      "groupId": "120363331198553356@g.us",
+      "xp": 10,
+      "messages": 2,
+      "level": 1
+    },
+    {
+      "userId": "19417580732542@lid",
+      "groupId": "120363331198553356@g.us",
+      "xp": 5,
+      "messages": 1,
+      "level": 1
+    },
+    {
+      "userId": "35275036188923@lid",
+      "groupId": "120363331198553356@g.us",
+      "xp": 5,
+      "messages": 1,
+      "level": 1
+    },
+    {
+      "userId": "24460157579281@lid",
+      "groupId": "120363331198553356@g.us",
+      "xp": 25,
+      "messages": 5,
+      "level": 1
+    },
+    {
+      "userId": "64553442377730@lid",
+      "groupId": "120363331198553356@g.us",
+      "xp": 10,
+      "messages": 2,
+      "level": 1
+    },
+    {
+      "userId": "231949977284768@lid",
+      "groupId": "120363422758622971@g.us",
+      "xp": 10,
+      "messages": 2,
+      "level": 1
+    },
+    {
+      "userId": "249048611176453@lid",
+      "groupId": "120363422750893056@g.us",
+      "xp": 85,
+      "messages": 17,
+      "level": 1
+    },
+    {
+      "userId": "118743564845310@lid",
+      "groupId": "120363422750893056@g.us",
+      "xp": 20,
+      "messages": 4,
+      "level": 1
+    },
+    {
+      "userId": "120363426133031229@g.us",
+      "groupId": "120363426133031229@g.us",
+      "xp": 10,
+      "messages": 2,
+      "level": 1
+    },
+    {
+      "userId": "179882206187585@lid",
+      "groupId": "120363426133031229@g.us",
+      "xp": 165,
+      "messages": 33,
+      "level": 2
+    },
+    {
+      "userId": "249048611176453@lid",
+      "groupId": "120363426133031229@g.us",
+      "xp": 70,
+      "messages": 14,
+      "level": 1
+    },
+    {
+      "userId": "47120170102869@lid",
+      "groupId": "120363426133031229@g.us",
+      "xp": 180,
+      "messages": 36,
+      "level": 2
+    },
+    {
+      "userId": "867051314767696@bot",
+      "groupId": "120363426133031229@g.us",
+      "xp": 5,
+      "messages": 1,
+      "level": 1
+    },
+    {
+      "userId": "179882206187585@lid",
+      "groupId": "120363422750893056@g.us",
+      "xp": 25,
+      "messages": 5,
+      "level": 1
+    },
+    {
+      "userId": "277940856184890@lid",
+      "groupId": "120363426133031229@g.us",
+      "xp": 20,
+      "messages": 4,
+      "level": 1
+    }
+  ],
+  "dailyStats": [
+    {
+      "userId": "179882206187585@lid",
+      "groupId": "120363331198553356@g.us",
+      "date": "2026-02-24",
+      "messages": 2
+    },
+    {
+      "userId": "101421827502183@lid",
+      "groupId": "120363331198553356@g.us",
+      "date": "2026-02-24",
+      "messages": 1
+    },
+    {
+      "userId": "28278433833185@lid",
+      "groupId": "120363331198553356@g.us",
+      "date": "2026-02-24",
+      "messages": 2
+    },
+    {
+      "userId": "118743564845310@lid",
+      "groupId": "120363331198553356@g.us",
+      "date": "2026-02-24",
+      "messages": 1
+    },
+    {
+      "userId": "276038034657323@lid",
+      "groupId": "120363331198553356@g.us",
+      "date": "2026-02-24",
+      "messages": 8
+    },
+    {
+      "userId": "19417580732542@lid",
+      "groupId": "120363331198553356@g.us",
+      "date": "2026-02-24",
+      "messages": 1
+    },
+    {
+      "userId": "47120170102869@lid",
+      "groupId": "120363331198553356@g.us",
+      "date": "2026-02-24",
+      "messages": 1
+    },
+    {
+      "userId": "249048611176453@lid",
+      "groupId": "120363331198553356@g.us",
+      "date": "2026-02-24",
+      "messages": 1
+    },
+    {
+      "userId": "184907603157224@lid",
+      "groupId": "120363417482796758@g.us",
+      "date": "2026-02-24",
+      "messages": 2
+    },
+    {
+      "userId": "47120170102869@lid",
+      "groupId": "120363417482796758@g.us",
+      "date": "2026-02-24",
+      "messages": 3
+    },
+    {
+      "userId": "47120170102869@lid",
+      "groupId": "120363331198553356@g.us",
+      "date": "2026-02-25",
+      "messages": 7
+    },
+    {
+      "userId": "47120170102869@lid",
+      "groupId": "120363422750893056@g.us",
+      "date": "2026-02-25",
+      "messages": 1
+    },
+    {
+      "userId": "184907603157224@lid",
+      "groupId": "120363417482796758@g.us",
+      "date": "2026-02-25",
+      "messages": 1
+    },
+    {
+      "userId": "47120170102869@lid",
+      "groupId": "120363417482796758@g.us",
+      "date": "2026-02-25",
+      "messages": 3
+    },
+    {
+      "userId": "276038034657323@lid",
+      "groupId": "120363331198553356@g.us",
+      "date": "2026-02-26",
+      "messages": 4
+    },
+    {
+      "userId": "47120170102869@lid",
+      "groupId": "120363331198553356@g.us",
+      "date": "2026-02-26",
+      "messages": 28
+    },
+    {
+      "userId": "35275036188923@lid",
+      "groupId": "120363331198553356@g.us",
+      "date": "2026-02-26",
+      "messages": 1
+    },
+    {
+      "userId": "28278433833185@lid",
+      "groupId": "120363331198553356@g.us",
+      "date": "2026-02-26",
+      "messages": 6
+    },
+    {
+      "userId": "24460157579281@lid",
+      "groupId": "120363331198553356@g.us",
+      "date": "2026-02-26",
+      "messages": 5
+    },
+    {
+      "userId": "114452691197972@lid",
+      "groupId": "120363417482796758@g.us",
+      "date": "2026-02-26",
+      "messages": 7
+    },
+    {
+      "userId": "47120170102869@lid",
+      "groupId": "120363417482796758@g.us",
+      "date": "2026-02-26",
+      "messages": 14
+    },
+    {
+      "userId": "231949977284768@lid",
+      "groupId": "120363417482796758@g.us",
+      "date": "2026-02-26",
+      "messages": 21
+    },
+    {
+      "userId": "64553442377730@lid",
+      "groupId": "120363331198553356@g.us",
+      "date": "2026-02-26",
+      "messages": 2
+    },
+    {
+      "userId": "47120170102869@lid",
+      "groupId": "120363422750893056@g.us",
+      "date": "2026-02-26",
+      "messages": 2
+    },
+    {
+      "userId": "249048611176453@lid",
+      "groupId": "120363331198553356@g.us",
+      "date": "2026-02-26",
+      "messages": 1
+    },
+    {
+      "userId": "64403454087182@lid",
+      "groupId": "120363331198553356@g.us",
+      "date": "2026-02-28",
+      "messages": 1
+    },
+    {
+      "userId": "47120170102869@lid",
+      "groupId": "120363422750893056@g.us",
+      "date": "2026-02-28",
+      "messages": 57
+    },
+    {
+      "userId": "47120170102869@lid",
+      "groupId": "120363417482796758@g.us",
+      "date": "2026-02-28",
+      "messages": 4
+    },
+    {
+      "userId": "246462906675322@lid",
+      "groupId": "120363422750893056@g.us",
+      "date": "2026-02-28",
+      "messages": 6
+    },
+    {
+      "userId": "47120170102869@lid",
+      "groupId": "120363331198553356@g.us",
+      "date": "2026-02-28",
+      "messages": 4
+    },
+    {
+      "userId": "231949977284768@lid",
+      "groupId": "120363422758622971@g.us",
+      "date": "2026-02-28",
+      "messages": 2
+    },
+    {
+      "userId": "47120170102869@lid",
+      "groupId": "120363422758622971@g.us",
+      "date": "2026-02-28",
+      "messages": 1
+    },
+    {
+      "userId": "249048611176453@lid",
+      "groupId": "120363422750893056@g.us",
+      "date": "2026-02-28",
+      "messages": 17
+    },
+    {
+      "userId": "35275036188923@lid",
+      "groupId": "120363422750893056@g.us",
+      "date": "2026-02-28",
+      "messages": 1
+    },
+    {
+      "userId": "118743564845310@lid",
+      "groupId": "120363422750893056@g.us",
+      "date": "2026-02-28",
+      "messages": 4
+    },
+    {
+      "userId": "120363426133031229@g.us",
+      "groupId": "120363426133031229@g.us",
+      "date": "2026-02-28",
+      "messages": 2
+    },
+    {
+      "userId": "179882206187585@lid",
+      "groupId": "120363426133031229@g.us",
+      "date": "2026-02-28",
+      "messages": 33
+    },
+    {
+      "userId": "249048611176453@lid",
+      "groupId": "120363426133031229@g.us",
+      "date": "2026-02-28",
+      "messages": 14
+    },
+    {
+      "userId": "47120170102869@lid",
+      "groupId": "120363426133031229@g.us",
+      "date": "2026-02-28",
+      "messages": 36
+    },
+    {
+      "userId": "867051314767696@bot",
+      "groupId": "120363426133031229@g.us",
+      "date": "2026-02-28",
+      "messages": 1
+    },
+    {
+      "userId": "139148820222107@lid",
+      "groupId": "120363331198553356@g.us",
+      "date": "2026-02-28",
+      "messages": 2
+    },
+    {
+      "userId": "276038034657323@lid",
+      "groupId": "120363331198553356@g.us",
+      "date": "2026-02-28",
+      "messages": 4
+    },
+    {
+      "userId": "179882206187585@lid",
+      "groupId": "120363422750893056@g.us",
+      "date": "2026-02-28",
+      "messages": 5
+    },
+    {
+      "userId": "277940856184890@lid",
+      "groupId": "120363426133031229@g.us",
+      "date": "2026-02-28",
+      "messages": 4
+    }
+  ]
+}
