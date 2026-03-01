@@ -193,6 +193,28 @@ CyberBot never rests 😎🔥
         await msg.reply(updateText);
         return true;
     }
+		// 🔥 Admin - Change Day Order
+if (cleanMessage.startsWith(".setday")) {
+
+    if (!isAdmin(msg)) {
+        await msg.reply("⛔ Admin only.");
+        return true;
+    }
+
+    const parts = cleanMessage.split(" ");
+    const newDay = parseInt(parts[1]);
+
+    if (!newDay || newDay < 1 || newDay > MAX_DAY_ORDER) {
+        await msg.reply(`❌ Invalid day. Must be between 1 and ${MAX_DAY_ORDER}`);
+        return true;
+    }
+
+    db.data.currentDayOrder = newDay;
+    await db.write();
+
+    await msg.reply(`✅ Day Order manually set to ${newDay}`);
+    return true;
+}
     // ==========================================
     // 2. PREFIX COMMANDS (Tools, OSINT, AI)
     // ==========================================
@@ -1208,6 +1230,7 @@ Have a productive day! 🚀
 }
 
 client.initialize();
+
 
 
 
