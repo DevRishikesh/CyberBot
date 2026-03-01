@@ -162,13 +162,35 @@ function isAdmin(msg) {
     // ==========================================
     // 1. EXACT COMMANDS (System, Stats, Menus)
     // ==========================================
-    if (cleanMessage === "help" || cleanMessage === "/help") return await handleHelp(msg);
-    if (cleanMessage === ".testnews") return await sendCyberNews();
-    if (cleanMessage === ".testdaily") return await sendDailyLeaderboard();
-    if (cleanMessage === ".restartai") return await restartAI(msg);
-    if (cleanMessage === ".rank") return showRank(msg);
-    if (cleanMessage === ".stats") return showStats(msg);
-    if (cleanMessage === "list reminders") return await listReminders(msg);
+// 🔥 CORE SYSTEM COMMANDS (Safe Matching)
+
+if (/^\/?help\b/.test(cleanMessage)) {
+    return await handleHelp(msg);
+}
+
+if (/^\.testnews\b/.test(cleanMessage)) {
+    return await sendCyberNews();
+}
+
+if (/^\.testdaily\b/.test(cleanMessage)) {
+    return await sendDailyLeaderboard();
+}
+
+if (/^\.restartai\b/.test(cleanMessage)) {
+    return await restartAI(msg);
+}
+
+if (/^\.rank\b/.test(cleanMessage)) {
+    return await showRank(msg);
+}
+
+if (/^\.stats\b/.test(cleanMessage)) {
+    return await showStats(msg);
+}
+
+if (/^list reminders\b/.test(cleanMessage)) {
+    return await listReminders(msg);
+}
 	// ==========================================
     // 1. EXACT COMMANDS (System, Stats, Menus)
     // ==========================================
@@ -1230,6 +1252,7 @@ Have a productive day! 🚀
 }
 
 client.initialize();
+
 
 
 
