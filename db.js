@@ -8,7 +8,8 @@ const defaultData = {
     reminders: [],
     tasks: [],
     xp: [],
-    dailyStats: []
+    dailyStats: [],
+    currentDayOrder: 1 // 🔥 NEW: Track the current day order
 };
 
 const db = new Low(adapter, defaultData);
@@ -23,6 +24,7 @@ async function initDB() {
     if (!db.data.reminders) db.data.reminders = [];
     if (!db.data.tasks) db.data.tasks = [];
     if (!db.data.dailyStats) db.data.dailyStats = [];
+    if (!db.data.currentDayOrder) db.data.currentDayOrder = 1; // 🔥 NEW
 
     await db.write();
 }
