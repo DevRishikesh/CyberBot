@@ -237,6 +237,57 @@ if (cleanMessage.includes(".setday")) {
     await msg.reply(`✅ Day Order manually set to ${newDay}`);
     return true;
 }
+		// 📢 Admin Work Assignment (.work) -> Saves to Database
+    if (cleanMessage.startsWith(".work ")) {
+        if (!isAdmin(msg)) {
+            await msg.reply("⛔ Access Denied. Only the Architect can assign work.");
+            return true;
+        }
+
+        const input = msg.body.slice(msg.body.toLowerCase().indexOf(".work") + 6).trim();
+        const parsed = chrono.parse(input);
+
+        if (!parsed.length) {
+            await msg.reply("❌ Couldn't detect a date. Try: .work tomorrow <message>");
+            return true;
+        }
+
+        const targetDate = parsed[0].start.date();
+        const dateText = parsed[0].text;
+        const workMessage = input.replace(dateText, "").trim();
+
+        if (!workMessage) {
+            await msg.reply("⚠️ You forgot to write the actual work/message!");
+            return true;
+        }
+
+        // Format date to YYYY-MM-DD so it's easy to match later
+        const yyyy = targetDate.getFullYear();
+        const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+        const dd = String(targetDate.getDate()).padStart(2, '0');
+        const dateStr = `${yyyy}-${mm}-${dd}`;
+
+        // Save it to the database's tasks array
+        db.data.tasks.push({ date: dateStr, task: workMessage });
+        await db.write();
+
+        // Send a temporary confirmation to the admin
+        const confirmMsg = await msg.reply(`✅ Task saved for ${dateStr}. It will be included in the 7 AM morning broadcast.`);
+
+        // Instantly delete the admin's original command
+        try {
+            await msg.delete(true); 
+        } catch (err) {
+            console.log("[-] Could not delete msg. Bot needs to be Group Admin.");
+        }
+
+        // Optional: Delete the bot's confirmation after 5 seconds so the chat stays fully clean
+        setTimeout(async () => {
+            try { await confirmMsg.delete(true); } catch (e) {}
+        }, 5000);
+
+        return true; 
+    }
     // ==========================================
     // 2. PREFIX COMMANDS (Tools, OSINT, AI)
     // ==========================================
@@ -1221,13 +1272,32 @@ Fork it if you want, but don't forget to star it. ⚡
 }
 
 //broadcast function
-
+//functim 7am
 async function sendMorningDayOrder() {
     let currentDay = db.data.currentDayOrder;
     const scheduleData = dayOrderSchedule[currentDay];
 
     if (!scheduleData) return; // Failsafe
 
+    // Get today's date in YYYY-MM-DD format to match our saved tasks
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const todayStr = `${yyyy}-${mm}-${dd}`;
+
+    // 🔥 Find tasks assigned for today
+    const todaysTasks = db.data.tasks.filter(t => t.date === todayStr);
+    
+    let taskText = "";
+    if (todaysTasks.length > 0) {
+        taskText = "\n\n📌 *TODAY'S WORK & ASSIGNMENTS:*\n";
+        todaysTasks.forEach((t, i) => {
+            taskText += `👉 ${t.task}\n`;
+        });
+    }
+
+    // Build the Lab Text
     let labText = "";
     if (scheduleData.hasLab) {
         labText = `👥 *BATCH 1:*\n🔬 Lab: ${scheduleData.labB1}\n🎒 Bring: ${scheduleData.bringB1}\n\n👥 *BATCH 2:*\n🔬 Lab: ${scheduleData.labB2}\n🎒 Bring: ${scheduleData.bringB2}`;
@@ -1235,6 +1305,7 @@ async function sendMorningDayOrder() {
         labText = `🔬 *Lab:* No Lab Today\n🎒 *Bring:* Just yourself and your brain cells`;
     }
 
+    // Combine everything into the final Morning Message
     const message = `
 🌅 *WAKE UP! COLLEGE UPDATE* 🌅
 ━━━━━━━━━━━━━━━━━━━━
@@ -1242,7 +1313,7 @@ async function sendMorningDayOrder() {
 
 📚 *Classes:* ${scheduleData.subjects}
 
-${labText}
+${labText}${taskText}
 ━━━━━━━━━━━━━━━━━━━━
 Have a productive day! 🚀
     `.trim();
@@ -1253,17 +1324,22 @@ Have a productive day! 🚀
         await client.sendMessage(groupId, message);
     }
 
-    // 🔥 Auto-increment for tomorrow
+    // 🔥 Auto-increment the Day Order for tomorrow
     currentDay++;
     if (currentDay > MAX_DAY_ORDER) {
         currentDay = 1;
     }
-    
     db.data.currentDayOrder = currentDay;
+
+    // 🔥 Database Housekeeping: Delete old tasks from previous days so the file stays small
+    db.data.tasks = db.data.tasks.filter(t => new Date(t.date) >= new Date(todayStr));
+    
     await db.write();
 }
 
+
 client.initialize();
+
 
 
 
