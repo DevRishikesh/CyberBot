@@ -237,7 +237,7 @@ if (cleanMessage.includes(".setday")) {
     await msg.reply(`✅ Day Order manually set to ${newDay}`);
     return true;
 }
-		// 📢 Admin Work Assignment (.work) -> Saves to Database
+// 📢 Admin Work Assignment (.work) -> Saves to Database
     if (cleanMessage.startsWith(".work ")) {
         if (!isAdmin(msg)) {
             await msg.reply("⛔ Access Denied. Only the Architect can assign work.");
@@ -261,7 +261,7 @@ if (cleanMessage.includes(".setday")) {
             return true;
         }
 
-        // Format date to YYYY-MM-DD so it's easy to match later
+        // Format date to YYYY-MM-DD
         const yyyy = targetDate.getFullYear();
         const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
         const dd = String(targetDate.getDate()).padStart(2, '0');
@@ -271,20 +271,8 @@ if (cleanMessage.includes(".setday")) {
         db.data.tasks.push({ date: dateStr, task: workMessage });
         await db.write();
 
-        // Send a temporary confirmation to the admin
-        const confirmMsg = await msg.reply(`✅ Task saved for ${dateStr}. It will be included in the 7 AM morning broadcast.`);
-
-        // Instantly delete the admin's original command
-        try {
-            await msg.delete(true); 
-        } catch (err) {
-            console.log("[-] Could not delete msg. Bot needs to be Group Admin.");
-        }
-
-        // Optional: Delete the bot's confirmation after 5 seconds so the chat stays fully clean
-        setTimeout(async () => {
-            try { await confirmMsg.delete(true); } catch (e) {}
-        }, 5000);
+        // Send confirmation
+        await msg.reply(`✅ Task saved for ${dateStr}. It will be broadcasted at 7 AM on that day.`);
 
         return true; 
     }
@@ -1272,14 +1260,13 @@ Fork it if you want, but don't forget to star it. ⚡
 }
 
 //broadcast function
-//functim 7am
 async function sendMorningDayOrder() {
     let currentDay = db.data.currentDayOrder;
     const scheduleData = dayOrderSchedule[currentDay];
 
     if (!scheduleData) return; // Failsafe
 
-    // Get today's date in YYYY-MM-DD format to match our saved tasks
+    // Get today's date in YYYY-MM-DD format
     const today = new Date();
     const yyyy = today.getFullYear();
     const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -1292,7 +1279,7 @@ async function sendMorningDayOrder() {
     let taskText = "";
     if (todaysTasks.length > 0) {
         taskText = "\n\n📌 *TODAY'S WORK & ASSIGNMENTS:*\n";
-        todaysTasks.forEach((t, i) => {
+        todaysTasks.forEach((t) => {
             taskText += `👉 ${t.task}\n`;
         });
     }
@@ -1331,14 +1318,17 @@ Have a productive day! 🚀
     }
     db.data.currentDayOrder = currentDay;
 
-    // 🔥 Database Housekeeping: Delete old tasks from previous days so the file stays small
-    db.data.tasks = db.data.tasks.filter(t => new Date(t.date) >= new Date(todayStr));
+    // 🔥 DB Cleanup: Instantly delete today's tasks from the database!
+    db.data.tasks = db.data.tasks.filter(t => t.date !== todayStr);
+    
+    // Also clear out any old forgotten tasks (just in case)
+    db.data.tasks = db.data.tasks.filter(t => new Date(t.date) > new Date(todayStr));
     
     await db.write();
 }
 
-
 client.initialize();
+
 
 
 
