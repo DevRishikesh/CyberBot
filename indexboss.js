@@ -157,7 +157,24 @@ function isAdmin(msg) {
     return admins.includes(sender);
 }
 
-    
+
+
+// 📡 Broadcast maintance to all groups in DB
+async function broadcastToAllGroups(message) {
+
+    const groups = [...new Set(db.data.xp.map(u => u.groupId))];
+
+    for (const groupId of groups) {
+        try {
+            await client.sendMessage(groupId, message);
+        } catch (err) {
+            console.log("Broadcast failed for:", groupId);
+        }
+    }
+}
+
+
+
     async function routeCommand(msg, cleanMessage) {
     // ==========================================
     // 1. EXACT COMMANDS (System, Stats, Menus)
@@ -196,6 +213,70 @@ if (/^list reminders\b/.test(cleanMessage)) {
     // ==========================================
     
     // 📢 Admin Cloud Announcement
+		// 🚧 ENTER MAINTENANCE MODE
+if (cleanMessage === ".maintenance") {
+
+    if (!isAdmin(msg)) {
+        await msg.reply("⛔ Only System Architect can activate maintenance.");
+        return true;
+    }
+
+    isMaintenanceMode = true;
+
+    const maintenanceMsg = `
+━━━━━━━━━━━━━━━━━━━━━━
+🚧 CYBERBOT SYSTEM NOTICE 🚧
+━━━━━━━━━━━━━━━━━━━━━━
+
+⚙️ Entering Maintenance Mode...
+
+• Core modules updating
+• Security patches deploying 🔐
+• Performance upgrade in progress ⚡
+
+⏳ Temporary downtime initiated.
+
+Do not panic.
+This is controlled.
+
+— CyberBot Infrastructure
+━━━━━━━━━━━━━━━━━━━━━━
+    `.trim();
+
+    await broadcastToAllGroups(maintenanceMsg);
+    return true;
+}
+
+
+// 🟢 EXIT MAINTENANCE MODE
+if (cleanMessage === ".donemaintenance") {
+
+    if (!isAdmin(msg)) {
+        await msg.reply("⛔ Only System Architect can deactivate maintenance.");
+        return true;
+    }
+
+    isMaintenanceMode = false;
+
+    const doneMsg = `
+━━━━━━━━━━━━━━━━━━━━━━
+🟢 CYBERBOT IS BACK ONLINE 🟢
+━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Upgrade complete
+✅ All systems operational
+✅ AI Core synchronized
+✅ Security stable
+
+CyberBot v2.0 is LIVE.
+
+We resume domination. 😎🔥
+━━━━━━━━━━━━━━━━━━━━━━
+    `.trim();
+
+    await broadcastToAllGroups(doneMsg);
+    return true;
+}
     if (cleanMessage === "update" || cleanMessage === ".update") {
         if (!isAdmin(msg)) {
             await msg.reply("⛔ Access Denied. Only the Architect can broadcast updates.");
@@ -1328,6 +1409,7 @@ Have a productive day! 🚀
 }
 
 client.initialize();
+
 
 
 
