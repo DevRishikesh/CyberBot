@@ -40,15 +40,19 @@ client.on('qr', (qr) => {
 
 client.on('ready', () => {
     console.log('🔥 CyberBot is online and ready!');
-	// 🔥 Morning Day Order Announcement at 7:00 AM
-    schedule.scheduleJob('0 7 * * *', async function () {
+
+    // 🔥 Morning Day Order Announcement at 7:00 AM IST (Monday to Saturday)
+    // 0 = Sunday, so 1-6 is Mon-Sat
+    schedule.scheduleJob({ rule: '0 7 * * 1-6', tz: 'Asia/Kolkata' }, async function () {
         await sendMorningDayOrder();
     });
-    // 🔥 Schedule daily leaderboard at 10 PM
-    schedule.scheduleJob('0 22 * * *', async function () {
+
+    // 🔥 Schedule daily leaderboard at 10 PM IST
+    schedule.scheduleJob({ rule: '0 22 * * *', tz: 'Asia/Kolkata' }, async function () {
         await sendDailyLeaderboard();
     });
 });
+
 
 // Random reply helper
 function randomReply(arr) {
@@ -73,15 +77,68 @@ const collegeKnowledge = {
 };
 //backup
 client.on('message_revoke_everyone', async (after, before) => {
-    // 'before' is the message data before it was deleted
-    if (before) {
+
+    if (!before) return;
+
+    try {
         const chat = await before.getChat();
-        if (chat.isGroup) {
-            const author = before.author.replace("@c.us", "");
-            await chat.sendMessage(`👁️‍🗨️ [SYSTEM WARNING] \n@${author} tried to wipe their tracks.\n\n[+] Recovered Payload: "${before.body}"`, {
-                mentions: [before.author]
-            });
+        if (!chat.isGroup) return;
+
+        const senderId = before.author || before.from;
+        const author = senderId.split("@")[0];
+
+        let systemHeader = `
+╔════════════════════╗
+  🕵️ CYBER SURVEILLANCE
+╚════════════════════╝
+
+@${author} attempted data erasure.
+
+🚫 Deletion denied.
+📡 Payload intercepted.
+━━━━━━━━━━━━━━━━━━━━
+`;
+
+        // 🔥 TEXT MESSAGE
+        if (!before.hasMedia) {
+
+            await chat.sendMessage(
+                `${systemHeader}
+📝 *Recovered Text:*
+"${before.body}"
+━━━━━━━━━━━━━━━━━━━━`,
+                { mentions: [senderId] }
+            );
+
+        } else {
+
+            // 🔥 MEDIA MESSAGE
+            const media = await before.downloadMedia();
+
+            if (media) {
+
+                await chat.sendMessage(
+                    `${systemHeader}
+📂 *Recovered Deleted Media*
+━━━━━━━━━━━━━━━━━━━━`,
+                    { mentions: [senderId] }
+                );
+
+                await chat.sendMessage(chat.id._serialized, media);
+
+            } else {
+
+                await chat.sendMessage(
+                    `${systemHeader}
+⚠️ Media detected but recovery failed.
+━━━━━━━━━━━━━━━━━━━━`,
+                    { mentions: [senderId] }
+                );
+            }
         }
+
+    } catch (err) {
+        console.log("Revoke Recovery Error:", err);
     }
 });
 
@@ -364,6 +421,7 @@ if (cleanMessage.includes(".setday")) {
     if (cleanMessage.startsWith(".encode")) return await handleEncode(msg, cleanMessage);
     if (cleanMessage.startsWith(".decode")) return await handleDecode(msg, cleanMessage);
     if (cleanMessage.startsWith(".ip ")) return await handleIPLookup(msg, cleanMessage);
+	if (cleanMessage === ".sticker" || cleanMessage === "sticker") return await handleSticker(msg);
     if (cleanMessage.startsWith("send link for")) return await handleYTLink(msg, cleanMessage);
 	    // Check today's schedule manually
     if (cleanMessage === ".today") {
@@ -811,13 +869,8 @@ const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-
     
 
 ////remainder ai
-
-
-
 async function handleReminder(msg, cleanMessage) {
-
     const userId = msg.from;
-
     const text = cleanMessage.replace(/^remain(der)?/i, "").trim();
 
     if (!text) {
@@ -825,7 +878,11 @@ async function handleReminder(msg, cleanMessage) {
         return true;
     }
 
-    const parsed = chrono.parse(text);
+    // 🔥 TIMEZONE FIX: Auto-append "IST" if the user didn't type it
+    // This forces the parser to treat "5pm" as "5pm IST" instead of server time.
+    const parsingText = text.toLowerCase().includes("ist") ? text : text + " IST";
+    
+    const parsed = chrono.parse(parsingText);
 
     if (!parsed.length) {
         await msg.reply("❌ I couldn't understand the date/time.");
@@ -834,7 +891,13 @@ async function handleReminder(msg, cleanMessage) {
 
     const parsedDate = parsed[0].start.date();
     const dateText = parsed[0].text;
-    const reminderText = text.replace(dateText, "").trim();
+    
+    // Remove the date text from the original message to get the task
+    // We use the original 'text' here to avoid showing "IST" in the reply
+    let reminderText = text.replace(dateText, "").trim();
+    
+    // Clean up if "IST" was part of the original match
+    reminderText = reminderText.replace(/\bist\b/yi, "").trim();
 
     if (!reminderText) {
         await msg.reply("⚠️ What should I remind you about?");
@@ -845,10 +908,12 @@ async function handleReminder(msg, cleanMessage) {
     const reminderId = Date.now();
 
     const job = schedule.scheduleJob(parsedDate, async function () {
-        await msg.reply(`⏰ Reminder: ${reminderText}`);
+        await msg.reply(`⏰ *REMINDER:* ${reminderText}`);
 
         // Remove after execution
-        reminders[userId] = reminders[userId].filter(r => r.id !== reminderId);
+        if (reminders[userId]) {
+            reminders[userId] = reminders[userId].filter(r => r.id !== reminderId);
+        }
     });
 
     if (!reminders[userId]) {
@@ -863,7 +928,7 @@ async function handleReminder(msg, cleanMessage) {
     });
 
     await msg.reply(
-        `✅ Reminder set!\n📅 ${parsedDate.toLocaleString()}\n📌 ${reminderText}`
+        `✅ Reminder set!\n📅 ${parsedDate.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })}\n📌 ${reminderText}`
     );
 
     return true;
@@ -1130,7 +1195,9 @@ async function sendDailyLeaderboard() {
     // restart
 }
 
-schedule.scheduleJob('0 0 * * *', async function () {
+
+// 🔥 Reset daily stats at Midnight IST
+schedule.scheduleJob({ rule: '0 0 * * *', tz: 'Asia/Kolkata' }, async function () {
     const today = new Date().toISOString().split("T")[0];
 
     db.data.dailyStats = db.data.dailyStats.filter(d => d.date !== today);
@@ -1168,11 +1235,10 @@ async function fetchCyberNews() {
     }
 }
 //create news
-
+//create news
 async function sendCyberNews() {
 
     const news = await fetchCyberNews();
-
     if (!news.length) return;
 
     const groups = [...new Set(db.data.xp.map(u => u.groupId))];
@@ -1180,65 +1246,57 @@ async function sendCyberNews() {
     for (const groupId of groups) {
 
         let message = `
-━━━━━━━━━━━━━━━━━━
-🛡 CYBER THREAT INTEL
-📰 Daily Security Brief
-━━━━━━━━━━━━━━━━━━
+╔══════════════════╗
+  🛡 CYBER ALERT BRIEF
+╚══════════════════╝
 `;
 
         for (let i = 0; i < news.length; i++) {
 
-    const item = news[i];
+            const item = news[i];
+            const oneLine = await summarizeArticle(item.title);
 
-    const aiSummary = await summarizeArticle(item.title, item.link);
+            message += `
+🔹 *${item.title}*
+   ➤ ${oneLine}
+   🔗 ${item.link}
 
-    message += `
-━━━━━━━━━━━━━━━━━━
-📰 ${item.title}
-
-${aiSummary}
-
-🔗 ${item.link}
-━━━━━━━━━━━━━━━━━━
 `;
-}
+        }
 
-        message += "━━━━━━━━━━━━━━━━━━\nStay Secure.\nCyberBot Intelligence System";
+        message += `━━━━━━━━━━━━━━━━━━
+⚡ Stay updated. Stay secure.
+— CyberBot Intel
+━━━━━━━━━━━━━━━━━━`;
 
-        await client.sendMessage(groupId, message);
+        await client.sendMessage(groupId, message.trim());
     }
 }
-
-// 🔥 Daily Cyber News at 8 PM
-schedule.scheduleJob('0 20 * * *', async function () {
+// 🔥 Daily Cyber News at 8 PM IST
+schedule.scheduleJob({ rule: '0 20 * * *', tz: 'Asia/Kolkata' }, async function () {
     await sendCyberNews();
 });
 
-
 ///ai summary
 
-async function summarizeArticle(title, link) {
+async function summarizeArticle(title) {
 
     try {
 
         const prompt = `
-You are a cybersecurity threat analyst.
+You are a cybersecurity intelligence analyst.
 
-Summarize this cybersecurity news clearly and professionally.
+Summarize this headline in ONE short, powerful sentence.
 
-Title: ${title}
-Link: ${link}
+Keep it:
+- Clear
+- Simple
+- Easy to read
+- Non-technical
+- Under 20 words
 
-Return response in this exact format:
-
-Summary:
-(3-4 clear sentences)
-
-Impact:
-(Who is affected)
-
-Threat Level:
-(LOW / MEDIUM / HIGH)
+Headline:
+${title}
 `;
 
         const response = await axios.post(
@@ -1246,11 +1304,11 @@ Threat Level:
             {
                 model: MODEL,
                 messages: [
-                    { role: "system", content: "You are a cybersecurity analyst." },
+                    { role: "system", content: "You summarize cybersecurity headlines simply." },
                     { role: "user", content: prompt }
                 ],
-                temperature: 0.6,
-                max_tokens: 300
+                temperature: 0.5,
+                max_tokens: 60
             },
             {
                 headers: {
@@ -1260,11 +1318,15 @@ Threat Level:
             }
         );
 
-        return response.data.choices[0].message.content.trim();
+        let reply = response.data?.choices?.[0]?.message?.content?.trim();
+
+        if (!reply) return "Major cybersecurity development reported.";
+
+        return reply;
 
     } catch (error) {
         console.error("AI Summary Error:", error.message);
-        return "Summary unavailable.";
+        return "Security incident reported. Details emerging.";
     }
 }
 
@@ -1408,7 +1470,45 @@ Have a productive day! 🚀
     await db.write();
 }
 
+
+// 🎨 Sticker Maker Function
+async function handleSticker(msg) {
+    let mediaMsg = msg;
+
+    // Check if the user is replying to a media message
+    if (msg.hasQuotedMsg) {
+        const quotedMsg = await msg.getQuotedMessage();
+        if (quotedMsg.hasMedia) {
+            mediaMsg = quotedMsg;
+        }
+    }
+
+    if (!mediaMsg.hasMedia) {
+        await msg.reply("❌ Send an image/video with caption .sticker OR reply .sticker to an image.");
+        return true;
+    }
+
+    try {
+        // 1. Download the media (image/gif/video)
+        const media = await mediaMsg.downloadMedia();
+
+        // 2. Send it back as a sticker
+        await client.sendMessage(msg.from, media, {
+            sendMediaAsSticker: true,
+            stickerAuthor: "CyberBot",   // The small text at the bottom
+            stickerName: "Vasu Devan"    // The bold text title
+        });
+
+    } catch (error) {
+        console.error("Sticker Error:", error);
+        await msg.reply("⚠️ Error converting media. Make sure the video is short (under 10s).");
+    }
+    
+    return true;
+}
+
 client.initialize();
+
 
 
 
