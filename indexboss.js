@@ -1259,7 +1259,6 @@ async function sendCyberNews() {
             message += `
 🔹 *${item.title}*
    ➤ ${oneLine}
-   🔗 ${item.link}
 
 `;
         }
@@ -1508,6 +1507,7 @@ async function handleSticker(msg) {
 }
 
 client.initialize();
+
 
 
 
