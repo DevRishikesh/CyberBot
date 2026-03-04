@@ -451,6 +451,9 @@ if (cleanMessage.includes(".setday")) {
         const handled = await handleQB(msg, cleanMessage);
         if (handled) return true;
     }
+	// 2. 🔥 Check Dynamic Files (New Uploaded Method)
+    const dynamicFileFound = await handleDynamicRetrieval(msg, cleanMessage);
+    if (dynamicFileFound) return true;
     if (/(github link|source code|your repo|ur repo|send repo|give repo|drop repo|repo link)/.test(cleanMessage)) {
         return await handleRepo(msg);
     }
@@ -1510,74 +1513,111 @@ async function handleSticker(msg) {
 }
 
 
-// 📂 UNIVERSAL UPLOAD COMMAND
+const fs = require('fs'); // Ensure this is at the top of your file
+
+// 📂 SMART UPLOAD (Saves File + Remembers It)
 async function handleUpload(msg) {
     
-    // 1. Security Check (Admins Only)
+    // 1. Security Check
     if (!isAdmin(msg)) {
-        await msg.reply("⛔ Access Denied. Only Admins can upload files.");
+        await msg.reply("⛔ Access Denied. Only Admins can upload.");
         return true;
     }
 
-    // 2. Determine target message (Current message or Quoted message)
+    // 2. Get the file (from attachment or reply)
     let mediaMsg = msg;
     if (msg.hasQuotedMsg) {
         mediaMsg = await msg.getQuotedMessage();
     }
 
-    // 3. Check if there is media
     if (!mediaMsg.hasMedia) {
-        await msg.reply("❌ No media found. \n\nUsage:\n1. Attach file -> Caption: .upload filename.pdf\n2. Reply to file -> Message: .upload filename.pdf");
+        await msg.reply("❌ No media found. Attach a file or reply to one.");
         return true;
     }
 
-    // 4. Parse the filename from the command
-    // We use msg.body (not cleanMessage) to preserve file extensions and casing
+    // 3. Get the custom name (This becomes the keywords!)
+    // Example: .upload oss unit 1 qb
     let customName = msg.body.replace(/^\.upload\s*/i, "").trim();
-    
-    // 5. Download the media
+
+    if (!customName) {
+        await msg.reply("⚠️ Please provide a name so I can remember it.\nExample: .upload oss unit 1 qb");
+        return true;
+    }
+
     try {
         const media = await mediaMsg.downloadMedia();
-
-        if (!media) {
-            await msg.reply("⚠️ Failed to download media.");
-            return true;
-        }
-
-        // 6. Determine final filename
-        // If user didn't type a name, try to use the original filename from the file itself
-        let fileName = customName || media.filename;
-
-        if (!fileName) {
-            // If still no name (e.g. voice notes or images often have no name), generate one
-            const ext = media.mimetype.split("/")[1].split(";")[0]; 
-            fileName = `upload_${Date.now()}.${ext}`;
-        }
-
-        // 7. Ensure 'media' folder exists
-        const mediaDir = path.join(__dirname, 'media');
-        if (!fs.existsSync(mediaDir)){
-            fs.mkdirSync(mediaDir);
-        }
-
-        // 8. Write the file to the system
-        const filePath = path.join(mediaDir, fileName);
         
-        // WhatsApp media data is Base64, we must write it as such
+        // 4. Create a clean filename
+        // We keep the original extension (pdf, jpg, etc.)
+        const extension = media.mimetype.split("/")[1].split(";")[0]; 
+        const filename = `${customName}.${extension}`;
+        
+        // 5. Save the file to 'media' folder
+        const mediaDir = path.join(__dirname, 'media');
+        if (!fs.existsSync(mediaDir)) fs.mkdirSync(mediaDir);
+        
+        const filePath = path.join(mediaDir, filename);
         fs.writeFileSync(filePath, media.data, 'base64');
 
-        await msg.reply(`✅ *File Uploaded Successfully!*\n\n📂 Saved as: ${fileName}\n📍 Location: /media/${fileName}`);
-        
+        // 6. 🔥 SAVE TO DATABASE (The Magic Part)
+        // We split the name into keywords: "oss unit 1 qb" -> ["oss", "unit", "1", "qb"]
+        const keywords = customName.toLowerCase().split(" ");
+
+        // Remove old entry if it exists (to update files)
+        db.data.files = db.data.files.filter(f => f.filename !== filename);
+
+        db.data.files.push({
+            keywords: keywords,
+            filename: filename,
+            displayText: `📂 Here is the ${customName}`
+        });
+
+        await db.write();
+
+        await msg.reply(`✅ *Saved & Memorized!* \n\n📄 File: ${filename}\n🔑 Keywords: ${keywords.join(", ")}\n\nNow anyone can ask: "send ${customName}"`);
         return true;
 
     } catch (err) {
-        console.error("Upload Error:", err);
-        await msg.reply(`❌ Error saving file: ${err.message}`);
+        console.error(err);
+        await msg.reply("❌ Error saving file.");
         return true;
     }
 }
 
+
+// 🧠 DYNAMIC FILE FINDER
+async function handleDynamicRetrieval(msg, cleanMessage) {
+    
+    // Check if we have any files saved
+    if (!db.data.files || db.data.files.length === 0) return false;
+
+    // Loop through all saved files in the database
+    for (const fileData of db.data.files) {
+        
+        // Check if ALL keywords match
+        // Example: If file needs ["oss", "unit", "1"], user must say "send oss unit 1"
+        const isMatch = fileData.keywords.every(keyword => cleanMessage.includes(keyword));
+
+        if (isMatch) {
+            const filePath = path.join(__dirname, 'media', fileData.filename);
+            
+            // Check if file actually exists on disk
+            if (fs.existsSync(filePath)) {
+                const media = MessageMedia.fromFilePath(filePath);
+                await msg.reply(fileData.displayText || "📂 Found it!");
+                await client.sendMessage(msg.from, media);
+                return true; // Stop checking, we found it
+            } else {
+                // If file is in DB but missing from folder
+                console.log(`File missing: ${fileData.filename}`);
+            }
+        }
+    }
+    return false;
+}
+
 client.initialize();
+
 
 
 
