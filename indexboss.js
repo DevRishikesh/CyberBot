@@ -2,6 +2,7 @@ const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const path = require('path');
 const axios = require("axios");
+const fs = require('fs'); // <--- Add this at the top with other requires
 require('dotenv').config();
 const schedule = require("node-schedule");
 const chrono = require("chrono-node");
@@ -334,6 +335,8 @@ We resume domination. 😎🔥
     await broadcastToAllGroups(doneMsg);
     return true;
 }
+	// Inside routeCommand function
+if (cleanMessage.startsWith(".upload")) return await handleUpload(msg);
     if (cleanMessage === "update" || cleanMessage === ".update") {
         if (!isAdmin(msg)) {
             await msg.reply("⛔ Access Denied. Only the Architect can broadcast updates.");
@@ -1506,7 +1509,76 @@ async function handleSticker(msg) {
     return true;
 }
 
+
+// 📂 UNIVERSAL UPLOAD COMMAND
+async function handleUpload(msg) {
+    
+    // 1. Security Check (Admins Only)
+    if (!isAdmin(msg)) {
+        await msg.reply("⛔ Access Denied. Only Admins can upload files.");
+        return true;
+    }
+
+    // 2. Determine target message (Current message or Quoted message)
+    let mediaMsg = msg;
+    if (msg.hasQuotedMsg) {
+        mediaMsg = await msg.getQuotedMessage();
+    }
+
+    // 3. Check if there is media
+    if (!mediaMsg.hasMedia) {
+        await msg.reply("❌ No media found. \n\nUsage:\n1. Attach file -> Caption: .upload filename.pdf\n2. Reply to file -> Message: .upload filename.pdf");
+        return true;
+    }
+
+    // 4. Parse the filename from the command
+    // We use msg.body (not cleanMessage) to preserve file extensions and casing
+    let customName = msg.body.replace(/^\.upload\s*/i, "").trim();
+    
+    // 5. Download the media
+    try {
+        const media = await mediaMsg.downloadMedia();
+
+        if (!media) {
+            await msg.reply("⚠️ Failed to download media.");
+            return true;
+        }
+
+        // 6. Determine final filename
+        // If user didn't type a name, try to use the original filename from the file itself
+        let fileName = customName || media.filename;
+
+        if (!fileName) {
+            // If still no name (e.g. voice notes or images often have no name), generate one
+            const ext = media.mimetype.split("/")[1].split(";")[0]; 
+            fileName = `upload_${Date.now()}.${ext}`;
+        }
+
+        // 7. Ensure 'media' folder exists
+        const mediaDir = path.join(__dirname, 'media');
+        if (!fs.existsSync(mediaDir)){
+            fs.mkdirSync(mediaDir);
+        }
+
+        // 8. Write the file to the system
+        const filePath = path.join(mediaDir, fileName);
+        
+        // WhatsApp media data is Base64, we must write it as such
+        fs.writeFileSync(filePath, media.data, 'base64');
+
+        await msg.reply(`✅ *File Uploaded Successfully!*\n\n📂 Saved as: ${fileName}\n📍 Location: /media/${fileName}`);
+        
+        return true;
+
+    } catch (err) {
+        console.error("Upload Error:", err);
+        await msg.reply(`❌ Error saving file: ${err.message}`);
+        return true;
+    }
+}
+
 client.initialize();
+
 
 
 
