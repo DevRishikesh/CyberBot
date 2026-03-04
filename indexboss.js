@@ -179,33 +179,66 @@ const dayOrderSchedule = {
     }
 };
 
-//msg getting
 client.on('message', async msg => {
 
     const chat = await msg.getChat();
+    // Clean the message (remove mentions, lower case)
+    let cleanMessage = msg.body.replace(/@\S+/g, "").trim().toLowerCase();
 
-    // 🔥 ADD XP only for group
+    // 🔥 ADD XP (Always happens in groups, even if bot ignores the msg)
     if (chat.isGroup) {
         await addXP(msg);
     }
 
-    let cleanMessage = msg.body.replace(/@\S+/g, "").toLowerCase().trim();
+    // 🛑 GROUP PERMISSION SYSTEM
+    if (chat.isGroup) {
+        
+        const mentions = await msg.getMentions();
+        const isMentioned = mentions.some(contact => contact.isMe);
+        const senderIsAdmin = isAdmin(msg);
 
-    // ✅ If private DM → always respond
-    if (!chat.isGroup) {
-        return await routeCommand(msg, cleanMessage);
+        // Define what counts as a "Silent Command"
+        // We only allow commands starting with '.' (like .upload, .stats, .rank)
+        // We EXCLUDE '/ai' so the bot doesn't spam AI replies to admins
+        const isStrictCommand = cleanMessage.startsWith("."); 
+
+        // 🔒 The Gatekeeper Logic
+        if (!isMentioned) {
+            // If the bot was NOT tagged...
+            
+            if (senderIsAdmin && isStrictCommand) {
+                // ✅ PASS: It is an Admin using a special command (like .upload)
+                // We let this proceed.
+            } else {
+                // ❌ BLOCK: It is a normal member OR an admin just chatting/using AI
+                return; 
+            }
+        }
     }
 
-    // ✅ If group → only respond when mentioned
-    const mentions = await msg.getMentions();
-    if (!mentions.some(contact => contact.isMe)) return;
-
+    // 🚀 Execute the command
     const handled = await routeCommand(msg, cleanMessage);
 
-    if (!handled) {
-        await sendWithTyping(msg, "❌ Command not recognized.");
+    // If mentioned but command failed (and it wasn't a private chat)
+    if (!handled && chat.isGroup) {
+        const mentions = await msg.getMentions();
+        if (mentions.some(contact => contact.isMe)) {
+            await sendWithTyping(msg, "❌ Command not recognized.");
+        }
     }
-});
+schedule.scheduleJob({ rule: '0 21 * * 1-6', tz: 'Asia/Kolkata' }, async function () {
+        
+        let nextDay = db.data.currentDayOrder + 1;
+        
+        if (nextDay > 6) { 
+            nextDay = 1; 
+        }
+
+        db.data.currentDayOrder = nextDay;
+        await db.write();
+        
+        console.log(`✅ Day Order Updated to ${nextDay} for tomorrow.`);
+    });
 
 ///admin check
 function isAdmin(msg) {
@@ -1463,14 +1496,8 @@ Have a productive day! 🚀
         await client.sendMessage(groupId, message);
     }
 
-    // 🔥 Auto-increment the Day Order for tomorrow
-    currentDay++;
-    if (currentDay > MAX_DAY_ORDER) {
-        currentDay = 1;
-    }
-    db.data.currentDayOrder = currentDay;
-
     // 🔥 DB Cleanup: Instantly delete today's tasks from the database!
+    // We ONLY delete tasks here. We DO NOT change the Day Order yet.
     db.data.tasks = db.data.tasks.filter(t => t.date !== todayStr);
     
     // Also clear out any old forgotten tasks (just in case)
@@ -1588,38 +1615,67 @@ async function handleUpload(msg) {
 }
 
 
-// 🧠 DYNAMIC FILE FINDER
+// 🧠 DYNAMIC FILE FINDER (Smart Context Edition)
 async function handleDynamicRetrieval(msg, cleanMessage) {
     
-    // Check if we have any files saved
+    // Safety check for empty DB
     if (!db.data.files || db.data.files.length === 0) return false;
 
-    // Loop through all saved files in the database
+    // 1. Filter out long questions immediately
+    // If you ask "what is the difference between a process and a driver", that's 10 words.
+    // If the file is just "driver" (1 keyword), we shouldn't send it.
+    // Rule: If message is longer than 7 words, assume it's a question for AI.
+    const msgWordCount = cleanMessage.split(" ").length;
+    if (msgWordCount > 7) return false; 
+
+    // 2. Find matches
+    let matches = [];
+
     for (const fileData of db.data.files) {
-        
-        // Check if ALL keywords match
-        // Example: If file needs ["oss", "unit", "1"], user must say "send oss unit 1"
-        const isMatch = fileData.keywords.every(keyword => cleanMessage.includes(keyword));
+        if (!fileData.keywords || fileData.keywords.length === 0) continue;
+
+        // Check if ALL keywords exist
+        const isMatch = fileData.keywords.every(keyword => 
+            cleanMessage.toLowerCase().includes(keyword.toLowerCase())
+        );
 
         if (isMatch) {
-            const filePath = path.join(__dirname, 'media', fileData.filename);
-            
-            // Check if file actually exists on disk
-            if (fs.existsSync(filePath)) {
-                const media = MessageMedia.fromFilePath(filePath);
-                await msg.reply(fileData.displayText || "📂 Found it!");
-                await client.sendMessage(msg.from, media);
-                return true; // Stop checking, we found it
-            } else {
-                // If file is in DB but missing from folder
-                console.log(`File missing: ${fileData.filename}`);
-            }
+            matches.push(fileData);
         }
     }
-    return false;
-}
 
+    if (matches.length === 0) return false;
+
+    // 3. Sort by Specificity (Best Match)
+    matches.sort((a, b) => b.keywords.length - a.keywords.length);
+    const bestMatch = matches[0];
+
+    // 4. 🔥 STRICT MODE CHECK
+    // If the user says "what is driver", that's 3 words. The file "driver" is 1 keyword.
+    // We only allow a small "buffer" of extra words (like "send", "give", "please").
+    // If the message has way more words than the filename, ignore it.
+    
+    // Allow max 3 extra words (e.g. "send [file] please" is ok)
+    if (msgWordCount > bestMatch.keywords.length + 3) {
+        return false; // Too much extra text, let the AI handle it
+    }
+
+    // 5. Send the file
+    const filePath = path.join(__dirname, 'media', bestMatch.filename);
+    
+    if (fs.existsSync(filePath)) {
+        console.log(`[FILE SENT] Matched: ${bestMatch.filename}`);
+        const media = MessageMedia.fromFilePath(filePath);
+        await msg.reply(bestMatch.displayText || "📂 Found it!");
+        await client.sendMessage(msg.from, media);
+        return true; 
+    } else {
+        console.log(`[ERROR] File missing: ${bestMatch.filename}`);
+        return false;
+    }
+}
 client.initialize();
+
 
 
 
