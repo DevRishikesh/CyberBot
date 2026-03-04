@@ -237,18 +237,6 @@ client.on('message', async msg => {
             await sendWithTyping(msg, "❌ Command not recognized.");
         }
     }
-schedule.scheduleJob({ rule: '0 21 * * 1-6', tz: 'Asia/Kolkata' }, async function () {
-        
-        let nextDay = db.data.currentDayOrder + 1;
-        
-        if (nextDay > 6) { 
-            nextDay = 1; 
-        }
-
-        db.data.currentDayOrder = nextDay;
-        await db.write();
-        
-        console.log(`✅ Day Order Updated to ${nextDay} for tomorrow.`);
     });
 
 ///admin check
@@ -1686,4 +1674,5 @@ async function handleDynamicRetrieval(msg, cleanMessage) {
     }
 }
 client.initialize();
+
 
