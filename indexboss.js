@@ -190,6 +190,18 @@ const dayOrderSchedule = {
     }
 };
 
+
+
+///admin check
+function isAdmin(msg) {
+    console.log("Sender raw:", msg.author || msg.from);
+    const admins = process.env.BOT_ADMINS.split(",");
+    const sender = (msg.author || msg.from).replace("@lid", "");
+    return admins.includes(sender);
+}
+
+//msg get
+
 client.on('message', async msg => {
 
     const chat = await msg.getChat();
@@ -237,17 +249,7 @@ client.on('message', async msg => {
             await sendWithTyping(msg, "❌ Command not recognized.");
         }
     }
-    });
-
-///admin check
-function isAdmin(msg) {
-    console.log("Sender raw:", msg.author || msg.from);
-    const admins = process.env.BOT_ADMINS.split(",");
-    const sender = (msg.author || msg.from).replace("@lid", "");
-    return admins.includes(sender);
-}
-
-
+});
 
 // 📡 Broadcast maintance to all groups in DB
 async function broadcastToAllGroups(message) {
@@ -1674,5 +1676,6 @@ async function handleDynamicRetrieval(msg, cleanMessage) {
     }
 }
 client.initialize();
+
 
 
