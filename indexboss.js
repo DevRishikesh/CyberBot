@@ -965,13 +965,15 @@ async function listReminders(msg) {
 
 
 ///xp system
-
 async function addXP(msg) {
 
     if (!msg.from.endsWith("@g.us")) return;
 
     const userId = msg.author || msg.from;
     const groupId = msg.from;
+
+    // 🔥 FIX: Define 'author' here so it can be used below
+    const author = userId.split("@")[0]; 
 
     let user = db.data.xp.find(
         u => u.userId === userId && u.groupId === groupId
@@ -988,40 +990,42 @@ async function addXP(msg) {
         db.data.xp.push(user);
     }
 
-    // 🔥 Store old level AFTER user exists
+    // Store old level 
     const oldLevel = user.level;
 
     user.xp += 5;
     user.messages += 1;
 
     user.level = Math.floor(user.xp / 100) + 1;
+    
     const today = new Date().toISOString().split("T")[0];
 
-let daily = db.data.dailyStats.find(
-    d => d.userId === userId &&
-         d.groupId === groupId &&
-         d.date === today
-);
+    let daily = db.data.dailyStats.find(
+        d => d.userId === userId &&
+             d.groupId === groupId &&
+             d.date === today
+    );
 
-if (!daily) {
-    daily = {
-        userId,
-        groupId,
-        date: today,
-        messages: 0
-    };
-    db.data.dailyStats.push(daily);
-}
+    if (!daily) {
+        daily = {
+            userId,
+            groupId,
+            date: today,
+            messages: 0
+        };
+        db.data.dailyStats.push(daily);
+    }
 
-daily.messages += 1;
+    daily.messages += 1;
+
     // 🎉 Level up check
     if (user.level > oldLevel) {
+        // Now 'author' exists, so this will work!
         await msg.reply(`🎉 LEVEL UP! @${author} is now Level ${user.level} 🔥`);
     }
 
     await db.write();
 }
-
 ///rankk
 
 
@@ -1616,6 +1620,7 @@ async function handleDynamicRetrieval(msg, cleanMessage) {
 }
 
 client.initialize();
+
 
 
 
