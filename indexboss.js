@@ -1513,7 +1513,6 @@ async function handleSticker(msg) {
 }
 
 
-const fs = require('fs'); // Ensure this is at the top of your file
 
 // 📂 SMART UPLOAD (Saves File + Remembers It)
 async function handleUpload(msg) {
@@ -1617,6 +1616,7 @@ async function handleDynamicRetrieval(msg, cleanMessage) {
 }
 
 client.initialize();
+
 
 
 
