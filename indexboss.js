@@ -39,11 +39,11 @@ client.on('qr', (qr) => {
 ///    console.log('🔥 CyberBot is online and ready!');
 ///});
 
+// Ready
 client.on('ready', () => {
     console.log('🔥 CyberBot is online and ready!');
 
     // 🔥 Morning Day Order Announcement at 7:00 AM IST (Monday to Saturday)
-    // 0 = Sunday, so 1-6 is Mon-Sat
     schedule.scheduleJob({ rule: '0 7 * * 1-6', tz: 'Asia/Kolkata' }, async function () {
         await sendMorningDayOrder();
     });
@@ -51,6 +51,17 @@ client.on('ready', () => {
     // 🔥 Schedule daily leaderboard at 10 PM IST
     schedule.scheduleJob({ rule: '0 22 * * *', tz: 'Asia/Kolkata' }, async function () {
         await sendDailyLeaderboard();
+    });
+
+    // 🔥 Auto-Update Day Order at 9:00 PM (Mon-Sat)
+    schedule.scheduleJob({ rule: '0 21 * * 1-6', tz: 'Asia/Kolkata' }, async function () {
+        let nextDay = db.data.currentDayOrder + 1;
+        if (nextDay > 6) { 
+            nextDay = 1; 
+        }
+        db.data.currentDayOrder = nextDay;
+        await db.write();
+        console.log(`✅ Day Order Updated to ${nextDay} for tomorrow.`);
     });
 });
 
@@ -1532,7 +1543,7 @@ async function handleSticker(msg) {
         await client.sendMessage(msg.from, media, {
             sendMediaAsSticker: true,
             stickerAuthor: "CyberBot",   // The small text at the bottom
-            stickerName: "Vasu Devan"    // The bold text title
+            stickerName: "Rishhhiii"    // The bold text title
         });
 
     } catch (error) {
@@ -1675,3 +1686,4 @@ async function handleDynamicRetrieval(msg, cleanMessage) {
     }
 }
 client.initialize();
+
