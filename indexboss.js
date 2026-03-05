@@ -470,7 +470,7 @@ if (cleanMessage.includes(".setday")) {
     // ==========================================
     // 2. PREFIX COMMANDS (Tools, OSINT, AI)
     // ==========================================
-    if (cleanMessage.startsWith("/ai")) return await handleDeepAI(msg, cleanMessage);
+     //if (cleanMessage.startsWith("/ai")) return await handleDeepAI(msg, cleanMessage
     if (cleanMessage.startsWith(".encode")) return await handleEncode(msg, cleanMessage);
     if (cleanMessage.startsWith(".decode")) return await handleDecode(msg, cleanMessage);
     if (cleanMessage.startsWith(".ip ")) return await handleIPLookup(msg, cleanMessage);
@@ -1771,6 +1771,7 @@ async function finishConvertSession(msg) {
     return true;
 }
 client.initialize();
+
 
 
 
