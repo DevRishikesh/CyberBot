@@ -240,7 +240,7 @@ client.on('message', async msg => {
             }
         }
     }
-	if (pdfSessions[msg.from] && msg.hasMedia) {
+if (pdfSessions[msg.from] && msg.hasMedia) {
 
     const media = await msg.downloadMedia();
 
@@ -249,6 +249,8 @@ client.on('message', async msg => {
         pdfSessions[msg.from].push(media);
 
         await msg.reply(`📸 Image added (${pdfSessions[msg.from].length})`);
+
+        return; // 🔥 IMPORTANT: stop other commands (AI etc.)
     }
 }
 
@@ -1769,6 +1771,7 @@ async function finishConvertSession(msg) {
     return true;
 }
 client.initialize();
+
 
 
 
