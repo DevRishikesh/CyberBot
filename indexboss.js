@@ -1,4 +1,5 @@
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
+const { PDFDocument } = require('pdf-lib');
 const qrcode = require('qrcode-terminal');
 const path = require('path');
 const axios = require("axios");
@@ -199,7 +200,8 @@ function isAdmin(msg) {
     const sender = (msg.author || msg.from).replace("@lid", "");
     return admins.includes(sender);
 }
-
+//storge for pdf conversion
+const pdfSessions = {};
 //msg get
 
 client.on('message', async msg => {
@@ -238,6 +240,17 @@ client.on('message', async msg => {
             }
         }
     }
+	if (pdfSessions[msg.from] && msg.hasMedia) {
+
+    const media = await msg.downloadMedia();
+
+    if (media.mimetype.startsWith("image")) {
+
+        pdfSessions[msg.from].push(media);
+
+        await msg.reply(`📸 Image added (${pdfSessions[msg.from].length})`);
+    }
+}
 
     // 🚀 Execute the command
     const handled = await routeCommand(msg, cleanMessage);
@@ -303,7 +316,8 @@ if (/^list reminders\b/.test(cleanMessage)) {
 	// ==========================================
     // 1. EXACT COMMANDS (System, Stats, Menus)
     // ==========================================
-    
+if (cleanMessage === ".convert") return await startConvertSession(msg);
+if (cleanMessage === "done") return await finishConvertSession(msg);
     // 📢 Admin Cloud Announcement
 		// 🚧 ENTER MAINTENANCE MODE
 if (cleanMessage === ".maintenance") {
@@ -1675,7 +1689,87 @@ async function handleDynamicRetrieval(msg, cleanMessage) {
         return false;
     }
 }
+
+
+//pdf conversion
+
+async function startConvertSession(msg) {
+
+    pdfSessions[msg.from] = [];
+
+    await msg.reply(
+`📄 PDF Mode Started
+
+Send images now.
+
+When finished send:
+done`
+    );
+
+    return true;
+}
+
+async function finishConvertSession(msg) {
+
+    const images = pdfSessions[msg.from];
+
+    if (!images || images.length === 0) {
+        await msg.reply("❌ No images received.");
+        return true;
+    }
+
+    try {
+
+        const pdfDoc = await PDFDocument.create();
+
+        for (const media of images) {
+
+            const imgBuffer = Buffer.from(media.data, "base64");
+
+            let image;
+
+            if (media.mimetype.includes("png")) {
+                image = await pdfDoc.embedPng(imgBuffer);
+            } else {
+                image = await pdfDoc.embedJpg(imgBuffer);
+            }
+
+            const page = pdfDoc.addPage([image.width, image.height]);
+
+            page.drawImage(image, {
+                x: 0,
+                y: 0,
+                width: image.width,
+                height: image.height
+            });
+        }
+
+        const pdfBytes = await pdfDoc.save();
+
+        const pdfPath = path.join(__dirname, "output.pdf");
+
+        fs.writeFileSync(pdfPath, pdfBytes);
+
+        const pdfMedia = MessageMedia.fromFilePath(pdfPath);
+
+        await client.sendMessage(msg.from, pdfMedia, {
+            caption: `📄 PDF created from ${images.length} images`
+        });
+
+        fs.unlinkSync(pdfPath);
+
+        delete pdfSessions[msg.from];
+
+    } catch (err) {
+
+        console.log(err);
+        await msg.reply("⚠️ Failed to create PDF.");
+    }
+
+    return true;
+}
 client.initialize();
+
 
 
 
