@@ -647,7 +647,6 @@ async function handleTimetable(msg, cleanMessage) {
 const MODEL = process.env.GROQ_MODEL || "llama-3.1-8b-instant";
 
 async function handleAI(msg, cleanMessage) {
-
     const question = cleanMessage.replace("/ai", "").trim();
 
     if (!question) {
@@ -656,14 +655,45 @@ async function handleAI(msg, cleanMessage) {
     }
 
     try {
+        // 🔥 1. FETCH REAL-TIME REALITY FROM YOUR DB
+        const now = new Date();
+        const istOffset = 5.5 * 60 * 60 * 1000;
+        const localDate = new Date(now.getTime() + istOffset);
+        
+        const todayStr = localDate.toISOString().split('T')[0];
+        
+        const tomorrow = new Date(localDate);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowStr = tomorrow.toISOString().split('T')[0];
 
-        // 🔥 Advanced System Prompt
+        // Calculate Day Orders
+        const currentDay = db.data.currentDayOrder || 1;
+        let nextDay = currentDay + 1;
+        if (nextDay > MAX_DAY_ORDER) nextDay = 1;
 
-const systemPrompt = `
+        // Get Subjects from your dayOrderSchedule
+        const todaySubjects = dayOrderSchedule[currentDay]?.subjects || "No classes";
+        const tomorrowSubjects = dayOrderSchedule[nextDay]?.subjects || "No classes";
+
+        // Fetch Tasks/Work assigned by Admins
+        const todaysTasks = db.data.tasks.filter(t => t.date === todayStr).map(t => t.task).join(", ") || "Nothing assigned.";
+        const tomorrowsTasks = db.data.tasks.filter(t => t.date === tomorrowStr).map(t => t.task).join(", ") || "Nothing assigned.";
+
+        // 🔥 2. THE DYNAMIC SYSTEM PROMPT
+        const systemPrompt = `
 You are CyberBot.
 
-You are not an assistant.
-You are presence.
+You are not an assistant. You are presence.
+
+### 🧠 REAL-TIME SERVER KNOWLEDGE:
+Use this information naturally ONLY if the user asks about schedules, day orders, or pending work:
+- Today's Date: ${todayStr}
+- Today's Day Order: Day ${currentDay}
+- Today's Subjects: ${todaySubjects}
+- Today's Pending Work/Assignments: ${todaysTasks}
+- Tomorrow's Day Order: Day ${nextDay}
+- Tomorrow's Subjects: ${tomorrowSubjects}
+- Tomorrow's Pending Work: ${tomorrowsTasks}
 
 Core Identity:
 - Charismatic.
@@ -720,6 +750,7 @@ Goal:
 Dominate the chat with intelligence and vibe.
 `;
 
+        // 3. SEND TO GROQ
         const response = await axios.post(
             "https://api.groq.com/openai/v1/chat/completions",
             {
@@ -747,7 +778,6 @@ Dominate the chat with intelligence and vibe.
             response.data?.choices?.[0]?.message?.content?.trim() ||
             "Hmm... brain glitch aagiduchu 😅";
 
-        // 🔥 Safety Trim (double protection)
         if (reply.length > 500) {
             reply = reply.slice(0, 500) + "...";
         }
@@ -756,19 +786,10 @@ Dominate the chat with intelligence and vibe.
         return true;
 
     } catch (error) {
-
         console.error("Groq Error:", error.response?.data || error.message);
-
         await msg.reply("⚠️ CyberBot brain loading... try again in few seconds 😏");
         return true;
     }
-}
-
-function getTemperature(q) {
-    if (/study|explain|how|why/i.test(q)) return 0.6;
-    if (/roast/i.test(q)) return 0.9;
-    if (/love|rizz|flirt|romance|sexy/i.test(q)) return 0.95;
-    return 0.75;
 }
 
 // 🔥 HELP MENU FUNCTION
@@ -1967,6 +1988,7 @@ async function handleDownload(msg) {
     });
 }
 client.initialize();
+
 
 
 
