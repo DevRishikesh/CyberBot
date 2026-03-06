@@ -1,5 +1,6 @@
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const { PDFDocument } = require('pdf-lib');
+const ytdlp = require("yt-dlp-exec");
 const qrcode = require('qrcode-terminal');
 const path = require('path');
 const axios = require("axios");
@@ -459,7 +460,13 @@ if (cleanMessage.includes(".setday")) {
         const dateStr = `${yyyy}-${mm}-${dd}`;
 
         // Save it to the database's tasks array
-        db.data.tasks.push({ date: dateStr, task: workMessage });
+        const taskId = Date.now().toString().slice(-6);
+
+db.data.tasks.push({
+    id: taskId,
+    date: dateStr,
+    task: workMessage
+});
         await db.write();
 
         // Send confirmation
@@ -476,7 +483,16 @@ if (cleanMessage.includes(".setday")) {
     if (cleanMessage.startsWith(".ip ")) return await handleIPLookup(msg, cleanMessage);
 	if (cleanMessage.startsWith(".find ")) return await handleLinkCheck(msg, cleanMessage);
 	if (cleanMessage === ".sticker" || cleanMessage === "sticker") return await handleSticker(msg);
+	if (cleanMessage.startsWith(".download")) {
+    return await handleDownload(msg);
+}
     if (cleanMessage.startsWith("send link for")) return await handleYTLink(msg, cleanMessage);
+	if (cleanMessage === ".listwork") {
+    return await listWork(msg);
+}
+		if (cleanMessage.startsWith(".delwork")) {
+    return await deleteWork(msg, cleanMessage);
+}
 	    // Check today's schedule manually
     if (cleanMessage === ".today") {
         let currentDay = db.data.currentDayOrder;
@@ -1844,7 +1860,107 @@ async function handleLinkCheck(msg, cleanMessage) {
     
     return true;
 }
+
+async function listWork(msg) {
+
+    if (!db.data.tasks || db.data.tasks.length === 0) {
+        await msg.reply("📭 No upcoming works.");
+        return true;
+    }
+
+    let reply = "📋 *UPCOMING WORKS*\n\n";
+
+    db.data.tasks.forEach(task => {
+
+        const date = new Date(task.date);
+
+        const formatted = date.toLocaleDateString("en-IN", {
+            weekday: "short",
+            day: "numeric",
+            month: "short"
+        });
+
+        reply += `🆔 ${task.id}\n`;
+        reply += `📅 ${formatted} (7 AM reminder)\n`;
+        reply += `📌 ${task.task}\n`;
+        reply += `━━━━━━━━━━━━\n`;
+    });
+
+    await msg.reply(reply.trim());
+    return true;
+}
+
+
+async function deleteWork(msg, cleanMessage) {
+
+    if (!isAdmin(msg)) {
+        await msg.reply("⛔ Admin only.");
+        return true;
+    }
+
+    const id = cleanMessage.split(" ")[1];
+
+    if (!id) {
+        await msg.reply("❌ Usage: .delwork <id>");
+        return true;
+    }
+
+    const before = db.data.tasks.length;
+
+    db.data.tasks = db.data.tasks.filter(t => t.id !== id);
+
+    await db.write();
+
+    if (db.data.tasks.length === before) {
+        await msg.reply("⚠️ Work ID not found.");
+    } else {
+        await msg.reply(`✅ Work ${id} deleted.`);
+    }
+
+    return true;
+}
+
+
+///vid download
+
+async function handleDownload(msg) {
+
+    const url = msg.body.replace(".download", "").trim();
+
+    if (!url) {
+        await msg.reply("❌ Usage: .download <youtube / instagram link>");
+        return true;
+    }
+
+    try {
+
+        await msg.reply("⬇️ Downloading video...");
+
+        const outputPath = path.join(__dirname, "video.mp4");
+
+        await ytdlp(url, {
+            output: outputPath,
+            format: "mp4"
+        });
+
+        const media = MessageMedia.fromFilePath(outputPath);
+
+        await client.sendMessage(msg.from, media, {
+            caption: "🎬 Downloaded by CyberBot"
+        });
+
+        fs.unlinkSync(outputPath);
+
+    } catch (err) {
+
+        console.log(err);
+        await msg.reply("⚠️ Failed to download video.");
+    }
+
+    return true;
+}
 client.initialize();
+
 
 
 
