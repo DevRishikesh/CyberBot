@@ -1,7 +1,5 @@
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const { PDFDocument } = require('pdf-lib');
-const command = `yt-dlp -f "bv*+ba/b" --merge-output-format mp4 -o "${filePath}" --user-agent "Mozilla/5.0" "${url}"`;
-const ytdlp = require("yt-dlp-exec");
 const qrcode = require('qrcode-terminal');
 const path = require('path');
 const axios = require("axios");
@@ -1923,44 +1921,51 @@ async function deleteWork(msg, cleanMessage) {
 
 
 ///vid download
-
 async function handleDownload(msg) {
 
     const url = msg.body.replace(".download", "").trim();
 
     if (!url) {
-        await msg.reply("❌ Usage: .download <youtube / instagram link>");
+        await msg.reply("❌ Usage:\n.download <youtube / instagram link>");
         return true;
     }
 
-    try {
+    await msg.reply("⬇️ Downloading video...");
 
-        await msg.reply("⬇️ Downloading video...");
+    const fileName = `video_${Date.now()}.mp4`;
+    const filePath = path.join(__dirname, fileName);
 
-        const outputPath = path.join(__dirname, "video.mp4");
+    const command = `yt-dlp -f "bv*+ba/b" --merge-output-format mp4 -o "${filePath}" --user-agent "Mozilla/5.0" "${url}"`;
 
-        await ytdlp(url, {
-            output: outputPath,
-            format: "mp4"
-        });
+    exec(command, async (error) => {
 
-        const media = MessageMedia.fromFilePath(outputPath);
+        if (error) {
+            console.log(error);
+            await msg.reply("⚠️ Download failed.");
+            return;
+        }
 
-        await client.sendMessage(msg.from, media, {
-            caption: "🎬 Downloaded by CyberBot"
-        });
+        try {
 
-        fs.unlinkSync(outputPath);
+            const media = MessageMedia.fromFilePath(filePath);
 
-    } catch (err) {
+            await client.sendMessage(msg.from, media, {
+                caption: "🎬 Downloaded by CyberBot"
+            });
 
-        console.log(err);
-        await msg.reply("⚠️ Failed to download video.");
-    }
+            fs.unlinkSync(filePath);
+
+        } catch (err) {
+            console.log(err);
+            await msg.reply("⚠️ Video too large for WhatsApp.");
+        }
+
+    });
 
     return true;
 }
 client.initialize();
+
 
 
 
