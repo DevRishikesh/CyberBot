@@ -474,6 +474,7 @@ if (cleanMessage.includes(".setday")) {
     if (cleanMessage.startsWith(".encode")) return await handleEncode(msg, cleanMessage);
     if (cleanMessage.startsWith(".decode")) return await handleDecode(msg, cleanMessage);
     if (cleanMessage.startsWith(".ip ")) return await handleIPLookup(msg, cleanMessage);
+	if (cleanMessage.startsWith(".find ")) return await handleLinkCheck(msg, cleanMessage);
 	if (cleanMessage === ".sticker" || cleanMessage === "sticker") return await handleSticker(msg);
     if (cleanMessage.startsWith("send link for")) return await handleYTLink(msg, cleanMessage);
 	    // Check today's schedule manually
@@ -1770,7 +1771,80 @@ async function finishConvertSession(msg) {
 
     return true;
 }
+
+
+
+// 🔎 OSINT: Malicious Link Scanner (.find)
+async function handleLinkCheck(msg, cleanMessage) {
+    // Keep the exact casing from the original message so the URL doesn't break
+    const urlToCheck = msg.body.slice(msg.body.toLowerCase().indexOf(".find") + 5).trim();
+
+    if (!urlToCheck) {
+        await msg.reply("[-] SYS_ERR: Missing payload.\nUsage: .find <link>");
+        return true;
+    }
+
+    // Basic validation to ensure it's a URL
+    const urlPattern = /^https?:\/\/.+/i;
+    if (!urlPattern.test(urlToCheck)) {
+        await msg.reply("⚠️ Invalid format. Make sure the link starts with http:// or https://");
+        return true;
+    }
+
+    await msg.reply("🔎 [OSINT] Scanning target URL across threat intelligence databases...");
+
+    try {
+        // Prepare the payload for URLHaus API (Free, no key needed)
+        const payload = `url=${encodeURIComponent(urlToCheck)}`;
+
+        const res = await axios.post("https://urlhaus-api.abuse.ch/v1/url/", payload, {
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            timeout: 10000
+        });
+
+        if (res.data.query_status === "ok") {
+            // Malicious link found in database!
+            const status = res.data.url_status || "unknown";
+            const tags = res.data.tags ? res.data.tags.join(", ") : "None";
+            const threat = res.data.threat || "Malware";
+            
+            let report = `
+🚨 [MALWARE DETECTED] 🚨
+━━━━━━━━━━━━━━━━━━━━
+▪ Target: ${urlToCheck}
+▪ Status: ${status.toUpperCase()}
+▪ Threat: ${threat}
+▪ Tags: ${tags}
+━━━━━━━━━━━━━━━━━━━━
+⛔ DO NOT CLICK THIS LINK. IT IS COMPROMISED.
+            `.trim();
+            await msg.reply(report);
+
+        } else if (res.data.query_status === "no_results") {
+            // No results means it's clean in the database
+            let report = `
+✅ [SCAN COMPLETE]
+━━━━━━━━━━━━━━━━━━━━
+▪ Target: ${urlToCheck}
+▪ Status: CLEAN
+━━━━━━━━━━━━━━━━━━━━
+🟢 No malicious signatures found. It looks ok to go, but always stay vigilant.
+            `.trim();
+            await msg.reply(report);
+
+        } else {
+             await msg.reply("⚠️ [SCAN FAILED] Target unreachable or scan errored.");
+        }
+
+    } catch (error) {
+        console.error("Link Check Error:", error.message);
+        await msg.reply("[-] Connection to threat intelligence server failed.");
+    }
+    
+    return true;
+}
 client.initialize();
+
 
 
 
