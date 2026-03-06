@@ -1792,15 +1792,15 @@ async function handleLinkCheck(msg, cleanMessage) {
     await msg.reply("🔎 [OSINT] Scanning target URL across threat intelligence databases...");
 
     try {
-        // 🔥 UPGRADE: Use URLSearchParams for perfect form-urlencoded formatting
         const payload = new URLSearchParams();
         payload.append('url', urlToCheck);
 
         const res = await axios.post("https://urlhaus-api.abuse.ch/v1/url/", payload, {
             headers: { 
                 "Content-Type": "application/x-www-form-urlencoded",
-                // 🔥 UPGRADE: Custom User-Agent to avoid getting blocked by the security API
-                "User-Agent": "CyberBot-OSINT/2.0 (Node.js)" 
+                "User-Agent": "CyberBot-OSINT/2.0 (Node.js)",
+                // 🔥 INJECTING THE AUTH KEY HERE
+                "Auth-Key": process.env.URLHAUS_API_KEY 
             },
             timeout: 10000
         });
@@ -1838,15 +1838,14 @@ async function handleLinkCheck(msg, cleanMessage) {
         }
 
     } catch (error) {
-        // 🔥 UPGRADE: This will print the exact reason for the failure in your terminal
         console.error("Link Check Error Details:", error.response?.data || error.message);
-        
         await msg.reply(`[-] Connection failed. Error: ${error.message}`);
     }
     
     return true;
 }
 client.initialize();
+
 
 
 
