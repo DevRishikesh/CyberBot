@@ -1923,49 +1923,51 @@ async function deleteWork(msg, cleanMessage) {
 
 ///vid download
 async function handleDownload(msg) {
-
     const url = msg.body.replace(".download", "").trim();
-
+    
     if (!url) {
         await msg.reply("❌ Usage:\n.download <youtube / instagram link>");
-        return true;
+        return;
     }
 
-    await msg.reply("⬇️ Downloading video...");
+    await msg.reply("⬇️ Downloading long video... this may take a few minutes.");
 
     const fileName = `video_${Date.now()}.mp4`;
     const filePath = path.join(__dirname, fileName);
 
-    const command = `yt-dlp -f "bv*+ba/b" --merge-output-format mp4 -o "${filePath}" --user-agent "Mozilla/5.0" "${url}"`;
+    // 1. Pass the cookies.txt file and limit the height to 480p to keep file sizes manageable
+    const command = `yt-dlp --js-runtimes node --cookies "${path.join(__dirname, 'cookies.txt')}" -f "bv*[height<=480]+ba/b[height<=480]" --merge-output-format mp4 -o "${filePath}" --user-agent "Mozilla/5.0" "${url}"`;
 
     exec(command, async (error) => {
-
         if (error) {
-            console.log(error);
-            await msg.reply("⚠️ Download failed.");
+            console.error("yt-dlp error:", error);
+            await msg.reply("⚠️ Download failed. The video might be age-restricted or invalid.");
             return;
         }
 
         try {
-
+            // 2. Load the file from your server's hard drive
             const media = MessageMedia.fromFilePath(filePath);
-
+            
+            // 3. Send as a document to bypass the 64MB video player limit
             await client.sendMessage(msg.from, media, {
+                sendMediaAsDocument: true, 
                 caption: "🎬 Downloaded by CyberBot"
             });
 
-            fs.unlinkSync(filePath);
-
-        } catch (err) {
-            console.log(err);
-            await msg.reply("⚠️ Video too large for WhatsApp.");
+        } catch (sendError) {
+            console.error("WhatsApp Send Error:", sendError);
+            await msg.reply("⚠️ Failed to send. The file might still be too large for your server's memory.");
+        } finally {
+            // 4. Always delete the massive file from your AWS server afterwards to save space
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            }
         }
-
     });
-
-    return true;
 }
 client.initialize();
+
 
 
 
