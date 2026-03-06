@@ -1776,7 +1776,6 @@ async function finishConvertSession(msg) {
 
 // 🔎 OSINT: Malicious Link Scanner (.find)
 async function handleLinkCheck(msg, cleanMessage) {
-    // Keep the exact casing from the original message so the URL doesn't break
     const urlToCheck = msg.body.slice(msg.body.toLowerCase().indexOf(".find") + 5).trim();
 
     if (!urlToCheck) {
@@ -1784,7 +1783,6 @@ async function handleLinkCheck(msg, cleanMessage) {
         return true;
     }
 
-    // Basic validation to ensure it's a URL
     const urlPattern = /^https?:\/\/.+/i;
     if (!urlPattern.test(urlToCheck)) {
         await msg.reply("⚠️ Invalid format. Make sure the link starts with http:// or https://");
@@ -1794,16 +1792,20 @@ async function handleLinkCheck(msg, cleanMessage) {
     await msg.reply("🔎 [OSINT] Scanning target URL across threat intelligence databases...");
 
     try {
-        // Prepare the payload for URLHaus API (Free, no key needed)
-        const payload = `url=${encodeURIComponent(urlToCheck)}`;
+        // 🔥 UPGRADE: Use URLSearchParams for perfect form-urlencoded formatting
+        const payload = new URLSearchParams();
+        payload.append('url', urlToCheck);
 
         const res = await axios.post("https://urlhaus-api.abuse.ch/v1/url/", payload, {
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            headers: { 
+                "Content-Type": "application/x-www-form-urlencoded",
+                // 🔥 UPGRADE: Custom User-Agent to avoid getting blocked by the security API
+                "User-Agent": "CyberBot-OSINT/2.0 (Node.js)" 
+            },
             timeout: 10000
         });
 
         if (res.data.query_status === "ok") {
-            // Malicious link found in database!
             const status = res.data.url_status || "unknown";
             const tags = res.data.tags ? res.data.tags.join(", ") : "None";
             const threat = res.data.threat || "Malware";
@@ -1821,29 +1823,31 @@ async function handleLinkCheck(msg, cleanMessage) {
             await msg.reply(report);
 
         } else if (res.data.query_status === "no_results") {
-            // No results means it's clean in the database
             let report = `
 ✅ [SCAN COMPLETE]
 ━━━━━━━━━━━━━━━━━━━━
 ▪ Target: ${urlToCheck}
 ▪ Status: CLEAN
 ━━━━━━━━━━━━━━━━━━━━
-🟢 No malicious signatures found. It looks ok to go, but always stay vigilant.
+🟢 No malicious signatures found. It looks ok to go.
             `.trim();
             await msg.reply(report);
 
         } else {
-             await msg.reply("⚠️ [SCAN FAILED] Target unreachable or scan errored.");
+             await msg.reply(`⚠️ [SCAN FAILED] API returned status: ${res.data.query_status}`);
         }
 
     } catch (error) {
-        console.error("Link Check Error:", error.message);
-        await msg.reply("[-] Connection to threat intelligence server failed.");
+        // 🔥 UPGRADE: This will print the exact reason for the failure in your terminal
+        console.error("Link Check Error Details:", error.response?.data || error.message);
+        
+        await msg.reply(`[-] Connection failed. Error: ${error.message}`);
     }
     
     return true;
 }
 client.initialize();
+
 
 
 
