@@ -359,7 +359,7 @@ This is controlled.
 
 // 🟢 EXIT MAINTENANCE MODE
 // 🟢 EXIT MAINTENANCE MODE & AI BROADCAST
-if (cleanMessage.startsWith(".donemaintenance")) {
+if (cleanMessage.includes(".donemaintenance")) {
 
     if (!isAdmin(msg)) {
         await msg.reply("⛔ Only System Architect can deactivate maintenance.");
@@ -2116,6 +2116,7 @@ ${updateText}
     }
 }
 client.initialize();
+
 
 
 
