@@ -1,5 +1,6 @@
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const { PDFDocument } = require('pdf-lib');
+const command = `yt-dlp -f "bv*+ba/b" --merge-output-format mp4 -o "${filePath}" --user-agent "Mozilla/5.0" "${url}"`;
 const ytdlp = require("yt-dlp-exec");
 const qrcode = require('qrcode-terminal');
 const path = require('path');
@@ -1960,6 +1961,7 @@ async function handleDownload(msg) {
     return true;
 }
 client.initialize();
+
 
 
 
