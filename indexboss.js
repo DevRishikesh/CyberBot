@@ -357,9 +357,8 @@ This is controlled.
 }
 
 
-// 🟢 EXIT MAINTENANCE MODE
 // 🟢 EXIT MAINTENANCE MODE & AI BROADCAST
-if (cleanMessage.includes(".donemaintenance")) {
+if (cleanMessage.startsWith(".donemaintenance")) {
 
     if (!isAdmin(msg)) {
         await msg.reply("⛔ Only System Architect can deactivate maintenance.");
@@ -382,7 +381,6 @@ if (cleanMessage.includes(".donemaintenance")) {
 
     await msg.reply("⚙️ AI is generating the release notes... please wait.");
 
-    isMaintenanceMode = false;
     let finalMessage = "";
 
     try {
@@ -2116,6 +2114,7 @@ ${updateText}
     }
 }
 client.initialize();
+
 
 
 
