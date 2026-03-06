@@ -1,4 +1,5 @@
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
+const { exec } = require("child_process");
 const { PDFDocument } = require('pdf-lib');
 const qrcode = require('qrcode-terminal');
 const path = require('path');
@@ -1965,6 +1966,7 @@ async function handleDownload(msg) {
     return true;
 }
 client.initialize();
+
 
 
 
