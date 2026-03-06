@@ -358,6 +358,7 @@ This is controlled.
 
 
 // 🟢 EXIT MAINTENANCE MODE
+// 🟢 EXIT MAINTENANCE MODE & AI BROADCAST
 if (cleanMessage.startsWith(".donemaintenance")) {
 
     if (!isAdmin(msg)) {
@@ -365,20 +366,92 @@ if (cleanMessage.startsWith(".donemaintenance")) {
         return true;
     }
 
-    isMaintenanceMode = false;
-
-    const rawText = msg.body.replace(".donemaintenance", "").trim();
-
-    if (!rawText) {
-        await msg.reply(`⚠️ Usage:
-.donemaintenance "describe updates"`);
-        return true;
+    // 1. Extract the text inside the double quotes
+    let updateNotes = "General system upgrades and security patches.";
+    const match = msg.body.match(/"([^"]+)"/);
+    
+    if (match && match[1]) {
+        updateNotes = match[1];
+    } else {
+        // Fallback: If you forget the quotes, it just grabs whatever is after the command
+        const parts = cleanMessage.split(".donemaintenance");
+        if (parts[1] && parts[1].trim() !== "") {
+            updateNotes = parts[1].trim();
+        }
     }
 
-    const updateMsg = await generateUpdateMessage(rawText);
+    await msg.reply("⚙️ AI is generating the release notes... please wait.");
 
-    await broadcastToAllGroups(updateMsg);
+    isMaintenanceMode = false;
+    let finalMessage = "";
 
+    try {
+        // 2. The Custom System Prompt for the Broadcast
+        const systemPrompt = `
+You are CyberBot, an elite, charismatic WhatsApp bot created by P. Manoj Kumar.
+You just came back online after a maintenance break.
+Your job is to announce your return and list the new updates/fixes provided by the Architect.
+
+Tone: 
+- Dominant, sharp, attractive energy.
+- Use a slight "Thunglish" vibe (Tamil + English).
+- Hacker/Cyber aesthetic.
+- Short, punchy lines. WhatsApp friendly.
+
+Format:
+- Start with a cool header like 🟢 CYBERBOT IS BACK ONLINE 🟢
+- List the updates in a cool, hyped-up way.
+- End with a dominant sign-off.
+
+Here are the raw technical updates you need to announce:
+"${updateNotes}"
+        `.trim();
+
+        // 3. Call Groq
+        const response = await axios.post(
+            "https://api.groq.com/openai/v1/chat/completions",
+            {
+                model: MODEL,
+                messages: [
+                    { role: "system", content: systemPrompt },
+                    { role: "user", content: "Write the broadcast message now." }
+                ],
+                temperature: 0.8, // Slightly higher for more creative hype
+                max_tokens: 300,
+            },
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${GROQ_API_KEY}`
+                },
+                timeout: 10000
+            }
+        );
+
+        finalMessage = response.data?.choices?.[0]?.message?.content?.trim();
+
+        if (!finalMessage) throw new Error("Empty AI response");
+
+    } catch (error) {
+        console.error("AI Broadcast Error:", error.message);
+        // Fallback in case the API times out
+        finalMessage = `
+━━━━━━━━━━━━━━━━━━━━━━
+🟢 CYBERBOT IS BACK ONLINE 🟢
+━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Upgrade complete: ${updateNotes}
+✅ All systems operational
+
+We resume domination. 😎🔥
+━━━━━━━━━━━━━━━━━━━━━━`.trim();
+    }
+
+    // 4. Send the masterpiece to all groups
+    await broadcastToAllGroups(finalMessage);
+    
+    // 5. Confirm to you (the Architect)
+    await msg.reply("✅ AI Broadcast sent successfully to all groups.");
     return true;
 }
 	// Inside routeCommand function
@@ -2043,6 +2116,7 @@ ${updateText}
     }
 }
 client.initialize();
+
 
 
 
