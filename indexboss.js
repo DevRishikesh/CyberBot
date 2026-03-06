@@ -358,7 +358,7 @@ This is controlled.
 
 
 // 🟢 EXIT MAINTENANCE MODE
-if (cleanMessage === ".donemaintenance") {
+if (cleanMessage.startsWith(".donemaintenance")) {
 
     if (!isAdmin(msg)) {
         await msg.reply("⛔ Only System Architect can deactivate maintenance.");
@@ -367,23 +367,18 @@ if (cleanMessage === ".donemaintenance") {
 
     isMaintenanceMode = false;
 
-    const doneMsg = `
-━━━━━━━━━━━━━━━━━━━━━━
-🟢 CYBERBOT IS BACK ONLINE 🟢
-━━━━━━━━━━━━━━━━━━━━━━
+    const rawText = msg.body.replace(".donemaintenance", "").trim();
 
-✅ Upgrade complete
-✅ All systems operational
-✅ AI Core synchronized
-✅ Security stable
+    if (!rawText) {
+        await msg.reply(`⚠️ Usage:
+.donemaintenance "describe updates"`);
+        return true;
+    }
 
-CyberBot v2.0 is LIVE.
+    const updateMsg = await generateUpdateMessage(rawText);
 
-We resume domination. 😎🔥
-━━━━━━━━━━━━━━━━━━━━━━
-    `.trim();
+    await broadcastToAllGroups(updateMsg);
 
-    await broadcastToAllGroups(doneMsg);
     return true;
 }
 	// Inside routeCommand function
@@ -1991,7 +1986,64 @@ async function handleDownload(msg) {
         }
     });
 }
+
+//done msg to all gropu
+
+async function generateUpdateMessage(updateText) {
+
+    try {
+
+        const prompt = `
+You are the system announcer for CyberBot.
+
+Turn the following update notes into a stylish WhatsApp announcement.
+
+Rules:
+- Keep it short
+- Use emojis
+- Make it feel like a system upgrade announcement
+- Format nicely
+
+Updates:
+${updateText}
+`;
+
+        const response = await axios.post(
+            "https://api.groq.com/openai/v1/chat/completions",
+            {
+                model: MODEL,
+                messages: [
+                    { role: "system", content: "You create cool system update announcements." },
+                    { role: "user", content: prompt }
+                ],
+                temperature: 0.6,
+                max_tokens: 200
+            },
+            {
+                headers: {
+                    "Authorization": `Bearer ${GROQ_API_KEY}`,
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+        let reply = response.data?.choices?.[0]?.message?.content?.trim();
+
+        if (!reply) {
+            return `🟢 CYBERBOT UPDATE\n\n${updateText}`;
+        }
+
+        return reply;
+
+    } catch (error) {
+
+        console.log("AI Update Error:", error.message);
+
+        return `🟢 CYBERBOT UPDATE\n\n${updateText}`;
+    }
+}
 client.initialize();
+
 
 
 
