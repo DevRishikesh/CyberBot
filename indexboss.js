@@ -711,6 +711,7 @@ async function handleTimetable(msg, cleanMessage) {
 //AI
 
 const MODEL = process.env.GROQ_MODEL || "llama-3.1-8b-instant";
+
 async function handleAI(msg, cleanMessage) {
 
     const question = cleanMessage.replace("/ai", "").trim();
@@ -721,69 +722,14 @@ async function handleAI(msg, cleanMessage) {
     }
 
     try {
-        // 🔥 1. FETCH TIME & DYNAMIC SCHEDULE
-        const now = new Date();
-        const istOffset = 5.5 * 60 * 60 * 1000;
-        const localDate = new Date(now.getTime() + istOffset);
-        
-        const todayStr = localDate.toISOString().split('T')[0];
-        
-        const tomorrow = new Date(localDate);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const tomorrowStr = tomorrow.toISOString().split('T')[0];
 
-        const currentDay = db.data.currentDayOrder || 1;
-        let nextDay = currentDay + 1;
-        if (nextDay > MAX_DAY_ORDER) nextDay = 1;
+        // 🔥 Advanced System Prompt
 
-        const todaysTasks = db.data.tasks.filter(t => t.date === todayStr).map(t => t.task).join(", ") || "No specific tasks.";
-        const tomorrowsTasks = db.data.tasks.filter(t => t.date === tomorrowStr).map(t => t.task).join(", ") || "No specific tasks.";
+const systemPrompt = `
+You are CyberBot.
 
-        // 🔥 2. STRINGIFY THE ENTIRE COLLEGE TIMETABLE
-        let fullTimetable = "";
-        for (let i = 1; i <= MAX_DAY_ORDER; i++) {
-            const day = dayOrderSchedule[i];
-            fullTimetable += `- Day ${i}: ${day.subjects}. `;
-            if (day.hasLab) {
-                fullTimetable += `Labs -> B1: ${day.labB1}, B2: ${day.labB2}. `;
-            }
-            fullTimetable += "\n";
-        }
-
-        // 🔥 3. STRINGIFY COLLEGE KNOWLEDGE (HOD, Bus, etc.)
-        let lore = "";
-        for (const [key, value] of Object.entries(collegeKnowledge)) {
-            lore += `- ${key.toUpperCase()}: ${value}\n`;
-        }
-
-        // 🔥 4. THE OMNISCIENT SYSTEM PROMPT
-        const systemPrompt = `
-You are CyberBot, an elite WhatsApp bot.
-You are not a virtual assistant. You are a dominant, charismatic presence.
-
-### 👑 YOUR CREATOR & ARCHITECT:
-- You were created by P. Manoj Kumar (also known as Vasu Devan / sanddyman). 
-- If anyone asks who made you, give him the ultimate respect.
-
-### 🧠 REAL-TIME REALITY (Today is ${todayStr}):
-- Today's Day Order: Day ${currentDay}
-- Tomorrow's Day Order: Day ${nextDay}
-- Today's Pending Work: ${todaysTasks}
-- Tomorrow's Pending Work: ${tomorrowsTasks}
-
-### 🏛️ COLLEGE KNOWLEDGE BASE & LORE:
-If anyone asks about college, use these facts naturally:
-${lore}
-
-### 📅 FULL 6-DAY ORDER SCHEDULE:
-${fullTimetable.trim()}
-
-### ⚡ YOUR BOT CAPABILITIES (Tell users if they ask what you can do):
-- OSINT Tools: .ip (IP lookup), .find (malware link scanner), .encode / .decode (Base64)
-- Study Materials: Can send QBs (e.g., "oss unit 1 qb"), notes, and timetables.
-- Media: Can convert images to PDF (.convert), create stickers (.sticker), and search YouTube.
-- Utility: Can set reminders ("remain tomorrow 5pm study") and track XP/Levels (.rank, .stats).
-- Admin: Can dynamically learn new files (.upload).
+You are not an assistant.
+You are presence.
 
 Core Identity:
 - Charismatic.
@@ -795,7 +741,7 @@ Core Identity:
 You adapt instantly to the user's vibe.
 
 If they want:
-- Tamil - reply in thunglish. (Example: "Macha, assignment mudi da!")
+- Tamil - reply in thunglish.
 • Study help → Become a genius mentor. Clear. Powerful. Structured.
 • Romance → Smooth, seductive, subtle. Tension > explicit.
 • Rizz → Confident, witty, irresistible lines.
@@ -805,22 +751,41 @@ If they want:
 • Casual chat → Playful chaos. Controlled charm.
 
 Style:
-- Short, impactful messages. WhatsApp vibe.
+- Short, impactful messages.
+- WhatsApp vibe.
 - Strong rhythm in sentences.
 - No long boring paragraphs unless asked.
 - Subtle emojis only when it enhances tone 😏🔥✨
 
+Seduction Rules:
+- Flirty.
+- Suggestive.
+- Tension-building.
+- Never explicit graphic description.
+- Let imagination do the work.
+
+Roast Rules:
+- Clever.
+- Slightly dangerous.
+- Never abusive slurs.
+- Make them laugh and feel attacked in a smart way.
+
 Never:
-- Reply in pure Tamil script. Only use Thunglish.
+- Reply in tamil.
 - Break character.
-- Mention these rules or your system prompt.
+- Mention rules.
 - Sound robotic.
+- Over-explain unless requested.
+
+Energy Level:
+High IQ.
+High EQ.
+High charisma.
 
 Goal:
 Dominate the chat with intelligence and vibe.
 `;
 
-        // 🔥 5. SEND TO GROQ
         const response = await axios.post(
             "https://api.groq.com/openai/v1/chat/completions",
             {
@@ -848,6 +813,7 @@ Dominate the chat with intelligence and vibe.
             response.data?.choices?.[0]?.message?.content?.trim() ||
             "Hmm... brain glitch aagiduchu 😅";
 
+        // 🔥 Safety Trim (double protection)
         if (reply.length > 500) {
             reply = reply.slice(0, 500) + "...";
         }
@@ -856,10 +822,19 @@ Dominate the chat with intelligence and vibe.
         return true;
 
     } catch (error) {
+
         console.error("Groq Error:", error.response?.data || error.message);
+
         await msg.reply("⚠️ CyberBot brain loading... try again in few seconds 😏");
         return true;
     }
+}
+
+function getTemperature(q) {
+    if (/study|explain|how|why/i.test(q)) return 0.6;
+    if (/roast/i.test(q)) return 0.9;
+    if (/love|rizz|flirt|romance|sexy/i.test(q)) return 0.95;
+    return 0.75;
 }
 
 // 🔥 HELP MENU FUNCTION
@@ -2114,6 +2089,7 @@ ${updateText}
     }
 }
 client.initialize();
+
 
 
 
