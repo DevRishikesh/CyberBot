@@ -141,7 +141,7 @@ const studentsDB = [
     { name: "LOKESH D", dob: "15-06" },
     { name: "LOKESH V", dob: "09-10" },
     { name: "MADHUNITHA P", dob: "03-02" },
-    { name: "P. Manoj Kumar (Architect 👑)", dob: "26-01" },
+    { name: "P. Manoj Kumar", dob: "26-01" },
     { name: "MISBA AMREEN C", dob: "24-04" },
     { name: "MOHAN RAJ S", dob: "04-02" },
     { name: "MOUNIKA K", dob: "01-04" },
@@ -2205,6 +2205,7 @@ ${updateText}
     }
 }
 client.initialize();
+
 
 
 
