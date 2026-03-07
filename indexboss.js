@@ -54,6 +54,32 @@ client.on('ready', () => {
     schedule.scheduleJob({ rule: '0 22 * * *', tz: 'Asia/Kolkata' }, async function () {
         await sendDailyLeaderboard();
     });
+	// 🔥 Auto-Birthday Wisher at 7:00 AM IST
+    schedule.scheduleJob({ rule: '0 7 * * *', tz: 'Asia/Kolkata' }, async function () {
+        const today = new Date();
+        const dd = String(today.getDate()).padStart(2, '0');
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const todayStr = `${dd}-${mm}`; // Output: "07-03"
+
+        // Search the database for anyone matching today's date
+        const birthdaysToday = studentsDB.filter(s => s.dob === todayStr);
+
+        if (birthdaysToday.length > 0) {
+            // Join names in case two people share a birthday
+            const names = birthdaysToday.map(s => s.name).join(" and ");
+            
+            const bdayMessage = `
+🎉 *CYBERBOT BIRTHDAY ALERT* 🎉
+━━━━━━━━━━━━━━━━━━━━━━
+Everyone wish a massive Happy Birthday to *${names}*! 🎂🔥
+
+May your day be full of good vibes, zero errors, and a lot of celebrations. Party hard macha! 😎⚡
+━━━━━━━━━━━━━━━━━━━━━━
+            `.trim();
+
+            await broadcastToAllGroups(bdayMessage);
+        }
+    });
 
     // 🔥 Auto-Update Day Order at 9:00 PM (Mon-Sat)
     schedule.scheduleJob({ rule: '0 21 * * 1-6', tz: 'Asia/Kolkata' }, async function () {
@@ -89,6 +115,69 @@ const collegeKnowledge = {
     "leave": "📞 Call and inform your class teacher.\nPhone number: 8637427640",
     "bus": "🚌 Get bus pass form from office → Fill it → Attach 2 photos → Submit.\nYou’ll get it in 2 days."
 };
+//bdays
+// 🎂 CYBERBOT BIRTHDAY DATABASE
+const studentsDB = [
+    { name: "ABDUL RAHIM R", dob: "10-09" },
+    { name: "ASHIK S", dob: "08-12" },
+    { name: "BHARATHI RAJA R", dob: "16-11" },
+    { name: "DHARSHINI R", dob: "08-03" },
+    { name: "DHIVESHWAR S", dob: "13-11" },
+    { name: "DINAKAR D", dob: "30-11" },
+    { name: "ELUMALAI K", dob: "09-10" },
+    { name: "ELUMALAI R", dob: "18-09" },
+    { name: "GIRINATH P", dob: "06-01" },
+    { name: "GOPIKA K", dob: "17-03" },
+    { name: "JAYASUDHA M", dob: "15-06" },
+    { name: "JEEVITHA T", dob: "14-06" },
+    { name: "JOSHIKA S", dob: "30-10" },
+    { name: "KARTHICK T", dob: "22-06" },
+    { name: "KAVIYA SHREE M", dob: "21-08" },
+    { name: "KAVIYASRI S", dob: "02-10" },
+    { name: "KEERTHANA S", dob: "24-12" },
+    { name: "KESAVAN B", dob: "07-12" },
+    { name: "KUMARAN S", dob: "06-09" },
+    { name: "LEKHASHREE R", dob: "23-02" },
+    { name: "LOKESH D", dob: "15-06" },
+    { name: "LOKESH V", dob: "09-10" },
+    { name: "MADHUNITHA P", dob: "03-02" },
+    { name: "P. Manoj Kumar (Architect 👑)", dob: "26-01" },
+    { name: "MISBA AMREEN C", dob: "24-04" },
+    { name: "MOHAN RAJ S", dob: "04-02" },
+    { name: "MOUNIKA K", dob: "01-04" },
+    { name: "NANDHAKUMAR K", dob: "21-11" },
+    { name: "NAVEEN S", dob: "10-05" },
+    { name: "NISHITH P", dob: "15-01" },
+    { name: "NITHISH V", dob: "31-05" },
+    { name: "PAVITHRA D", dob: "17-01" },
+    { name: "POOMANIYAN P", dob: "09-07" },
+    { name: "POOVARASU M", dob: "02-06" },
+    { name: "POSHIKA SHREE T", dob: "11-04" },
+    { name: "PRAVEENKUMAR R", dob: "06-02" },
+    { name: "PRIYADHARSHINI D", dob: "15-10" },
+    { name: "PUGAZHENDHI K", dob: "26-01" },
+    { name: "RAGUL S", dob: "12-05" },
+    { name: "RISHIKESH RAGAV ET", dob: "07-03" }, 
+    { name: "RUNITHKUMAR S", dob: "22-10" },
+    { name: "SANJAY V", dob: "04-12" },
+    { name: "SARAN'S", dob: "11-10" },
+    { name: "SARAN V", dob: "12-08" },
+    { name: "SATHIYASREE R", dob: "27-03" },
+    { name: "SIVAGURU S", dob: "08-12" },
+    { name: "SRIDHARAN SS", dob: "26-06" },
+    { name: "SRIKIRUTHIKA S", dob: "10-12" },
+    { name: "SUBASHINI R", dob: "21-06" },
+    { name: "SWETHA R", dob: "11-09" },
+    { name: "SYED THOUSIFF A", dob: "09-08" },
+    { name: "THARUN G", dob: "02-08" },
+    { name: "THICHANA K", dob: "22-08" },
+    { name: "THIRUMALAIVASAN G", dob: "06-04" },
+    { name: "VARUNKUMAR V", dob: "12-03" },
+    { name: "VIGNESH M", dob: "14-05" },
+    { name: "VIKASH S", dob: "19-01" },
+    { name: "VISHAL R B", dob: "10-01" },
+    { name: "YAZHARASU M", dob: "22-11" }
+];
 //backup
 client.on('message_revoke_everyone', async (after, before) => {
 
@@ -598,7 +687,34 @@ db.data.tasks.push({
     if (cleanMessage.includes("record")) return await handleRecord(msg);
     if (cleanMessage.includes("answer")) return await handleAnswer(msg, cleanMessage);
     if (cleanMessage.includes("ask")) return await handleask(msg, cleanMessage);
+	if (cleanMessage === ".listbday") {
+    const today = new Date();
+    // Get current month (e.g., "03" for March)
+    const currentMonth = String(today.getMonth() + 1).padStart(2, '0'); 
+    
+    // Find all birthdays that end with the current month
+    const monthBdays = studentsDB.filter(s => s.dob.endsWith(`-${currentMonth}`));
+    
+    if (monthBdays.length === 0) {
+        await msg.reply("📭 No birthdays in this month!");
+        return true;
+    }
 
+    // Sort them by date so they appear in chronological order
+    monthBdays.sort((a, b) => {
+        return parseInt(a.dob.split('-')[0]) - parseInt(b.dob.split('-')[0]);
+    });
+
+    let reply = `🎂 *BIRTHDAYS THIS MONTH* 🎂\n━━━━━━━━━━━━━━━━━━━━━━\n`;
+    monthBdays.forEach(s => {
+        // Example: "▪ 07 - Rishikesh Ragav"
+        reply += `▪ ${s.dob.split('-')[0]} - ${s.name}\n`; 
+    });
+    reply += `━━━━━━━━━━━━━━━━━━━━━━`;
+    
+    await msg.reply(reply);
+    return true;
+}
     // Task Scheduler Trigger
     if (cleanMessage.includes("remain")) return await handleReminder(msg, cleanMessage); 
 
@@ -2089,6 +2205,7 @@ ${updateText}
     }
 }
 client.initialize();
+
 
 
 
