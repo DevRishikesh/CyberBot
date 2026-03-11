@@ -201,54 +201,105 @@ const collegeKnowledge = {
 };
 
 // 📚 THE EXAM MASTER DATABASE (CHEAT CODE INITIATED)
+// 📚 THE EXAM MASTER DATABASE (CHEAT CODE INITIATED)
 const examDB = {
     "oss": {
         "1": {
             "twoMarks": [
-                "What is interrupts?", // [cite: 1790]
-                "Differentiate single processor and Multi processor system.", // [cite: 1799]
-                "Define Operating System.", // [cite: 1801]
-                "Define Distributed System.", // [cite: 1805]
-                "What is system call?", // [cite: 1810]
-                "List out the different services offered by operating system." // [cite: 1814]
+                "What is interrupts?",
+                "Differentiate single processor and Multi processor system.",
+                "Define Operating System.",
+                "Define Distributed System.",
+                "What is system call?",
+                "List out the different services offered by operating system."
             ],
             "sixteenMarks": [
-                "Explain in detail about the process of Resource Management in detail.", // [cite: 1828]
-                "Explain in detail about Computer System architecture in detail. Explain the services offered by operating system.", // [cite: 1925, 1959]
-                "Describe the computer system organization with a neat diagram.", // [cite: 2001]
-                "Explain about the Kernal data structure in detail." // [cite: 2150]
+                "Explain in detail about the process of Resource Management in detail.",
+                "Explain in detail about Computer System architecture in detail. Explain the services offered by operating system.",
+                "Describe the computer system organization with a neat diagram.",
+                "Explain about the Kernal data structure in detail."
             ]
         },
         "2": {
             "twoMarks": [
-                "Define process.", // [cite: 1482]
-                "Difference between Process and Program.", // [cite: 1488]
-                "State context switching.", // [cite: 1491]
-                "What is process synchronization?", // [cite: 1495]
-                "What is meant by Semaphore? List out its purpose.", // [cite: 1499]
-                "List out the necessary condition for Deadlock and Deadlock Solution." // [cite: 1510]
+                "Define process.",
+                "Difference between Process and Program.",
+                "State context switching.",
+                "What is process synchronization?",
+                "What is meant by Semaphore? List out its purpose.",
+                "List out the necessary condition for Deadlock and Deadlock Solution."
             ],
             "sixteenMarks": [
-                "Describe the process concepts, PCB and various states of a process with neat diagram.", // [cite: 1521]
-                "Describe various Deadlock prevention and recovery techniques with suitable examples.", // [cite: 1590]
-                "Explain the concept of Semaphores and also the working of binary semaphore and its drawbacks with an example program.", // [cite: 1657]
-                "What is Multithreading model? Explain the different types of multithreading model with a neat diagram. Describe the various CPU scheduling algorithms." // [cite: 1712, 1752]
+                "Describe the process concepts, PCB and various states of a process with neat diagram.",
+                "Describe various Deadlock prevention and recovery techniques with suitable examples.",
+                "Explain the concept of Semaphores and also the working of binary semaphore and its drawbacks with an example program.",
+                "What is Multithreading model? Explain the different types of multithreading model with a neat diagram. Describe the various CPU scheduling algorithms."
             ]
         },
         "3": {
             "twoMarks": [
-                "Define Contiguous Memory allocation.", // [cite: 2271]
-                "State Memory Management and its functions.", // [cite: 2276]
-                "What is meant by Paging?", // [cite: 2284]
-                "List out the roles of Segmentation.", // [cite: 2288]
-                "What is the role of Disk scheduling technique?", // [cite: 2291]
-                "Name the file operations performed in Operating system." // [cite: 2296]
+                "Define Contiguous Memory allocation.",
+                "State Memory Management and its functions.",
+                "What is meant by Paging?",
+                "List out the roles of Segmentation.",
+                "What is the role of Disk scheduling technique?",
+                "Name the file operations performed in Operating system."
             ],
             "sixteenMarks": [
-                "Explain the working and the operations of paging in detail.", // [cite: 2302]
-                "Write about the process of Segmentation with a neat diagram.", // [cite: 2405]
-                "Describe the various file access methods in detail with a neat diagram. Describe the various structures of Directory in Operating System", // [cite: 2516, 2583]
-                "Write about the different file allocation methods in detail. Consider page reference string 1, 3, 0, 3, 5, 6, 3 with 3 page frames. Find the number of page faults using FIFO Page Replacement Algorithm." // [cite: 2737, 2911]
+                "Explain the working and the operations of paging in detail.",
+                "Write about the process of Segmentation with a neat diagram.",
+                "Describe the various file access methods in detail with a neat diagram. Describe the various structures of Directory in Operating System.",
+                "Write about the different file allocation methods in detail. Consider page reference string 1, 3, 0, 3, 5, 6, 3 with 3 page frames. Find the number of page faults using FIFO Page Replacement Algorithm."
+            ]
+        }
+    },
+    "aiml": {
+        "1": {
+            "twoMarks": [
+                "What is Artificial Intelligence? Or Define Artificial Intelligence.",
+                "List the Components in problem formulation.",
+                "Define Adversarial Search.",
+                "Define A* tree search.",
+                "Define a Game Tree.",
+                "What are the Limitations of Hill climbing algorithm."
+            ],
+            "sixteenMarks": [
+                "Explain in detail about Uninformed search algorithms in detail with example.",
+                "Discuss in detail about Hill Climbing Algorithm.",
+                "Explain in detail about constraint satisfaction problems (CSP) with an Suitable example.",
+                "Explain in detail about Informed search algorithms in detail with example."
+            ]
+        },
+        "2": {
+            "twoMarks": [
+                "Define uncertainty and list the causes of uncertainty.",
+                "In a class, there are 70% of the students who like English and 40% of the students who likes English and mathematics, and then what is the percent of students those who like English also like mathematics?",
+                "Define Joint probability distribution.",
+                "Define Probabilistic reasoning. Mention the need of probabilistic reasoning in AI.",
+                "Define Bayes' Theorem.",
+                "What are the Applications of Bayesian networks in AI?"
+            ],
+            "sixteenMarks": [
+                "i) Explain in detail about Bayesian inference. ii) Explain in detail about Naive Bayes Model.",
+                "Explain in detail about Bayesian Network.",
+                "Explain Causal Network.",
+                "Explain approximate inference in Bayesian network."
+            ]
+        },
+        "3": {
+            "twoMarks": [
+                "Define Supervised learning.",
+                "Define Bayesian Linear Regression.",
+                "Define Logistics Regression.",
+                "List the different Types of ML Classification Algorithms.",
+                "How does Gradient Descent work?",
+                "List out the Application of Naïve Bayes classifier."
+            ],
+            "sixteenMarks": [
+                "Explain Linear Regression Models and Least square method.",
+                "Explain in detail about Linear Classification Models Discriminant function.",
+                "Elaborate in detail about Support Vector Machine (SVM).",
+                "Elaborate in detail about Decision Tree in Supervised Learning."
             ]
         }
     }
@@ -2482,6 +2533,7 @@ Go dominate the paper. 🔥
     });
 }
 client.initialize();
+
 
 
 
