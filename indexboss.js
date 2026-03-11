@@ -902,6 +902,10 @@ db.data.tasks.push({
     if (cleanMessage.includes("record")) return await handleRecord(msg);
     if (cleanMessage.includes("answer")) return await handleAnswer(msg, cleanMessage);
     if (cleanMessage.includes("ask")) return await handleask(msg, cleanMessage);
+	// 📂 Master Directory Command
+    if (cleanMessage === ".list" || cleanMessage === "list" || cleanMessage === "/list") {
+        return await handleListResources(msg);
+    }
 	if (cleanMessage === ".listbday") {
     const today = new Date();
     // Get current month (e.g., "03" for March)
@@ -2532,7 +2536,56 @@ Go dominate the paper. 🔥
         job.cancel();
     });
 }
+//list funcktion
+
+async function handleListResources(msg) {
+    let replyText = "📚 *CYBERBOT MASTER DIRECTORY* 📚\n━━━━━━━━━━━━━━━━━━━━\n\n";
+
+    // ==========================================
+    // 1. DYNAMIC AI CRASH COURSES (From examDB)
+    // ==========================================
+    replyText += "🧠 *AI-POWERED CRASH COURSES (.prep)*\n";
+    replyText += "*(Generates instant 10-min summaries)*\n";
+    
+    if (typeof examDB !== 'undefined' && Object.keys(examDB).length > 0) {
+        for (const subject in examDB) {
+            const units = Object.keys(examDB[subject]).sort((a, b) => a - b);
+            replyText += `▪️ *${subject.toUpperCase()}* (Units: ${units.join(", ")})\n`;
+        }
+    } else {
+        replyText += "▪️ _No AI modules loaded yet._\n";
+    }
+
+    replyText += "\n━━━━━━━━━━━━━━━━━━━━\n\n";
+
+    // ==========================================
+    // 2. PDF QUESTION BANKS & MEDIA (.qb / .send)
+    // ==========================================
+    replyText += "📄 *PDF QUESTION BANKS*\n";
+    replyText += "*(Type the command to get the PDF)*\n";
+
+    // ⚠️ ARCHITECT: Add your actual PDF commands/subjects here!
+    const pdfBanks = [
+        "OSS (Units 1, 2, 3)",
+        "AIML (Units 1, 2, 3)",
+        "TOC (All Units)"
+    ];
+
+    pdfBanks.forEach(bank => {
+        replyText += `▪️ ${bank}\n`;
+    });
+
+    replyText += "\n━━━━━━━━━━━━━━━━━━━━\n";
+    replyText += "⚡ *SYSTEM COMMANDS:*\n";
+    replyText += "👉 `.prep <subject> <unit>` (AI Summary)\n";
+    replyText += "👉 `.qb <subject>` (Get PDF)\n"; // Change .qb to whatever your command is
+    replyText += "👉 `.tomorrow` (Next Day's Schedule)\n";
+
+    await msg.reply(replyText.trim());
+    return true;
+}
 client.initialize();
+
 
 
 
