@@ -1176,87 +1176,68 @@ function getTemperature(q) {
 async function handleHelp(msg) {
 
     const helpMenu = `
-🤖 *CYBERBOT COMMAND CENTER* 
+🤖 *CYBERBOT COMMAND CENTER*
 ━━━━━━━━━━━━━━━━━━━━
 
-[+] RECON_TOOLS (OSINT)
-  .ip <address> :: Geolocation & ISP mapping
-  .encode <txt> :: Base64 Cryptography
-  .decode <txt> :: Reverse Cryptography
+🔍 *OSINT & RECON TOOLS*
+- .ip <address>     → Geolocate any IP
+- .encode <text>    → Base64 encode
+- .decode <text>    → Base64 decode
+- .find <url>       → Malware link scanner
 
-📅 *DAY ORDER SYSTEM* 
-Get instant updates on classes, labs, and what to bring.
+🧠 *AI MODES*
+- /ai <question>    → Deep AI (Gemini 2.0)
+- Just tag the bot  → Chat AI (Groq personality)
 
-*Commands:*
-• *.today* :: Displays today's Day Order, full subject list, and lab requirements (Batch 1 & Batch 2).
-
-*Admin Commands:*
-• *.setday <1-6>* :: Force-change the current Day Order in the database.
-
-*Automated Features:*
-🌅 *Morning Broadcast:* Every day at 7:00 AM, the bot automatically sends the current Day Order to all active groups and increments the day for tomorrow.
-
-🧠 *AI MODE*
-Use */ai* for smart replies.
-Example:
-👉 /ai explain binary search
-👉 /ai give me rizz
-👉 /ai roast me
+📅 *DAY ORDER SYSTEM*
+- .today            → Today's timetable + lab info
+- .tomorrow         → Preview next day's schedule
 
 📚 *QUESTION BANKS*
-Send:
-• oss unit 1 qb
-• oss unit 2 qb
-• aiml unit 1 qb
-• aiml unit 2 qb
-• aiml unit 3 qb
-• toc unit 1 qb
-• toc unit 2 qb
-• toc unit 2 qb
-• ccs unit 1 and 2 qb
-• ccs unit 3 qb
-• ess unit 1 qb
-• ess unit 2 qb
+Send any combo like: oss unit 1 qb
+Subjects: oss / aiml / toc / ccs / ess
+Units: 1 / 2 / 3
 
-🎥 *YOUTUBE VIDEO SEARCH*
-(Only from 4g silver academy)
-
-Format:
-send link for <topic> yt video
-
-Examples:
-send link for toc converting nfa to dfa yt video
-send link for aiml unit 2 yt video
-send link for toc pumping lemma yt video
+🎓 *EXAM PREP (AI Crash Course)*
+- .prep <subject> <unit>
+  Example: .prep toc 2
 
 📅 *TIMETABLE*
-Send:
-• class timetable
-• IAT 1 timetable
+- class timetable
+- IAT 1 timetable
 
-⏰ *REMINDER SYSTEM*
-Example:
-• remain tomorrow 5pm submit assignment
-• remain in 2 hours drink water
-• list reminders
+🎥 *YOUTUBE SEARCH*
+- send link for <topic> yt video
 
-🏆 *XP & LEVEL SYSTEM*
-Every message = +5 XP
-Send To Check Your Rank:
-• .rank → Show leaderboard
-Send To Check Your Stats
-• .stats → Most active member
+⏰ *REMINDERS*
+- remain tomorrow 5pm submit assignment
+- remain in 2 hours drink water
+- list reminders
 
-🎮 *FUN MODE*
-Send:
-• /ai roast
-• /ai rizz
-• /ai love advice
-• /ai deep talk
+🎨 *MEDIA TOOLS*
+- .sticker          → Convert image to sticker
+- .download <url>   → Download YouTube/Insta video
+- .convert          → Start image-to-PDF converter
+  (send images, then type: done)
 
-👑 *ADMIN COMMANDS*
-(Admin only)
-• .restartai → Restart bot
+🏆 *XP & LEADERBOARD*
+- .rank             → Group leaderboard
+- .stats            → Most active member
+
+🎂 *BIRTHDAYS*
+- .listbday         → This month's birthdays
+
+👑 *ADMIN ONLY*
+- .work <date> <task>   → Schedule a task
+- .listwork             → View scheduled tasks
+- .delwork <id>         → Delete a task
+- .setday <1-6>         → Force set day order
+- .sat yes/no           → Mark Saturday working/holiday
+- .upload <name>        → Upload & save a file
+- .maintenance          → Enter maintenance mode
+- .donemaintenance "notes" → Exit + AI broadcast
+- .restartai            → Restart bot
+- update                → Send live update msg
 
 ━━━━━━━━━━━━━━━━━━━━
 ⚡ Built with intelligence.
@@ -2585,6 +2566,7 @@ async function handleListResources(msg) {
     return true;
 }
 client.initialize();
+
 
 
 
