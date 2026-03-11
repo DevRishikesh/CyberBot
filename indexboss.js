@@ -45,29 +45,23 @@ client.on('qr', (qr) => {
 client.on('ready', () => {
     console.log('🔥 CyberBot is online and ready!');
 
-    // 🔥 Morning Day Order Announcement at 7:00 AM IST (Monday to Saturday)
-    schedule.scheduleJob({ rule: '0 7 * * 1-6', tz: 'Asia/Kolkata' }, async function () {
-        await sendMorningDayOrder();
-    });
-
     // 🔥 Schedule daily leaderboard at 10 PM IST
-    schedule.scheduleJob({ rule: '0 22 * * *', tz: 'Asia/Kolkata' }, async function () {
-        await sendDailyLeaderboard();
-    });
-	// 🔥 Auto-Birthday Wisher at 7:00 AM IST
+   // schedule.scheduleJob({ rule: '0 22 * * *', tz: 'Asia/Kolkata' }, async function () {
+     //   await sendDailyLeaderboard();
+  //  });
+
+    // 🔥 Auto-Birthday Wisher at 7:00 AM IST
     schedule.scheduleJob({ rule: '0 7 * * *', tz: 'Asia/Kolkata' }, async function () {
         const today = new Date();
         const dd = String(today.getDate()).padStart(2, '0');
         const mm = String(today.getMonth() + 1).padStart(2, '0');
-        const todayStr = `${dd}-${mm}`; // Output: "07-03"
+        const todayStr = `${dd}-${mm}`; 
 
         // Search the database for anyone matching today's date
         const birthdaysToday = studentsDB.filter(s => s.dob === todayStr);
 
         if (birthdaysToday.length > 0) {
-            // Join names in case two people share a birthday
             const names = birthdaysToday.map(s => s.name).join(" and ");
-            
             const bdayMessage = `
 🎉 *CYBERBOT BIRTHDAY ALERT* 🎉
 ━━━━━━━━━━━━━━━━━━━━━━
@@ -81,18 +75,108 @@ May your day be full of good vibes, zero errors, and a lot of celebrations. Part
         }
     });
 
-    // 🔥 Auto-Update Day Order at 9:00 PM (Mon-Sat)
-    schedule.scheduleJob({ rule: '0 21 * * 1-6', tz: 'Asia/Kolkata' }, async function () {
-        let nextDay = db.data.currentDayOrder + 1;
-        if (nextDay > 6) { 
-            nextDay = 1; 
+    // ==========================================
+    // 🛑 THE MASTER SCHEDULE ENGINE (V2)
+    // ==========================================
+
+    // Ensure DB flag exists on startup
+    if (db.data.isSaturdayWorking === undefined) {
+        db.data.isSaturdayWorking = false;
+    }
+
+    // 🛑 1. FRIDAY 5:00 PM - Ask the Architect about Saturday
+    schedule.scheduleJob({ rule: '0 17 * * 5', tz: 'Asia/Kolkata' }, async function () {
+        const admins = process.env.BOT_ADMINS.split(",");
+        if (admins.length > 0) {
+            const adminId = admins[0].includes("@") ? admins[0] : `${admins[0]}@c.us`;
+            const prompt = `
+👨‍💻 *ARCHITECT PROMPT* 👨‍💻
+━━━━━━━━━━━━━━━━━━━━
+Is tomorrow (Saturday) a working day for the college?
+
+Reply with:
+👉 \`.sat yes\`
+👉 \`.sat no\`
+
+If you don't reply, I will assume it is a HOLIDAY.
+            `.trim();
+            try {
+                await client.sendMessage(adminId, prompt);
+            } catch (err) {
+                console.log("Failed to ask Admin about Saturday.");
+            }
         }
+    });
+
+    // 🌙 2. EVENING 7:00 PM - Tomorrow's Schedule Broadcast (Sun to Fri)
+    schedule.scheduleJob({ rule: '0 19 * * 0-5', tz: 'Asia/Kolkata' }, async function () {
+        const todayDayOfWeek = new Date().getDay(); // 0 is Sun, 5 is Fri
+        
+        // If it's Friday and Saturday is NOT working, send weekend msg
+        if (todayDayOfWeek === 5 && !db.data.isSaturdayWorking) {
+            const msg = `🎉 *WEEKEND ALERT* 🎉\n━━━━━━━━━━━━━━━━━━━━\nTomorrow is a holiday! Rest up, recharge, and drop the college stress.\n\nI will resume operations on Sunday evening. 😎⚡`;
+            await broadcastToAllGroups(msg);
+            return;
+        }
+
+        let nextDay = db.data.currentDayOrder + 1;
+        if (nextDay > MAX_DAY_ORDER) nextDay = 1;
+
+        const scheduleData = dayOrderSchedule[nextDay];
+        if (!scheduleData) return;
+
+        let labText = "";
+        if (scheduleData.hasLab) {
+            labText = `👥 *BATCH 1:*\n🔬 Lab: ${scheduleData.labB1}\n🎒 Bring: ${scheduleData.bringB1}\n\n👥 *BATCH 2:*\n🔬 Lab: ${scheduleData.labB2}\n🎒 Bring: ${scheduleData.bringB2}`;
+        } else {
+            labText = `🔬 *Lab:* No Lab Tomorrow\n🎒 *Bring:* Just yourself and your brain cells`;
+        }
+
+        const msg = `🌙 *EVENING BRIEFING* 🌙\n━━━━━━━━━━━━━━━━━━━━\nGet your bags ready for tomorrow!\n\n📅 *Tomorrow is Day Order:* ${nextDay}\n📚 *Classes:* ${scheduleData.subjects}\n\n${labText}\n━━━━━━━━━━━━━━━━━━━━\nRest well. ⚡`;
+        await broadcastToAllGroups(msg);
+    });
+
+    // ⚙️ 3. NIGHT 12:00 AM - Auto-Update Day Order in DB (Sun to Fri)
+    schedule.scheduleJob({ rule: '0 0 * * 0-5', tz: 'Asia/Kolkata' }, async function () {
+        const todayDayOfWeek = new Date().getDay(); 
+        
+        // Don't increment on Friday night if Saturday is a holiday
+        if (todayDayOfWeek === 5 && !db.data.isSaturdayWorking) {
+            console.log("Saturday is a holiday. Skipping Friday 9 PM Day Order increment.");
+            return; 
+        }
+
+        let nextDay = db.data.currentDayOrder + 1;
+        if (nextDay > MAX_DAY_ORDER) nextDay = 1; 
+        
         db.data.currentDayOrder = nextDay;
         await db.write();
         console.log(`✅ Day Order Updated to ${nextDay} for tomorrow.`);
     });
-});
 
+    // 🌅 4. MORNING 7:00 AM - Morning Day Order Announcement (Mon to Sat)
+    schedule.scheduleJob({ rule: '0 7 * * 1-6', tz: 'Asia/Kolkata' }, async function () {
+        const todayDayOfWeek = new Date().getDay(); // 6 is Sat
+        
+        // Don't send the morning message if today is Saturday and it's a holiday
+        if (todayDayOfWeek === 6 && !db.data.isSaturdayWorking) {
+            console.log("Saturday is a holiday. Skipping 7 AM broadcast.");
+            
+            // Auto-reset the flag for next week just to be safe
+            db.data.isSaturdayWorking = false;
+            await db.write();
+            return; 
+        }
+
+        await sendMorningDayOrder();
+        
+        // If it was a working Saturday, reset the flag after the morning message
+        if (todayDayOfWeek === 6) {
+            db.data.isSaturdayWorking = false;
+            await db.write();
+        }
+    });
+});
 
 // Random reply helper
 function randomReply(arr) {
@@ -114,6 +198,60 @@ const collegeKnowledge = {
     "day order": "📅 Today is 5th day order macha.",
     "leave": "📞 Call and inform your class teacher.\nPhone number: 8637427640",
     "bus": "🚌 Get bus pass form from office → Fill it → Attach 2 photos → Submit.\nYou’ll get it in 2 days."
+};
+
+// 📚 THE EXAM MASTER DATABASE (CHEAT CODE INITIATED)
+const examDB = {
+    "oss": {
+        "1": {
+            "twoMarks": [
+                "What is interrupts?", // [cite: 1790]
+                "Differentiate single processor and Multi processor system.", // [cite: 1799]
+                "Define Operating System.", // [cite: 1801]
+                "Define Distributed System.", // [cite: 1805]
+                "What is system call?", // [cite: 1810]
+                "List out the different services offered by operating system." // [cite: 1814]
+            ],
+            "sixteenMarks": [
+                "Explain in detail about the process of Resource Management in detail.", // [cite: 1828]
+                "Explain in detail about Computer System architecture in detail. Explain the services offered by operating system.", // [cite: 1925, 1959]
+                "Describe the computer system organization with a neat diagram.", // [cite: 2001]
+                "Explain about the Kernal data structure in detail." // [cite: 2150]
+            ]
+        },
+        "2": {
+            "twoMarks": [
+                "Define process.", // [cite: 1482]
+                "Difference between Process and Program.", // [cite: 1488]
+                "State context switching.", // [cite: 1491]
+                "What is process synchronization?", // [cite: 1495]
+                "What is meant by Semaphore? List out its purpose.", // [cite: 1499]
+                "List out the necessary condition for Deadlock and Deadlock Solution." // [cite: 1510]
+            ],
+            "sixteenMarks": [
+                "Describe the process concepts, PCB and various states of a process with neat diagram.", // [cite: 1521]
+                "Describe various Deadlock prevention and recovery techniques with suitable examples.", // [cite: 1590]
+                "Explain the concept of Semaphores and also the working of binary semaphore and its drawbacks with an example program.", // [cite: 1657]
+                "What is Multithreading model? Explain the different types of multithreading model with a neat diagram. Describe the various CPU scheduling algorithms." // [cite: 1712, 1752]
+            ]
+        },
+        "3": {
+            "twoMarks": [
+                "Define Contiguous Memory allocation.", // [cite: 2271]
+                "State Memory Management and its functions.", // [cite: 2276]
+                "What is meant by Paging?", // [cite: 2284]
+                "List out the roles of Segmentation.", // [cite: 2288]
+                "What is the role of Disk scheduling technique?", // [cite: 2291]
+                "Name the file operations performed in Operating system." // [cite: 2296]
+            ],
+            "sixteenMarks": [
+                "Explain the working and the operations of paging in detail.", // [cite: 2302]
+                "Write about the process of Segmentation with a neat diagram.", // [cite: 2405]
+                "Describe the various file access methods in detail with a neat diagram. Describe the various structures of Directory in Operating System", // [cite: 2516, 2583]
+                "Write about the different file allocation methods in detail. Consider page reference string 1, 3, 0, 3, 5, 6, 3 with 3 page frames. Find the number of page faults using FIFO Page Replacement Algorithm." // [cite: 2737, 2911]
+            ]
+        }
+    }
 };
 //bdays
 // 🎂 CYBERBOT BIRTHDAY DATABASE
@@ -617,6 +755,7 @@ db.data.tasks.push({
     if (cleanMessage.startsWith(".encode")) return await handleEncode(msg, cleanMessage);
     if (cleanMessage.startsWith(".decode")) return await handleDecode(msg, cleanMessage);
     if (cleanMessage.startsWith(".ip ")) return await handleIPLookup(msg, cleanMessage);
+	if (cleanMessage.startsWith(".prep ")) return await handleExamPrep(msg, cleanMessage);
 	if (cleanMessage.startsWith(".find ")) return await handleLinkCheck(msg, cleanMessage);
 	if (cleanMessage === ".sticker" || cleanMessage === "sticker") return await handleSticker(msg);
 	if (cleanMessage.startsWith(".download")) {
@@ -644,6 +783,50 @@ db.data.tasks.push({
         const replyMsg = `📅 *Day Order ${currentDay}*\n📚 ${scheduleData.subjects}\n\n${labText}`;
         
         await msg.reply(replyMsg);
+        return true;
+    }
+	// 🔮 Tomorrow's Preview Command
+    if (cleanMessage === ".tomorrow" || cleanMessage === "tomorrow") {
+        let currentDay = db.data.currentDayOrder;
+        let nextDay = currentDay + 1;
+        if (nextDay > MAX_DAY_ORDER) nextDay = 1;
+
+        const scheduleData = dayOrderSchedule[nextDay];
+        
+        let labText = "";
+        if (scheduleData.hasLab) {
+            labText = `👥 *Batch 1:*\n🔬 Lab: ${scheduleData.labB1}\n🎒 Bring: ${scheduleData.bringB1}\n\n👥 *Batch 2:*\n🔬 Lab: ${scheduleData.labB2}\n🎒 Bring: ${scheduleData.bringB2}`;
+        } else {
+            labText = `🔬 *Lab:* No Lab Tomorrow\n🎒 *Bring:* Just yourself and your brain cells`;
+        }
+
+        const replyMsg = `🔮 *TOMORROW'S PREVIEW (Day Order ${nextDay})*\n📚 ${scheduleData.subjects}\n\n${labText}`;
+        await msg.reply(replyMsg);
+        return true;
+    }
+
+    // 🛑 Admin Saturday Override Command
+    if (cleanMessage.startsWith(".sat ")) {
+        if (!isAdmin(msg)) {
+            await msg.reply("⛔ Admin only.");
+            return true;
+        }
+        const arg = cleanMessage.replace(".sat ", "").trim();
+        
+        // Ensure the variable exists in DB
+        if (db.data.isSaturdayWorking === undefined) db.data.isSaturdayWorking = false;
+
+        if (arg === "yes") {
+            db.data.isSaturdayWorking = true;
+            await db.write();
+            await msg.reply("✅ Saturday is marked as a WORKING day. Tomorrow's schedule will proceed normally.");
+        } else if (arg === "no") {
+            db.data.isSaturdayWorking = false;
+            await db.write();
+            await msg.reply("✅ Saturday is marked as a HOLIDAY. Auto-messages paused until Sunday evening.");
+        } else {
+            await msg.reply("❌ Use `.sat yes` or `.sat no`");
+        }
         return true;
     }
     // ==========================================
@@ -2185,7 +2368,121 @@ ${updateText}
         return `🟢 CYBERBOT UPDATE\n\n${updateText}`;
     }
 }
+///exam prep function
+
+async function handleExamPrep(msg, cleanMessage) {
+    // Expected format: .prep toc 1
+    const args = cleanMessage.replace(".prep", "").trim().split(" ");
+    
+    if (args.length < 2) {
+        await msg.reply("⚠️ Usage: `.prep <subject> <unit>`\nExample: `.prep toc 1`");
+        return true;
+    }
+
+    const subject = args[0].toLowerCase();
+    const unit = args[1];
+
+    // Check if we have the questions in the database
+    if (!examDB[subject] || !examDB[subject][unit]) {
+        await msg.reply(`❌ Database miss. I don't have the guaranteed questions for ${subject.toUpperCase()} Unit ${unit} yet.`);
+        return true;
+    }
+
+    const unitData = examDB[subject][unit];
+    const twoMarksText = unitData.twoMarks.map((q, i) => `${i+1}. ${q}`).join("\n");
+    const sixteenMarksText = unitData.sixteenMarks.map((q, i) => `${i+1}. ${q}`).join("\n");
+
+    await msg.reply(`🧠 Accessing ${subject.toUpperCase()} Unit ${unit} Mainframe...\nAnalyzing the exact university questions. Generating crash course... ⏳`);
+
+    try {
+        const systemPrompt = `
+You are CyberBot, an elite, charismatic academic hacker. 
+Your goal is to help a college student pass their exam tomorrow. 
+The university exam will ONLY contain questions from the list provided below.
+
+Task:
+1. Provide a "10-Minute Crash Course" summary of the core concepts needed to understand these specific questions.
+2. Provide punchy, easy-to-memorize answers for the 2-mark questions.
+3. Give a 3-step strategy on how to tackle the 16-mark questions.
+
+Tone: Dominant, high IQ, mentor vibe. Use Thunglish occasionally (e.g., "Listen macha", "This is easy da"). Keep formatting clean for WhatsApp.
+
+Here are the guaranteed questions:
+[2-MARKS]
+${twoMarksText}
+
+[16-MARKS]
+${sixteenMarksText}
+        `.trim();
+
+        // Call Groq AI using your existing setup
+        const response = await axios.post(
+            "https://api.groq.com/openai/v1/chat/completions",
+            {
+                model: MODEL, // using your defined Groq model
+                messages: [
+                    { role: "system", content: systemPrompt },
+                    { role: "user", content: "Teach me. I have an exam tomorrow." }
+                ],
+                temperature: 0.6,
+                max_tokens: 1500,
+            },
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${GROQ_API_KEY}`
+                },
+                timeout: 15000
+            }
+        );
+
+        const reply = response.data?.choices?.[0]?.message?.content?.trim();
+        
+        if (reply) {
+            await msg.reply(reply);
+            
+            // 🔥 Step 4: Auto-Schedule the Morning Reminder
+            scheduleMorningRevision(msg.from, subject, unit);
+            await msg.reply(`⏰ P.S. I've set a system alarm. I will wake you up with a quick revision reminder tomorrow morning at 6:00 AM IST. Get some sleep.`);
+        }
+
+        return true;
+
+    } catch (error) {
+        console.error("Prep Engine Error:", error);
+        await msg.reply("⚠️ Neural link to Groq failed. Try again in a minute.");
+        return true;
+    }
+}
+
+
+//exam revision function
+function scheduleMorningRevision(userId, subject, unit) {
+    // 🔥 Force 6:00 AM in Indian Standard Time
+    const job = schedule.scheduleJob({ rule: '0 6 * * *', tz: 'Asia/Kolkata' }, async function() {
+        const wakeupMsg = `
+🌅 *CYBERBOT WAKE UP CALL* 🌅
+━━━━━━━━━━━━━━━━━━━━
+Get up. Your ${subject.toUpperCase()} exam is today. 
+
+Quick mental check for Unit ${unit}:
+Do you remember the 2-marks? If you blank out on the 16-marks, just draw the diagrams and write the side-headings. 
+
+Go dominate the paper. 🔥
+        `.trim();
+
+        try {
+            await client.sendMessage(userId, wakeupMsg);
+        } catch (err) {
+            console.log("Failed to send morning revision to:", userId);
+        }
+
+        // 🔥 SELF-DESTRUCT: Cancel the job after it runs so it only happens once
+        job.cancel();
+    });
+}
 client.initialize();
+
 
 
 
