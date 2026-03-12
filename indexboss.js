@@ -2304,8 +2304,6 @@ async function deleteWork(msg, cleanMessage) {
 
 
 ///vid download
-
-
 async function handleDownload(msg) {
     const args = msg.body.split(" ");
     let url = args.length > 1 ? args[1].trim() : null;
@@ -2569,6 +2567,7 @@ async function handleListResources(msg) {
     return true;
 }
 client.initialize();
+
 
 
 
