@@ -2304,8 +2304,7 @@ async function deleteWork(msg, cleanMessage) {
 
 
 ///vid download
-const axios = require("axios");
-const { MessageMedia } = require("whatsapp-web.js");
+
 
 async function handleDownload(msg) {
     const args = msg.body.split(" ");
@@ -2316,44 +2315,41 @@ async function handleDownload(msg) {
         return;
     }
 
-    // Strip tracking parameters that often break APIs
+    // Strip tracking parameters (?igsh=) to prevent API confusion
     url = url.split("?")[0];
 
-    await msg.reply("⬇️ Fetching video... this will just take a moment.");
+    await msg.reply("⬇️ Fetching video... please wait.");
 
     try {
-        // Example using a generic RapidAPI Instagram Downloader endpoint
-        // You will need to replace the URL and Headers with the specific API you choose
-        const options = {
-            method: 'GET',
-            url: 'https://instagram-downloader-api-url.com/fetch', 
-            params: { link: url },
+        // Ping the free Cobalt API
+        const response = await axios.post('https://api.cobalt.tools/', {
+            url: url
+        }, {
             headers: {
-                'X-RapidAPI-Key': 'YOUR_API_KEY_HERE',
-                'X-RapidAPI-Host': 'instagram-downloader-host.com'
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             }
-        };
+        });
 
-        const response = await axios.request(options);
-        
-        // The API should return a direct link to the raw .mp4 file
-        const directVideoUrl = response.data.video_url; 
+        // Cobalt returns the direct, unblocked video link in the 'url' property
+        const directVideoUrl = response.data.url; 
 
         if (!directVideoUrl) {
-            await msg.reply("⚠️ Could not extract the video link. It might be private.");
+            await msg.reply("⚠️ Could not extract the video link. The account might be fully private.");
             return;
         }
 
-        // WhatsApp Web JS can pull the media directly from the URL! No local saving needed.
+        // WhatsApp downloads the video directly from the Cobalt server URL
         const media = await MessageMedia.fromUrl(directVideoUrl, { unsafeMime: true });
         
+        // Send the video back to the group/chat it came from
         await client.sendMessage(msg.from, media, {
-            caption: "🎬 Downloaded by CyberBot"
+            caption: "🎬 Downloaded smoothly without cookies!"
         });
 
     } catch (error) {
-        console.error("API Error:", error);
-        await msg.reply("⚠️ Download failed. The service might be temporarily down or the link is invalid.");
+        console.error("API Error:", error.response ? error.response.data : error.message);
+        await msg.reply("⚠️ Download failed. The public API might be temporarily busy, or the link is invalid.");
     }
 }
 //done msg to all gropu
@@ -2573,6 +2569,7 @@ async function handleListResources(msg) {
     return true;
 }
 client.initialize();
+
 
 
 
