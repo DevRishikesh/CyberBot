@@ -2304,34 +2304,47 @@ async function deleteWork(msg, cleanMessage) {
 
 
 ///vid download
+
+
 async function handleDownload(msg) {
-    const url = msg.body.replace(".download", "").trim();
+    // 1. Better URL extraction to avoid spacing issues
+    const args = msg.body.split(" ");
+    const url = args.length > 1 ? args[1].trim() : null;
     
-    if (!url) {
+    // 2. Validate it's a link
+    if (!url || !url.startsWith("http")) {
         await msg.reply("❌ Usage:\n.download <youtube / instagram link>");
         return;
     }
 
-    await msg.reply("⬇️ Downloading long video... this may take a few minutes.");
+    await msg.reply("⬇️ Downloading video... this may take a minute.");
 
     const fileName = `video_${Date.now()}.mp4`;
     const filePath = path.join(__dirname, fileName);
 
-    // 1. Pass the cookies.txt file and limit the height to 480p to keep file sizes manageable
-    const command = `yt-dlp --js-runtimes node --cookies "${path.join(__dirname, 'cookies.txt')}" -f "bv*[height<=480]+ba/b[height<=480]" --merge-output-format mp4 -o "${filePath}" --user-agent "Mozilla/5.0" "${url}"`;
+    // 3. Removed cookies requirement for general use. 
+    // Added --quiet and --no-warnings to prevent Node.js exec() buffer crashes.
+    // Optimized format selection for WhatsApp compatibility (mp4, max 480p).
+    const command = `yt-dlp --quiet --no-warnings -f "bestvideo[ext=mp4][height<=480]+bestaudio[ext=m4a]/best[ext=mp4]/best" -o "${filePath}" "${url}"`;
 
-    exec(command, async (error) => {
+    // 4. Increased maxBuffer just in case yt-dlp still outputs too much data
+    exec(command, { maxBuffer: 1024 * 1024 * 10 }, async (error, stdout, stderr) => {
         if (error) {
             console.error("yt-dlp error:", error);
-            await msg.reply("⚠️ Download failed. The video might be age-restricted or invalid.");
+            await msg.reply("⚠️ Download failed. The video might be private, age-restricted, or invalid.");
             return;
         }
 
         try {
-            // 2. Load the file from your server's hard drive
+            // Check if the file actually generated
+            if (!fs.existsSync(filePath)) {
+                await msg.reply("⚠️ Download failed. Could not process the video file.");
+                return;
+            }
+
             const media = MessageMedia.fromFilePath(filePath);
             
-            // 3. Send as a document to bypass the 64MB video player limit
+            // 5. msg.from automatically handles sending it back to the group it came from
             await client.sendMessage(msg.from, media, {
                 sendMediaAsDocument: true, 
                 caption: "🎬 Downloaded by CyberBot"
@@ -2339,16 +2352,15 @@ async function handleDownload(msg) {
 
         } catch (sendError) {
             console.error("WhatsApp Send Error:", sendError);
-            await msg.reply("⚠️ Failed to send. The file might still be too large for your server's memory.");
+            await msg.reply("⚠️ Failed to send. The file might be larger than WhatsApp's limit.");
         } finally {
-            // 4. Always delete the massive file from your AWS server afterwards to save space
+            // Clean up to save space
             if (fs.existsSync(filePath)) {
                 fs.unlinkSync(filePath);
             }
         }
     });
 }
-
 //done msg to all gropu
 
 async function generateUpdateMessage(updateText) {
@@ -2566,6 +2578,7 @@ async function handleListResources(msg) {
     return true;
 }
 client.initialize();
+
 
 
 
