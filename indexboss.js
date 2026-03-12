@@ -2304,62 +2304,57 @@ async function deleteWork(msg, cleanMessage) {
 
 
 ///vid download
-
+const axios = require("axios");
+const { MessageMedia } = require("whatsapp-web.js");
 
 async function handleDownload(msg) {
-    // 1. Better URL extraction to avoid spacing issues
     const args = msg.body.split(" ");
-    const url = args.length > 1 ? args[1].trim() : null;
+    let url = args.length > 1 ? args[1].trim() : null;
     
-    // 2. Validate it's a link
     if (!url || !url.startsWith("http")) {
         await msg.reply("❌ Usage:\n.download <youtube / instagram link>");
         return;
     }
 
-    await msg.reply("⬇️ Downloading video... this may take a minute.");
+    // Strip tracking parameters that often break APIs
+    url = url.split("?")[0];
 
-    const fileName = `video_${Date.now()}.mp4`;
-    const filePath = path.join(__dirname, fileName);
+    await msg.reply("⬇️ Fetching video... this will just take a moment.");
 
-    // 3. Removed cookies requirement for general use. 
-    // Added --quiet and --no-warnings to prevent Node.js exec() buffer crashes.
-    // Optimized format selection for WhatsApp compatibility (mp4, max 480p).
-    const command = `yt-dlp --quiet --no-warnings -f "bestvideo[ext=mp4][height<=480]+bestaudio[ext=m4a]/best[ext=mp4]/best" -o "${filePath}" "${url}"`;
+    try {
+        // Example using a generic RapidAPI Instagram Downloader endpoint
+        // You will need to replace the URL and Headers with the specific API you choose
+        const options = {
+            method: 'GET',
+            url: 'https://instagram-downloader-api-url.com/fetch', 
+            params: { link: url },
+            headers: {
+                'X-RapidAPI-Key': 'YOUR_API_KEY_HERE',
+                'X-RapidAPI-Host': 'instagram-downloader-host.com'
+            }
+        };
 
-    // 4. Increased maxBuffer just in case yt-dlp still outputs too much data
-    exec(command, { maxBuffer: 1024 * 1024 * 10 }, async (error, stdout, stderr) => {
-        if (error) {
-            console.error("yt-dlp error:", error);
-            await msg.reply("⚠️ Download failed. The video might be private, age-restricted, or invalid.");
+        const response = await axios.request(options);
+        
+        // The API should return a direct link to the raw .mp4 file
+        const directVideoUrl = response.data.video_url; 
+
+        if (!directVideoUrl) {
+            await msg.reply("⚠️ Could not extract the video link. It might be private.");
             return;
         }
 
-        try {
-            // Check if the file actually generated
-            if (!fs.existsSync(filePath)) {
-                await msg.reply("⚠️ Download failed. Could not process the video file.");
-                return;
-            }
+        // WhatsApp Web JS can pull the media directly from the URL! No local saving needed.
+        const media = await MessageMedia.fromUrl(directVideoUrl, { unsafeMime: true });
+        
+        await client.sendMessage(msg.from, media, {
+            caption: "🎬 Downloaded by CyberBot"
+        });
 
-            const media = MessageMedia.fromFilePath(filePath);
-            
-            // 5. msg.from automatically handles sending it back to the group it came from
-            await client.sendMessage(msg.from, media, {
-                sendMediaAsDocument: true, 
-                caption: "🎬 Downloaded by CyberBot"
-            });
-
-        } catch (sendError) {
-            console.error("WhatsApp Send Error:", sendError);
-            await msg.reply("⚠️ Failed to send. The file might be larger than WhatsApp's limit.");
-        } finally {
-            // Clean up to save space
-            if (fs.existsSync(filePath)) {
-                fs.unlinkSync(filePath);
-            }
-        }
-    });
+    } catch (error) {
+        console.error("API Error:", error);
+        await msg.reply("⚠️ Download failed. The service might be temporarily down or the link is invalid.");
+    }
 }
 //done msg to all gropu
 
@@ -2578,6 +2573,7 @@ async function handleListResources(msg) {
     return true;
 }
 client.initialize();
+
 
 
 
