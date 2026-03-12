@@ -2304,7 +2304,8 @@ async function deleteWork(msg, cleanMessage) {
 
 
 ///vid download
-
+const axios = require("axios");
+const { MessageMedia } = require("whatsapp-web.js");
 
 async function handleDownload(msg) {
     const args = msg.body.split(" ");
@@ -2315,14 +2316,14 @@ async function handleDownload(msg) {
         return;
     }
 
-    // Strip tracking parameters (?igsh=) to prevent API confusion
+    // Strip tracking parameters (?igsh=) to ensure clean API processing
     url = url.split("?")[0];
 
-    await msg.reply("⬇️ Fetching video... please wait.");
+    await msg.reply("⬇️ Fetching video from local server... please wait.");
 
     try {
-        // Ping the free Cobalt API
-        const response = await axios.post('https://api.cobalt.tools/', {
+        // Ping your private Cobalt Docker container on port 9000
+        const response = await axios.post('http://localhost:9000/', {
             url: url
         }, {
             headers: {
@@ -2331,25 +2332,25 @@ async function handleDownload(msg) {
             }
         });
 
-        // Cobalt returns the direct, unblocked video link in the 'url' property
+        // Cobalt returns the processed, direct media link in the 'url' property
         const directVideoUrl = response.data.url; 
 
         if (!directVideoUrl) {
-            await msg.reply("⚠️ Could not extract the video link. The account might be fully private.");
+            await msg.reply("⚠️ Could not extract the video link. The content might be fully private.");
             return;
         }
 
-        // WhatsApp downloads the video directly from the Cobalt server URL
+        // WhatsApp Web JS downloads the media straight from the URL
         const media = await MessageMedia.fromUrl(directVideoUrl, { unsafeMime: true });
         
-        // Send the video back to the group/chat it came from
+        // Send the video back to the chat
         await client.sendMessage(msg.from, media, {
-            caption: "🎬 Downloaded smoothly without cookies!"
+            caption: "🎬 Downloaded instantly via private server!"
         });
 
     } catch (error) {
-        console.error("API Error:", error.response ? error.response.data : error.message);
-        await msg.reply("⚠️ Download failed. The public API might be temporarily busy, or the link is invalid.");
+        console.error("Local API Error:", error.response ? error.response.data : error.message);
+        await msg.reply("⚠️ Download failed. Ensure your Cobalt Docker container is still running.");
     }
 }
 //done msg to all gropu
@@ -2569,6 +2570,7 @@ async function handleListResources(msg) {
     return true;
 }
 client.initialize();
+
 
 
 
