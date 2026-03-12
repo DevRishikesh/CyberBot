@@ -2304,8 +2304,7 @@ async function deleteWork(msg, cleanMessage) {
 
 
 ///vid download
-const axios = require("axios");
-const { MessageMedia } = require("whatsapp-web.js");
+
 
 async function handleDownload(msg) {
     const args = msg.body.split(" ");
@@ -2570,6 +2569,7 @@ async function handleListResources(msg) {
     return true;
 }
 client.initialize();
+
 
 
 
