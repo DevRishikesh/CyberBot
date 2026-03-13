@@ -51,7 +51,7 @@ client.on('ready', () => {
   //  });
 
     // 🔥 Auto-Birthday Wisher at 7:00 AM IST
-    schedule.scheduleJob({ rule: '0 7 * * *', tz: 'Asia/Kolkata' }, async function () {
+    schedule.scheduleJob({ rule: '0 0 * * *', tz: 'Asia/Kolkata' }, async function () {
         const today = new Date();
         const dd = String(today.getDate()).padStart(2, '0');
         const mm = String(today.getMonth() + 1).padStart(2, '0');
