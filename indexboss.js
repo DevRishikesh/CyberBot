@@ -807,6 +807,7 @@ db.data.tasks.push({
     if (cleanMessage.startsWith(".decode")) return await handleDecode(msg, cleanMessage);
     if (cleanMessage.startsWith(".ip ")) return await handleIPLookup(msg, cleanMessage);
 	if (cleanMessage.startsWith(".prep ")) return await handleExamPrep(msg, cleanMessage);
+	if (cleanMessage === ".meme") return await handleMeme(msg);
 	if (cleanMessage.startsWith(".find ")) return await handleLinkCheck(msg, cleanMessage);
 	if (cleanMessage === ".sticker" || cleanMessage === "sticker") return await handleSticker(msg);
 	if (cleanMessage.startsWith(".download")) {
@@ -2565,6 +2566,31 @@ async function handleListResources(msg) {
 
     await msg.reply(replyText.trim());
     return true;
+}
+//meme generate
+async function handleMeme(msg) {
+    try {
+        const response = await axios.post(
+            "https://api.groq.com/openai/v1/chat/completions",
+            {
+                model: MODEL,
+                messages: [
+                    { role: "system", content: "You generate funny college student memes and relatable jokes in Thunglish (Tamil + English mix). Keep it short, punchy, WhatsApp-friendly. Use emojis." },
+                    { role: "user", content: "Generate one funny college student meme or relatable quote right now." }
+                ],
+                temperature: 0.9,
+                max_tokens: 150
+            },
+            { headers: { "Authorization": `Bearer ${GROQ_API_KEY}`, "Content-Type": "application/json" } }
+        );
+        
+        const meme = response.data?.choices?.[0]?.message?.content?.trim();
+        await msg.reply(`😂 *CYBERBOT MEME DROP* 😂\n━━━━━━━━━━━━━━━━━━━━\n${meme}\n━━━━━━━━━━━━━━━━━━━━`);
+        return true;
+    } catch (e) {
+        await msg.reply("😂 Bro the meme engine crashed. Try again.");
+        return true;
+    }
 }
 client.initialize();
 
