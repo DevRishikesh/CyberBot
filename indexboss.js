@@ -199,7 +199,105 @@ const collegeKnowledge = {
     "leave": "📞 Call and inform your class teacher.\nPhone number: 8637427640",
     "bus": "🚌 Get bus pass form from office → Fill it → Attach 2 photos → Submit.\nYou’ll get it in 2 days."
 };
-
+//sub database
+const cyberSecuritySyllabus = {
+    "1": {
+        sem: "Semester 1",
+        subjects: [
+            { code: "MA3151", name: "Matrices and Calculus", credits: 4, type: "theory" },
+            { code: "PH3151", name: "Engineering Physics", credits: 3, type: "theory" },
+            { code: "CY3151", name: "Engineering Chemistry", credits: 3, type: "theory" },
+            { code: "GE3151", name: "Problem Solving and Python Programming", credits: 3, type: "theory" },
+            { code: "GE3152", name: "Heritage of Tamils", credits: 2, type: "theory" },
+            { code: "PH3111", name: "Engineering Physics Lab", credits: 1, type: "lab" },
+            { code: "CY3111", name: "Engineering Chemistry Lab", credits: 1, type: "lab" },
+            { code: "GE3111", name: "Python Programming Lab", credits: 2, type: "lab" }
+        ]
+    },
+    "2": {
+        sem: "Semester 2",
+        subjects: [
+            { code: "MA3251", name: "Statistics and Numerical Methods", credits: 4, type: "theory" },
+            { code: "PH3256", name: "Physics for Information Science", credits: 3, type: "theory" },
+            { code: "BE3251", name: "Basic Electrical and Electronics Engineering", credits: 3, type: "theory" },
+            { code: "CS3251", name: "Programming in C", credits: 3, type: "theory" },
+            { code: "GE3251", name: "Engineering Graphics", credits: 4, type: "theory" },
+            { code: "CS3211", name: "Programming in C Lab", credits: 2, type: "lab" },
+            { code: "GE3211", name: "Engineering Practices Lab", credits: 2, type: "lab" }
+        ]
+    },
+    "3": {
+        sem: "Semester 3",
+        subjects: [
+            { code: "MA3354", name: "Discrete Mathematics", credits: 4, type: "theory" },
+            { code: "CS3351", name: "Digital Principles and Computer Organization", credits: 3, type: "theory" },
+            { code: "CS3352", name: "Foundations of Data Science", credits: 3, type: "theory" },
+            { code: "CS3391", name: "Object Oriented Programming", credits: 3, type: "theory" },
+            { code: "CCS331", name: "Introduction to Cyber Security", credits: 3, type: "theory" },
+            { code: "CS3381", name: "Data Structures Lab", credits: 2, type: "lab" },
+            { code: "CS3371", name: "OOP Lab", credits: 2, type: "lab" },
+            { code: "GE3361", name: "Professional Development", credits: 1, type: "other" }
+        ]
+    },
+    "4": {
+        sem: "Semester 4",
+        subjects: [
+            { code: "MA3451", name: "Linear Algebra and Numerical Methods", credits: 4, type: "theory" },
+            { code: "CS3452", name: "Theory of Computation", credits: 3, type: "theory" },
+            { code: "CS3491", name: "Artificial Intelligence and Machine Learning", credits: 3, type: "theory" },
+            { code: "CS3492", name: "Database Management Systems", credits: 3, type: "theory" },
+            { code: "CCS432", name: "Network Security", credits: 3, type: "theory" },
+            { code: "CS3481", name: "Database Lab", credits: 2, type: "lab" },
+            { code: "CS3461", name: "Full Stack Development Lab", credits: 2, type: "lab" }
+        ]
+    },
+    "5": {
+        sem: "Semester 5",
+        subjects: [
+            { code: "CS3591", name: "Computer Networks", credits: 3, type: "theory" },
+            { code: "CS3501", name: "Operating Systems", credits: 3, type: "theory" },
+            { code: "CCS531", name: "Cryptography and Network Security", credits: 3, type: "theory" },
+            { code: "CCS532", name: "Ethical Hacking", credits: 3, type: "theory" },
+            { code: "CCS533", name: "Digital Forensics", credits: 3, type: "theory" },
+            { code: "CCS581", name: "Cyber Security Lab", credits: 2, type: "lab" },
+            { code: "CS3581", name: "Networks Lab", credits: 2, type: "lab" },
+            { code: "CS3561", name: "Internship", credits: 2, type: "other" }
+        ]
+    },
+    "6": {
+        sem: "Semester 6",
+        subjects: [
+            { code: "CCS631", name: "Web Security", credits: 3, type: "theory" },
+            { code: "CCS632", name: "Malware Analysis", credits: 3, type: "theory" },
+            { code: "CCS633", name: "Cloud Security", credits: 3, type: "theory" },
+            { code: "CCS634", name: "Security Operations and Incident Response", credits: 3, type: "theory" },
+            { code: "CS3691", name: "Embedded Systems and IoT", credits: 3, type: "theory" },
+            { code: "CCS681", name: "Security Lab", credits: 2, type: "lab" },
+            { code: "CS3611", name: "Project Based Learning", credits: 2, type: "other" }
+        ]
+    },
+    "7": {
+        sem: "Semester 7",
+        subjects: [
+            { code: "CCS731", name: "Intrusion Detection Systems", credits: 3, type: "theory" },
+            { code: "CCS732", name: "Secure Software Engineering", credits: 3, type: "theory" },
+            { code: "CCS733", name: "Blockchain Technology", credits: 3, type: "theory" },
+            { code: "ELECTIVE1", name: "Professional Elective 1", credits: 3, type: "theory" },
+            { code: "ELECTIVE2", name: "Professional Elective 2", credits: 3, type: "theory" },
+            { code: "CCS781", name: "Advanced Security Lab", credits: 2, type: "lab" },
+            { code: "GE3791", name: "Industry Internship", credits: 2, type: "other" }
+        ]
+    },
+    "8": {
+        sem: "Semester 8",
+        subjects: [
+            { code: "ELECTIVE3", name: "Professional Elective 3", credits: 3, type: "theory" },
+            { code: "ELECTIVE4", name: "Open Elective", credits: 3, type: "theory" },
+            { code: "CS3811", name: "Project Work", credits: 6, type: "other" },
+            { code: "GE3811", name: "Employability Enhancement Skills", credits: 2, type: "other" }
+        ]
+    }
+};
 // 📚 THE EXAM MASTER DATABASE (CHEAT CODE INITIATED)
 // 📚 THE EXAM MASTER DATABASE (CHEAT CODE INITIATED)
 const examDB = {
@@ -810,6 +908,7 @@ db.data.tasks.push({
 	if (cleanMessage === ".meme") return await handleMeme(msg);
 	if (cleanMessage.startsWith(".find ")) return await handleLinkCheck(msg, cleanMessage);
 	if (cleanMessage === ".sticker" || cleanMessage === "sticker") return await handleSticker(msg);
+	if (cleanMessage === ".cgpa") return await handleCGPA(msg, cleanMessage);
 	if (cleanMessage.startsWith(".download")) {
     return await handleDownload(msg);
 }
@@ -942,6 +1041,8 @@ db.data.tasks.push({
     // 4. THE FALLBACK (Conversational Vibe AI)
     // ==========================================
     // If it doesn't match ANY of the above tools, let the personality AI handle it.
+	const cgpaHandled = await handleCGPA(msg, cleanMessage);
+if (cgpaHandled) return true;
     return await handleAI(msg, cleanMessage);
 }
 
@@ -2590,6 +2691,198 @@ async function handleMeme(msg) {
     } catch (e) {
         await msg.reply("😂 Bro the meme engine crashed. Try again.");
         return true;
+    }
+}
+
+/cgpa cal
+
+// Store ongoing CGPA sessions
+const cgpaSession = {};
+
+async function handleCGPA(msg, cleanMessage) {
+    const userId = msg.from;
+
+    // START: .cgpa
+    if (cleanMessage === ".cgpa") {
+        cgpaSession[userId] = { step: "choose_sem", grades: [], currentSubIndex: 0 };
+
+        let semList = `🎓 *CYBERBOT CGPA CALCULATOR*\n━━━━━━━━━━━━━━━━━━━━\nWhich semester? Reply with number.\n\n`;
+        for (let i = 1; i <= 8; i++) {
+            semList += `${i}️⃣ Semester ${i}\n`;
+        }
+        semList += `━━━━━━━━━━━━━━━━━━━━`;
+        await msg.reply(semList);
+        return true;
+    }
+
+    // SESSION ACTIVE
+    const session = cgpaSession[userId];
+    if (!session) return false;
+
+    // STEP 1: User picked semester
+    if (session.step === "choose_sem") {
+        const sem = parseInt(cleanMessage.trim());
+        if (!sem || sem < 1 || sem > 8) {
+            await msg.reply("❌ Send a number between 1 and 8.");
+            return true;
+        }
+        session.sem = sem.toString();
+        session.subjects = cyberSecuritySyllabus[session.sem].subjects.filter(s => s.type !== "other");
+        session.step = "collecting_grades";
+        session.currentSubIndex = 0;
+
+        await askNextSubject(msg, session);
+        return true;
+    }
+
+    // STEP 2: Collecting grades one by one
+    if (session.step === "collecting_grades") {
+        const gradeInput = cleanMessage.trim().toUpperCase();
+        const validGrades = ["O", "A+", "A", "B+", "B", "C", "U", "W"];
+
+        if (!validGrades.includes(gradeInput)) {
+            await msg.reply(`❌ Invalid grade. Send one of: O, A+, A, B+, B, C, U, W`);
+            return true;
+        }
+
+        // Save this grade
+        const currentSub = session.subjects[session.currentSubIndex];
+        session.grades.push({ ...currentSub, grade: gradeInput });
+        session.currentSubIndex++;
+
+        // More subjects left?
+        if (session.currentSubIndex < session.subjects.length) {
+            await askNextSubject(msg, session);
+        } else {
+            // All done — calculate
+            session.step = "done";
+            await calculateAndShowCGPA(msg, session, userId);
+        }
+        return true;
+    }
+
+    return false;
+}
+
+async function askNextSubject(msg, session) {
+    const sub = session.subjects[session.currentSubIndex];
+    const total = session.subjects.length;
+    const current = session.currentSubIndex + 1;
+
+    await msg.reply(
+        `📚 *Subject ${current}/${total}*\n` +
+        `🔹 Code: ${sub.code}\n` +
+        `🔹 Name: ${sub.name}\n` +
+        `🔹 Credits: ${sub.credits}\n\n` +
+        `Enter your grade:\n*O / A+ / A / B+ / B / C / U / W*`
+    );
+}
+
+async function calculateAndShowCGPA(msg, session, userId) {
+    // Anna University grade to point mapping
+    const gradePoints = { "O": 10, "A+": 9, "A": 8, "B+": 7, "B": 6, "C": 5, "U": 0, "W": 0 };
+
+    let totalCredits = 0;
+    let totalPoints = 0;
+    let failedSubs = [];
+    let gradeBreakdown = "";
+
+    session.grades.forEach(sub => {
+        const point = gradePoints[sub.grade];
+        const weightedPoint = point * sub.credits;
+        totalCredits += sub.credits;
+        totalPoints += weightedPoint;
+
+        if (sub.grade === "U" || sub.grade === "W") {
+            failedSubs.push(sub.name);
+        }
+
+        gradeBreakdown += `▪ ${sub.code} — ${sub.grade} (${point}.0 × ${sub.credits}cr)\n`;
+    });
+
+    const cgpa = (totalPoints / totalCredits).toFixed(2);
+    const percentage = ((cgpa - 0.5) * 10).toFixed(1);
+
+    // Class classification
+    let classRemark = "";
+    if (cgpa >= 9.0) classRemark = "🏆 Outstanding — First Class with Distinction";
+    else if (cgpa >= 8.0) classRemark = "🥇 Excellent — First Class";
+    else if (cgpa >= 7.0) classRemark = "🥈 Good — First Class";
+    else if (cgpa >= 6.0) classRemark = "🥉 Average — Second Class";
+    else if (cgpa >= 5.0) classRemark = "⚠️ Pass Class";
+    else classRemark = "🚨 Below Pass — Arrears Present";
+
+    let result = `
+🎓 *CGPA RESULT — SEM ${session.sem}*
+━━━━━━━━━━━━━━━━━━━━
+${gradeBreakdown}
+━━━━━━━━━━━━━━━━━━━━
+📊 *CGPA: ${cgpa} / 10*
+📈 *Percentage: ${percentage}%*
+🏅 *${classRemark}*
+━━━━━━━━━━━━━━━━━━━━`;
+
+    if (failedSubs.length > 0) {
+        result += `\n🚨 *Arrears: ${failedSubs.join(", ")}*`;
+    }
+
+    await msg.reply(result.trim());
+
+    // Now trigger SWOT via AI
+    await msg.reply("🔍 Analyzing your academic profile... generating SWOT report ⏳");
+    await generateSWOT(msg, session, cgpa, failedSubs, percentage);
+
+    // Clear session
+    delete cgpaSession[userId];
+}
+
+async function generateSWOT(msg, session, cgpa, failedSubs, percentage) {
+    try {
+        const gradeList = session.grades.map(s => `${s.name}: ${s.grade}`).join(", ");
+
+        const prompt = `
+A Cyber Security engineering student has the following academic results:
+Semester: ${session.sem}
+CGPA: ${cgpa}
+Percentage: ${percentage}%
+Subject-wise grades: ${gradeList}
+${failedSubs.length > 0 ? `Arrears in: ${failedSubs.join(", ")}` : "No arrears"}
+
+Generate a SWOT analysis of this student's academic performance in this format:
+
+💪 STRENGTHS: (what subjects they're good at, based on O/A+ grades)
+⚠️ WEAKNESSES: (subjects with low grades B/C/U, areas to improve)
+🚀 OPPORTUNITIES: (career paths in Cyber Security they can aim for based on strong subjects)
+🛑 THREATS: (risks — arrears, low CGPA impact on placements, areas that need urgent attention)
+
+Keep it sharp, specific to Cyber Security domain, and motivational. Use Thunglish tone. WhatsApp friendly format. Max 250 words.
+        `.trim();
+
+        const response = await axios.post(
+            "https://api.groq.com/openai/v1/chat/completions",
+            {
+                model: MODEL,
+                messages: [
+                    { role: "system", content: "You are an academic advisor for engineering students specializing in Cyber Security." },
+                    { role: "user", content: prompt }
+                ],
+                temperature: 0.7,
+                max_tokens: 500
+            },
+            {
+                headers: {
+                    "Authorization": `Bearer ${GROQ_API_KEY}`,
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+        const swot = response.data?.choices?.[0]?.message?.content?.trim();
+
+        await msg.reply(`📊 *YOUR ACADEMIC SWOT ANALYSIS*\n━━━━━━━━━━━━━━━━━━━━\n${swot}\n━━━━━━━━━━━━━━━━━━━━`);
+
+    } catch (err) {
+        await msg.reply("⚠️ SWOT engine failed. But your CGPA is calculated above!");
     }
 }
 client.initialize();
