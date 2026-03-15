@@ -2697,7 +2697,7 @@ async function handleMeme(msg) {
     }
 }
 
-/cgpa cal
+//cgpa cal
 
 // Store ongoing CGPA sessions
 const cgpaSession = {};
