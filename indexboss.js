@@ -79,13 +79,18 @@ May your day be full of good vibes, zero errors, and a lot of celebrations. Part
     // 🛑 THE MASTER SCHEDULE ENGINE (V2)
     // ==========================================
 
-    // Ensure DB flag exists on startup
+    // Ensure DB flags exist on startup
     if (db.data.isSaturdayWorking === undefined) {
         db.data.isSaturdayWorking = false;
+    }
+    if (db.data.isSchedulePaused === undefined) {
+        db.data.isSchedulePaused = false;
     }
 
     // 🛑 1. FRIDAY 5:00 PM - Ask the Architect about Saturday
     schedule.scheduleJob({ rule: '0 17 * * 5', tz: 'Asia/Kolkata' }, async function () {
+        if (db.data.isSchedulePaused) return; // Skip asking if on holiday
+
         const admins = process.env.BOT_ADMINS.split(",");
         if (admins.length > 0) {
             const adminId = admins[0].includes("@") ? admins[0] : `${admins[0]}@c.us`;
@@ -110,6 +115,8 @@ If you don't reply, I will assume it is a HOLIDAY.
 
     // 🌙 2. EVENING 7:00 PM - Tomorrow's Schedule Broadcast (Sun to Fri)
     schedule.scheduleJob({ rule: '0 19 * * 0-5', tz: 'Asia/Kolkata' }, async function () {
+        if (db.data.isSchedulePaused) return; // 🔥 Pause Check
+
         const todayDayOfWeek = new Date().getDay(); // 0 is Sun, 5 is Fri
         
         // If it's Friday and Saturday is NOT working, send weekend msg
@@ -138,6 +145,8 @@ If you don't reply, I will assume it is a HOLIDAY.
 
     // ⚙️ 3. NIGHT 12:00 AM - Auto-Update Day Order in DB (Sun to Fri)
     schedule.scheduleJob({ rule: '0 0 * * 0-5', tz: 'Asia/Kolkata' }, async function () {
+        if (db.data.isSchedulePaused) return; // 🔥 Pause Check
+
         const todayDayOfWeek = new Date().getDay(); 
         
         // Don't increment on Friday night if Saturday is a holiday
@@ -156,6 +165,8 @@ If you don't reply, I will assume it is a HOLIDAY.
 
     // 🌅 4. MORNING 7:00 AM - Morning Day Order Announcement (Mon to Sat)
     schedule.scheduleJob({ rule: '0 7 * * 1-6', tz: 'Asia/Kolkata' }, async function () {
+        if (db.data.isSchedulePaused) return; // 🔥 Pause Check
+
         const todayDayOfWeek = new Date().getDay(); // 6 is Sat
         
         // Don't send the morning message if today is Saturday and it's a holiday
@@ -680,8 +691,12 @@ if (/^list reminders\b/.test(cleanMessage)) {
     // 1. EXACT COMMANDS (System, Stats, Menus)
     // ==========================================
 // 🛑 Admin Holiday Pause System
+// 🛑 Admin Holiday Pause System
     if (cleanMessage === ".pause") {
-        if (!isAdmin(msg)) return true;
+        if (!isAdmin(msg)) {
+            await msg.reply("⛔ Admin only.");
+            return true;
+        }
         db.data.isSchedulePaused = true;
         await db.write();
         await msg.reply("⏸️ *HOLIDAY MODE ACTIVATED*\nMorning/Evening broadcasts and Day Order updates are now PAUSED. Enjoy the leave! 😎");
@@ -689,7 +704,10 @@ if (/^list reminders\b/.test(cleanMessage)) {
     }
 
     if (cleanMessage === ".resume") {
-        if (!isAdmin(msg)) return true;
+        if (!isAdmin(msg)) {
+            await msg.reply("⛔ Admin only.");
+            return true;
+        }
         db.data.isSchedulePaused = false;
         await db.write();
         await msg.reply("▶️ *SYSTEM RESUMED*\nSchedules are back online. Back to the grind! 🔥");
