@@ -679,6 +679,22 @@ if (/^list reminders\b/.test(cleanMessage)) {
 	// ==========================================
     // 1. EXACT COMMANDS (System, Stats, Menus)
     // ==========================================
+// 🛑 Admin Holiday Pause System
+    if (cleanMessage === ".pause") {
+        if (!isAdmin(msg)) return true;
+        db.data.isSchedulePaused = true;
+        await db.write();
+        await msg.reply("⏸️ *HOLIDAY MODE ACTIVATED*\nMorning/Evening broadcasts and Day Order updates are now PAUSED. Enjoy the leave! 😎");
+        return true;
+    }
+
+    if (cleanMessage === ".resume") {
+        if (!isAdmin(msg)) return true;
+        db.data.isSchedulePaused = false;
+        await db.write();
+        await msg.reply("▶️ *SYSTEM RESUMED*\nSchedules are back online. Back to the grind! 🔥");
+        return true;
+    }
 if (cleanMessage === ".convert") return await startConvertSession(msg);
 if (cleanMessage === "done") return await finishConvertSession(msg);
     // 📢 Admin Cloud Announcement
