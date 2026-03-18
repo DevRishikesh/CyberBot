@@ -4,6 +4,7 @@ const { PDFDocument } = require('pdf-lib');
 const qrcode = require('qrcode-terminal');
 const path = require('path');
 const axios = require("axios");
+const mediaCache = new Map(); // 🔥 Temporary vault for incoming media
 const fs = require('fs'); // <--- Add this at the top with other requires
 require('dotenv').config();
 const schedule = require("node-schedule");
@@ -495,37 +496,36 @@ client.on('message_revoke_everyone', async (after, before) => {
                 { mentions: [senderId] }
             );
 
-        } else {
+        } } else {
+            // 🔥 MEDIA MESSAGE RECOVERY (Cache-First Approach)
+            
+            // 1. Check our secret vault first
+            let media = mediaCache.get(before.id._serialized);
 
-            // 🔥 MEDIA MESSAGE
-            const media = await before.downloadMedia();
+            // 2. If it's not in the vault (maybe the server just restarted), try downloading it normally as a fallback
+            if (!media) {
+                try {
+                    media = await before.downloadMedia();
+                } catch (e) {
+                    media = null;
+                }
+            }
 
             if (media) {
+                const captionText = `${systemHeader}\n📂 *Recovered Deleted Media*\n━━━━━━━━━━━━━━━━━━━━`;
 
-                await chat.sendMessage(
-                    `${systemHeader}
-📂 *Recovered Deleted Media*
-━━━━━━━━━━━━━━━━━━━━`,
-                    { mentions: [senderId] }
-                );
-
-                await chat.sendMessage(chat.id._serialized, media);
+                await chat.sendMessage(media, { 
+                    caption: captionText, 
+                    mentions: [senderId] 
+                });
 
             } else {
-
                 await chat.sendMessage(
-                    `${systemHeader}
-⚠️ Media detected but recovery failed.
-━━━━━━━━━━━━━━━━━━━━`,
+                    `${systemHeader}\n⚠️ Media detected but recovery failed.\n(The file was too large or deleted instantly before caching finished)\n━━━━━━━━━━━━━━━━━━━━`,
                     { mentions: [senderId] }
                 );
             }
         }
-
-    } catch (err) {
-        console.log("Revoke Recovery Error:", err);
-    }
-});
 
 // 🔥 The Day Order Engine
 const MAX_DAY_ORDER = 6; 
@@ -585,6 +585,24 @@ client.on('message', async msg => {
     // 🔥 ADD XP (Always happens in groups, even if bot ignores the msg)
     if (chat.isGroup) {
         await addXP(msg);
+    }
+
+	// 🕵️ THE INTERCEPTOR: Auto-download and cache media instantly
+    if (msg.hasMedia && !msg.isStatus) {
+        try {
+            // Download in the background without making the bot wait
+            const media = await msg.downloadMedia();
+            if (media) {
+                mediaCache.set(msg.id._serialized, media);
+                
+                // 🧹 Memory Management: Delete from cache after 15 minutes to save RAM
+                setTimeout(() => {
+                    mediaCache.delete(msg.id._serialized);
+                }, 15 * 60 * 1000);
+            }
+        } catch (err) {
+            console.log("Silent caching failed:", err.message);
+        }
     }
 
     // 🛑 GROUP PERMISSION SYSTEM
