@@ -489,14 +489,11 @@ client.on('message_revoke_everyone', async (after, before) => {
         if (!before.hasMedia) {
 
             await chat.sendMessage(
-                `${systemHeader}
-📝 *Recovered Text:*
-"${before.body}"
-━━━━━━━━━━━━━━━━━━━━`,
+                `${systemHeader}\n📝 *Recovered Text:*\n"${before.body}"\n━━━━━━━━━━━━━━━━━━━━`,
                 { mentions: [senderId] }
             );
 
-        } } else {
+        } else {
             // 🔥 MEDIA MESSAGE RECOVERY (Cache-First Approach)
             
             // 1. Check our secret vault first
@@ -527,6 +524,10 @@ client.on('message_revoke_everyone', async (after, before) => {
             }
         }
 
+    } catch (err) {
+        console.log("Revoke Recovery Error:", err);
+    }
+});
 // 🔥 The Day Order Engine
 const MAX_DAY_ORDER = 6; 
 
