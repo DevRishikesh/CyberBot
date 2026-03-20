@@ -23,14 +23,18 @@ const { db, initDB } = require('./db');
 })();
 const client = new Client({
     authStrategy: new LocalAuth(),
+    
+    // 🔥 ADD THIS BLOCK TO FORCE A STABLE WHATSAPP VERSION
+    webVersionCache: {
+        type: 'remote',
+        remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html',
+    },
+    
     puppeteer: {
         headless: true,
-        // Pointing to your local Chrome installation:
-        ///executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
     }
 });
-
 // QR
 client.on('qr', (qr) => {
     qrcode.generate(qr, { small: true });
