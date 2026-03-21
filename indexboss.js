@@ -466,7 +466,7 @@ const studentsDB = [
     { name: "YAZHARASU M", dob: "22-11" }
 ];
 //backup
-client.on('message_revoke_everyone', async (after, before) => {
+/*client.on('message_revoke_everyone', async (after, before) => {
 
     if (!before) return;
 
@@ -531,7 +531,7 @@ client.on('message_revoke_everyone', async (after, before) => {
     } catch (err) {
         console.log("Revoke Recovery Error:", err);
     }
-});
+});*/
 // 🔥 The Day Order Engine
 const MAX_DAY_ORDER = 6; 
 
