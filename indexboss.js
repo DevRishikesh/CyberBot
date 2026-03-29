@@ -498,6 +498,14 @@ function isAdmin(msg) {
     const sender = (msg.author || msg.from).replace("@lid", "");
     return admins.includes(sender);
 }
+/// 👨‍🏫 Bulletproof Faculty Check
+function isFaculty(msg) {
+    let sender = msg.author || msg.from;
+    sender = sender.replace(/@c\.us|@lid|@s\.whatsapp\.net/g, "").trim();
+    const rawFaculty = process.env.FACULTY_NUMBERS || "";
+    const faculty = rawFaculty.split(",").map(num => num.replace(/@c\.us|@lid/g, "").trim());
+    return faculty.includes(sender) || isHOD(msg) || isAdmin(msg); // Admins/HOD can also update it
+}
 /// HOD Check
 /// 🔥 Bulletproof HOD Check
 function isHOD(msg) {
@@ -713,6 +721,13 @@ if (cleanMessage === ".hodstats") {
 if (cleanMessage === ".botstats") {
     return await handleBotStats(msg);
 }
+// 📚 Syllabus Tracker
+    if (cleanMessage.startsWith(".coverage ")) {
+        return await handleUpdateCoverage(msg, cleanMessage);
+    }
+    if (cleanMessage.startsWith(".checksyll ")) {
+        return await handleCheckSyllabus(msg, cleanMessage);
+    }
 if (cleanMessage.startsWith(".hodannounce ")) {
         return await handleHODAnnounce(msg, cleanMessage);
     }
@@ -2939,6 +2954,110 @@ _— Broadcasted via CyberBot Admin Portal_
         await msg.reply("⚠️ System Error: Network broadcast failed.");
         return true;
     }
+}
+// 👨‍🏫 FACULTY: UPDATE SYLLABUS (.coverage aiml b 3 100)
+async function handleUpdateCoverage(msg, cleanMessage) {
+    if (!isFaculty(msg)) {
+        await msg.reply("⛔ *Access Denied.* Only authorized faculty can update the syllabus tracker.");
+        return true;
+    }
+
+    // Expected format: .coverage <subject> <section> <unit> <percentage>
+    // Example: .coverage aiml b 3 80
+    const args = cleanMessage.split(" ");
+    if (args.length < 5) {
+        await msg.reply("⚠️ *Format Error*\nPlease use: `.coverage <subject> <section> <unit> <percentage>`\n*Example:* `.coverage aiml b 3 100`");
+        return true;
+    }
+
+    const subject = args[1].toLowerCase();
+    const section = args[2].toLowerCase();
+    const unit = parseInt(args[3]);
+    const percent = parseInt(args[4]);
+
+    if (isNaN(unit) || unit < 1 || unit > 5 || isNaN(percent) || percent < 0 || percent > 100) {
+        await msg.reply("❌ *Invalid Data.* Unit must be 1-5, and Percentage must be 0-100.");
+        return true;
+    }
+
+    // Initialize DB if it doesn't exist yet
+    if (!db.data.syllabus) db.data.syllabus = [];
+
+    const today = new Date().toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata" });
+    let sender = (msg.author || msg.from).replace(/@c\.us|@lid/g, "");
+
+    // Look for an existing record for this specific Subject, Section, and Unit
+    let record = db.data.syllabus.find(s => s.subject === subject && s.section === section && s.unit === unit);
+
+    if (record) {
+        record.percent = percent;
+        record.lastUpdated = today;
+        record.updatedBy = sender;
+    } else {
+        db.data.syllabus.push({ subject, section, unit, percent, lastUpdated: today, updatedBy: sender });
+    }
+
+    await db.write();
+    await msg.reply(`✅ *Syllabus Logged Successfully*\n📚 Subject: ${subject.toUpperCase()}\n👥 Section: ${section.toUpperCase()}\n📖 Unit ${unit} is now at *${percent}%*`);
+    return true;
+}
+
+
+// 🎯 HOD: CHECK SYLLABUS (.checksyll aiml b)
+async function handleCheckSyllabus(msg, cleanMessage) {
+    if (!isHOD(msg) && !isAdmin(msg)) {
+        await msg.reply("⛔ *Access Denied.* Only the HOD can generate syllabus reports.");
+        return true;
+    }
+
+    // Expected format: .checksyll <subject> <section>
+    const args = cleanMessage.split(" ");
+    if (args.length < 3) {
+        await msg.reply("⚠️ *Format Error*\nPlease use: `.checksyll <subject> <section>`\n*Example:* `.checksyll aiml b`");
+        return true;
+    }
+
+    const subject = args[1].toLowerCase();
+    const section = args[2].toLowerCase();
+
+    if (!db.data.syllabus || db.data.syllabus.length === 0) {
+        await msg.reply("📭 The syllabus database is completely empty. Faculty needs to log data first.");
+        return true;
+    }
+
+    // Get all units for this specific subject and section
+    const records = db.data.syllabus.filter(s => s.subject === subject && s.section === section);
+
+    if (records.length === 0) {
+        await msg.reply(`⚠️ No syllabus data found for *${subject.toUpperCase()} (Section ${section.toUpperCase()})*.`);
+        return true;
+    }
+
+    let report = `📊 *SYLLABUS TRACKER: ${subject.toUpperCase()} (SEC ${section.toUpperCase()})*\n━━━━━━━━━━━━━━━━━━━━\n`;
+    let totalPercent = 0;
+
+    // Loop through Units 1 to 5
+    for (let i = 1; i <= 5; i++) {
+        let r = records.find(x => x.unit === i);
+        let p = r ? r.percent : 0;
+        let date = r ? r.lastUpdated : "No data yet";
+        
+        totalPercent += p;
+
+        // Visual Progress Bar Generation (1 block = 10%)
+        let barLength = Math.floor(p / 10);
+        let bar = "█".repeat(barLength) + "░".repeat(10 - barLength);
+
+        report += `*Unit ${i}:* ${p}%\n[${bar}] \n_Last updated: ${date}_\n\n`;
+    }
+
+    // Calculate overall completion out of 500% (5 units * 100)
+    let overall = (totalPercent / 500) * 100;
+
+    report += `━━━━━━━━━━━━━━━━━━━━\n📈 *Overall Completion:* ${overall.toFixed(1)}%`;
+
+    await msg.reply(report);
+    return true;
 }
 client.initialize();
 
