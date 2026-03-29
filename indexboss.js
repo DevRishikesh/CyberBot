@@ -2728,7 +2728,7 @@ Keep it sharp, specific to Cyber Security domain, and motivational. Use Thunglis
     }
 }
 
-// 📊 HOD ANALYTICS ENGINE
+// 📊 GLOBAL HOD ANALYTICS ENGINE (Private DM Version)
 async function handleHODStats(msg) {
     // 1. Authorization Gate
     if (!isHOD(msg)) {
@@ -2736,55 +2736,58 @@ async function handleHODStats(msg) {
         return true;
     }
 
-    // 2. Ensure it's used in a group to get participants
-    const chat = await msg.getChat();
-    if (!chat.isGroup) {
-        await msg.reply("⚠️ Please use `.hodstats` inside a class group to view student engagement.");
-        return true;
-    }
-
-    await msg.reply("📊 Extracting group analytics... ⏳");
+    await msg.reply("📊 Scanning all monitored class groups... Extracting analytics ⏳");
 
     try {
-        // 3. Get Total Students
-        const totalStudents = chat.participants.length;
+        // 2. Fetch all chats and filter ONLY the groups
+        const chats = await client.getChats();
+        const groups = chats.filter(chat => chat.isGroup);
 
-        // 4. Calculate Active Users Today
-        const today = new Date().toISOString().split("T")[0];
-        
-        // Filter DB for today's messages in this specific group
-        const groupStatsToday = db.data.dailyStats.filter(
-            d => d.groupId === chat.id._serialized && d.date === today
-        );
-
-        const activeUsersCount = groupStatsToday.length;
-        const inactiveUsersCount = totalStudents - activeUsersCount;
-
-        // 5. Calculate Total Message Activity
-        const totalMessages = groupStatsToday.reduce((sum, user) => sum + user.messages, 0);
-
-        // 6. Calculate Engagement Percentage
-        let engagementPercent = 0;
-        if (totalStudents > 0) {
-            engagementPercent = ((activeUsersCount / totalStudents) * 100).toFixed(1);
+        if (groups.length === 0) {
+            await msg.reply("⚠️ I am not currently monitoring any groups.");
+            return true;
         }
 
-        // 7. Format the Report (CyberBot Style)
-        const report = `
-🎯 *HOD ANALYTICS DASHBOARD* 🎯
-━━━━━━━━━━━━━━━━━━━━
-📝 *Group:* ${chat.name}
+        const today = new Date().toISOString().split("T")[0];
+        let report = `🎯 *HOD GLOBAL ANALYTICS DASHBOARD* 🎯\n━━━━━━━━━━━━━━━━━━━━\n`;
 
-👥 *Total Students:* ${totalStudents}
-🟢 *Active Today:* ${activeUsersCount}
-🔴 *Inactive Today:* ${inactiveUsersCount}
-💬 *Total Messages:* ${totalMessages}
-🔥 *Engagement Rate:* ${engagementPercent}%
-━━━━━━━━━━━━━━━━━━━━
-_Data dynamically pulled from today's session logs._
-        `.trim();
+        // 3. Loop through every group the bot is in
+        for (const group of groups) {
+            
+            // Total students in this specific group
+            const totalStudents = group.participants ? group.participants.length : 0;
 
-        await chat.sendMessage(report);
+            // Filter DB for today's messages in this specific group
+            const groupStatsToday = db.data.dailyStats.filter(
+                d => d.groupId === group.id._serialized && d.date === today
+            );
+
+            const activeUsersCount = groupStatsToday.length;
+            
+            // Prevent negative numbers just in case someone leaves the group mid-day
+            const inactiveUsersCount = Math.max(0, totalStudents - activeUsersCount);
+
+            // Calculate Total Message Activity
+            const totalMessages = groupStatsToday.reduce((sum, user) => sum + user.messages, 0);
+
+            // Calculate Engagement Percentage
+            let engagementPercent = 0;
+            if (totalStudents > 0) {
+                engagementPercent = ((activeUsersCount / totalStudents) * 100).toFixed(1);
+            }
+
+            // Append this group's data to the master report
+            report += `📝 *Class:* ${group.name}\n`;
+            report += `👥 *Total Students:* ${totalStudents}\n`;
+            report += `🟢 *Active Today:* ${activeUsersCount}\n`;
+            report += `🔴 *Inactive Today:* ${inactiveUsersCount}\n`;
+            report += `💬 *Messages Today:* ${totalMessages}\n`;
+            report += `🔥 *Engagement Rate:* ${engagementPercent}%\n`;
+            report += `━━━━━━━━━━━━━━━━━━━━\n`;
+        }
+
+        // 4. Send the master report directly to the HOD
+        await msg.reply(report.trim());
         return true;
 
     } catch (error) {
