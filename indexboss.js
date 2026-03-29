@@ -526,7 +526,7 @@ client.on('message', async msg => {
   
 
     // 🔥 ADD XP (Always happens in groups, even if bot ignores the msg)
-   const chat = await msg.getChat();
+    const chat = await msg.getChat();
     // Clean the message (remove mentions, lower case)
     let cleanMessage = msg.body.replace(/@\S+/g, "").trim().toLowerCase();
 
@@ -710,7 +710,9 @@ if (cleanMessage === ".hodstats") {
 // ==========================================
     // 3. SMART ENGINES & KEYWORD TRIGGERS
     // ==========================================
-
+if (cleanMessage === ".botstats") {
+    return await handleBotStats(msg);
+}
     // 📅 SMART EXAM DATE INTERCEPTOR (IAT-2)
     const isAskingDate = cleanMessage.includes("when") || cleanMessage.includes("date") || cleanMessage.includes("which day") || cleanMessage.includes("what day");
     const examSubjects = ['toc', 'aiml', 'dmss', 'ess', 'oss', 'ccs'];
@@ -2820,6 +2822,58 @@ async function handleHODStats(msg) {
     } catch (error) {
         console.error("HOD Stats Error:", error);
         await msg.reply("⚠️ System Error: Failed to generate HOD Analytics.");
+        return true;
+    }
+}
+// ⚙️ SYSTEM ARCHITECT DIAGNOSTICS (.botstats)
+async function handleBotStats(msg) {
+    // 1. Strict Architect Gate
+    if (!isAdmin(msg)) {
+        await msg.reply("⛔ *Access Denied.* Only the System Architect can view core diagnostics.");
+        return true;
+    }
+
+    await msg.reply("⚙️ Compiling system diagnostics... ⏳");
+
+    try {
+        // 2. Fetch all raw chats from WhatsApp
+        const chats = await client.getChats();
+        
+        // 3. Separate them
+        const groups = chats.filter(c => c.isGroup);
+        const dms = chats.filter(c => !c.isGroup && c.id._serialized.endsWith('@c.us'));
+
+        // 4. Calculate Server Uptime
+        const uptimeSeconds = process.uptime();
+        const hours = Math.floor(uptimeSeconds / 3600);
+        const minutes = Math.floor((uptimeSeconds % 3600) / 60);
+
+        // 5. Calculate RAM Usage (Because you're hosting this on a server)
+        const memoryUsage = process.memoryUsage().rss / 1024 / 1024;
+
+        // 6. Build the Architect Report
+        const report = `
+🤖 *CYBERBOT SYSTEM DIAGNOSTICS* 🤖
+━━━━━━━━━━━━━━━━━━━━
+📊 *NETWORK REACH*
+▪️ Total Active Connections: ${chats.length}
+▪️ Monitored Groups: ${groups.length}
+▪️ Private DMs (AI Users): ${dms.length}
+
+⚙️ *SERVER HEALTH*
+▪️ Uptime: ${hours}h ${minutes}m
+▪️ Memory Load: ${memoryUsage.toFixed(2)} MB
+▪️ AI Engine: Online 🔥
+
+_All systems operating at peak efficiency, Architect._ 😎⚡
+        `.trim();
+
+        await msg.reply(report);
+        return true;
+
+    } catch (error) {
+        console.error("Bot Stats Error:", error);
+        await msg.reply("⚠️ System Error: Failed to pull diagnostics.");
         return true;
     }
 }
