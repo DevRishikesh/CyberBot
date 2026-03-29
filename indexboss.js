@@ -499,11 +499,22 @@ function isAdmin(msg) {
     return admins.includes(sender);
 }
 /// HOD Check
+/// 🔥 Bulletproof HOD Check
 function isHOD(msg) {
-    // You can define HOD_NUMBERS in your .env file separated by commas
-    // Fallback to BOT_ADMINS if HOD_NUMBERS isn't set
-    const hods = (process.env.HOD_NUMBERS || process.env.BOT_ADMINS).split(",");
-    const sender = (msg.author || msg.from).replace("@lid", "");
+    // 1. Get the raw sender ID (msg.author for groups, msg.from for DMs)
+    let sender = msg.author || msg.from;
+    
+    // 2. Strip everything except the raw phone number
+    sender = sender.replace(/@c\.us|@lid|@s\.whatsapp\.net/g, "").trim();
+
+    // 3. Get the numbers from .env and clean them up too
+    const rawHods = process.env.HOD_NUMBERS || process.env.BOT_ADMINS || "";
+    const hods = rawHods.split(",").map(num => num.replace(/@c\.us|@lid/g, "").trim());
+
+    // 4. Debug log so you can see exactly what is happening in the terminal
+    console.log(`[HOD Check] Attempting Access - Sender: ${sender} | Authorized:`, hods);
+
+    // 5. Check for a match
     return hods.includes(sender);
 }
 //storge for pdf conversion
