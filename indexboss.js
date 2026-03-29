@@ -658,7 +658,41 @@ if (/^list reminders\b/.test(cleanMessage)) {
 if (cleanMessage === ".convert") return await startConvertSession(msg);
 if (cleanMessage === "done") return await finishConvertSession(msg);
     // 📢 Admin Cloud Announcement
+// ==========================================
+    // 3. SMART ENGINES & KEYWORD TRIGGERS
+    // ==========================================
 
+    // 📅 SMART EXAM DATE INTERCEPTOR (IAT-2)
+    const isAskingDate = cleanMessage.includes("when") || cleanMessage.includes("date") || cleanMessage.includes("which day") || cleanMessage.includes("what day");
+    const examSubjects = ['toc', 'aiml', 'dmss', 'ess', 'oss', 'ccs'];
+    
+    if (isAskingDate && examSubjects.some(sub => cleanMessage.includes(sub))) {
+        const examDates = {
+            'toc': "🗓 *06-Apr* ▪️ Theory of Computation (TOC)",
+            'aiml': "🗓 *07-Apr* ▪️ AI & Machine Learning (AIML)",
+            'dmss': "🗓 *08-Apr* ▪️ Database Mgt & Security (DMSS)",
+            'ess': "🗓 *09-Apr* ▪️ Environmental Science (ESS)",
+            'oss': "🗓 *10-Apr* ▪️ Operating Systems & Sec (OSS)",
+            'ccs': "🗓 *11-Apr* ▪️ Cryptography & Cyber Sec (CCS)"
+        };
+
+        let replyText = "🎓 *EXAM DATE DETECTED* 🎓\n━━━━━━━━━━━━━━━━━━━━\n";
+        let foundSubject = "";
+
+        // Find which subjects they asked about
+        examSubjects.forEach(sub => {
+            if (cleanMessage.includes(sub)) {
+                replyText += `${examDates[sub]}\n`;
+                foundSubject = sub; 
+            }
+        });
+        
+        replyText += "━━━━━━━━━━━━━━━━━━━━\n";
+        replyText += `💡 *Tip:* Type \`.prep ${foundSubject} 2\` to get an AI study guide for this subject! 🔥`;
+        
+        await msg.reply(replyText);
+        return true;
+    }
 // 🎭 ==========================================
     // HACKATHON DEMO CHEAT CODES (Admin Only)
     // ==========================================
