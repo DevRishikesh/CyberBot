@@ -524,8 +524,7 @@ const pdfSessions = {};
 client.on('message', async msg => {
 
     const chat = await msg.getChat();
-    // Clean the message (remove mentions, lower case)
-    let cleanMessage = msg.body.replace(/@\S+/g, "").trim().toLowerCase();
+
 
     // 🔥 ADD XP (Always happens in groups, even if bot ignores the msg)
    const chat = await msg.getChat();
