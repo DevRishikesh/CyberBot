@@ -510,7 +510,7 @@ client.on('message', async msg => {
 
     // 🔥 ADD XP (Always happens in groups, even if bot ignores the msg)
     if (chat.isGroup) {
-        await addXP(msg);
+       // await addXP(msg);
     }
 
 	// 🕵️ THE INTERCEPTOR: Auto-download and cache media instantly
