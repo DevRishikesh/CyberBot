@@ -528,8 +528,37 @@ client.on('message', async msg => {
     let cleanMessage = msg.body.replace(/@\S+/g, "").trim().toLowerCase();
 
     // 🔥 ADD XP (Always happens in groups, even if bot ignores the msg)
-    if (chat.isGroup) {
-       // await addXP(msg);
+   const chat = await msg.getChat();
+    // Clean the message (remove mentions, lower case)
+    let cleanMessage = msg.body.replace(/@\S+/g, "").trim().toLowerCase();
+
+    // 🔥 TRACK DAILY MESSAGES (Powers the Leaderboard & HOD Stats)
+    if (chat.isGroup && !msg.isStatus) {
+        const today = new Date().toISOString().split("T")[0];
+        const groupId = chat.id._serialized;
+        const senderId = msg.author || msg.from;
+
+        // Make sure the array exists
+        if (!db.data.dailyStats) db.data.dailyStats = [];
+
+        // Look for today's record for this specific user in this specific group
+        const userStat = db.data.dailyStats.find(
+            d => d.groupId === groupId && d.userId === senderId && d.date === today
+        );
+
+        if (userStat) {
+            userStat.messages += 1; // Add 1 to their message count
+        } else {
+            // First message of the day! Create a new record.
+            db.data.dailyStats.push({
+                userId: senderId,
+                groupId: groupId,
+                date: today,
+                messages: 1
+            });
+        }
+        // Save it to the database quietly in the background
+        await db.write();
     }
 
 	// 🕵️ THE INTERCEPTOR: Auto-download and cache media instantly
