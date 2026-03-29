@@ -206,17 +206,6 @@ async function sendWithTyping(msg, text) {
     await new Promise(resolve => setTimeout(resolve, 1000));
     await msg.reply(text);
 }
-
-// College Knowledge
-const collegeKnowledge = {
-    "cyber": "📍 Cyber Dept is next to the library da.",
-    "hod": "👩‍🏫 HOD is Buvana mam. Strict outside… soft inside 😌",
-    "day order": "📅 Today is 5th day order macha.",
-    "leave": "📞 Call and inform your class teacher.\nPhone number: 8637427640",
-    "bus": "🚌 Get bus pass form from office → Fill it → Attach 2 photos → Submit.\nYou’ll get it in 2 days."
-};
-//sub database
-
 // 📚 THE EXAM MASTER DATABASE (CHEAT CODE INITIATED)
 // 📚 THE EXAM MASTER DATABASE (CHEAT CODE INITIATED)
 const examDB = {
@@ -423,7 +412,6 @@ const cyberSecuritySyllabus = {
 };
 //bdays
 // 🎂 CYBERBOT BIRTHDAY DATABASE
-// 🎂 CYBERBOT BIRTHDAY DATABASE (BOYS ONLY)
 const studentsDB = [
     { name: "ABDUL RAHIM R", dob: "10-09" },
     { name: "ASHIK S", dob: "08-12" },
@@ -465,74 +453,7 @@ const studentsDB = [
     { name: "VISHAL R B", dob: "10-01" },
     { name: "YAZHARASU M", dob: "22-11" }
 ];
-//backup
-/*client.on('message_revoke_everyone', async (after, before) => {
 
-    if (!before) return;
-
-    try {
-        const chat = await before.getChat();
-        if (!chat.isGroup) return;
-
-        const senderId = before.author || before.from;
-        const author = senderId.split("@")[0];
-
-        let systemHeader = `
-╔════════════════════╗
-  🕵️ CYBER SURVEILLANCE
-╚════════════════════╝
-
-@${author} attempted data erasure.
-
-🚫 Deletion denied.
-📡 Payload intercepted.
-━━━━━━━━━━━━━━━━━━━━
-`;
-
-        // 🔥 TEXT MESSAGE
-        if (!before.hasMedia) {
-
-            await chat.sendMessage(
-                `${systemHeader}\n📝 *Recovered Text:*\n"${before.body}"\n━━━━━━━━━━━━━━━━━━━━`,
-                { mentions: [senderId] }
-            );
-
-        } else {
-            // 🔥 MEDIA MESSAGE RECOVERY (Cache-First Approach)
-            
-            // 1. Check our secret vault first
-            let media = mediaCache.get(before.id._serialized);
-
-            // 2. If it's not in the vault (maybe the server just restarted), try downloading it normally as a fallback
-            if (!media) {
-                try {
-                    media = await before.downloadMedia();
-                } catch (e) {
-                    media = null;
-                }
-            }
-
-            if (media) {
-                const captionText = `${systemHeader}\n📂 *Recovered Deleted Media*\n━━━━━━━━━━━━━━━━━━━━`;
-
-                await chat.sendMessage(media, { 
-                    caption: captionText, 
-                    mentions: [senderId] 
-                });
-
-            } else {
-                await chat.sendMessage(
-                    `${systemHeader}\n⚠️ Media detected but recovery failed.\n(The file was too large or deleted instantly before caching finished)\n━━━━━━━━━━━━━━━━━━━━`,
-                    { mentions: [senderId] }
-                );
-            }
-        }
-
-    } catch (err) {
-        console.log("Revoke Recovery Error:", err);
-    }
-});*/
-// 🔥 The Day Order Engine
 const MAX_DAY_ORDER = 6; 
 
 const dayOrderSchedule = {
@@ -710,10 +631,7 @@ if (/^\.stats\b/.test(cleanMessage)) {
 if (/^list reminders\b/.test(cleanMessage)) {
     return await listReminders(msg);
 }
-	// ==========================================
-    // 1. EXACT COMMANDS (System, Stats, Menus)
-    // ==========================================
-// 🛑 Admin Holiday Pause System
+
 // 🛑 Admin Holiday Pause System
     if (cleanMessage === ".pause") {
         if (!isAdmin(msg)) {
@@ -960,18 +878,11 @@ db.data.tasks.push({
     // ==========================================
     // 2. PREFIX COMMANDS (Tools, OSINT, AI)
     // ==========================================
-     //if (cleanMessage.startsWith("/ai")) return await handleDeepAI(msg, cleanMessage
-    if (cleanMessage.startsWith(".encode")) return await handleEncode(msg, cleanMessage);
-    if (cleanMessage.startsWith(".decode")) return await handleDecode(msg, cleanMessage);
-    if (cleanMessage.startsWith(".ip ")) return await handleIPLookup(msg, cleanMessage);
+
 	if (cleanMessage.startsWith(".prep ")) return await handleExamPrep(msg, cleanMessage);
-	if (cleanMessage === ".meme") return await handleMeme(msg);
-	if (cleanMessage.startsWith(".find ")) return await handleLinkCheck(msg, cleanMessage);
-	if (cleanMessage === ".sticker" || cleanMessage === "sticker") return await handleSticker(msg);
+
 	if (cleanMessage === ".cgpa") return await handleCGPA(msg, cleanMessage);
-	if (cleanMessage.startsWith(".download")) {
-    return await handleDownload(msg);
-}
+
     if (cleanMessage.startsWith("send link for")) return await handleYTLink(msg, cleanMessage);
 	if (cleanMessage === ".listwork") {
     return await listWork(msg);
@@ -1413,77 +1324,7 @@ Units: 1 / 2 / 3
 
 
 
-///GEMINI AI
 
-
-async function handleDeepAI(msg, cleanMessage) {
-    // 🔥 Pro Max Regex to safely remove the command trigger
-    const question = cleanMessage.replace(/^\/ai\b/i, "").trim();
-
-    if (!question) {
-        await msg.reply("⚠️ Ask something for the Deep AI to research.");
-        return true;
-    }
-
-    try {
-        const systemPrompt = `
-You are an elite-level research AI.
-
-When answering:
-- Provide deep, structured explanations.
-- Use headings and subheadings.
-- Break complex ideas into clear sections.
-- Use examples where needed.
-- Use step-by-step logic for technical topics.
-- If philosophical → go deep and analytical.
-- If scientific → be precise and accurate.
-- If coding → provide clean explanation + sample code.
-- Avoid unnecessary fluff.
-- Do not be overly short.
-        `.trim();
-
-        // 🔥 UPGRADE 1: Swapped the URL to gemini-2.5-pro
-        // 🔥 CHANGED: Swapped 'gemini-2.5-pro' to 'gemini-2.0-flash'
-        // 🔥 CHANGED: Swapped 'gemini-2.5-pro' to 'gemini-2.0-flash'
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY2}`;
-
-        // 🔥 UPGRADE 2: Used the proper System Instruction format
-        const payload = {
-            systemInstruction: {
-                parts: [{ text: systemPrompt }]
-            },
-            contents: [
-                { role: "user", parts: [{ text: question }] }
-            ],
-            generationConfig: {
-                temperature: 0.7,
-                topP: 0.9,
-                maxOutputTokens: 2048
-            }
-        };
-
-        const response = await axios.post(API_URL, payload, {
-            headers: { "Content-Type": "application/json" },
-            timeout: 30000 // Deep research takes time, don't let Axios time out too early!
-        });
-
-        let reply = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || "No response from Deep Brain.";
-
-        // Split for WhatsApp safety (Assuming you have splitMessage defined!)
-        const chunks = splitMessage(reply, 900);
-        for (const chunk of chunks) {
-            await sendWithTyping(msg, chunk);
-        }
-
-        return true;
-
-    } catch (error) {
-        console.error("Gemini Deep Error:", error.response?.data || error.message);
-        await msg.reply("⚠️ Deep AI brain is overloaded or unavailable. Try again later.");
-        return true;
-    }
-}
-    
 
 ////remainder ai
 async function handleReminder(msg, cleanMessage) {
@@ -1575,155 +1416,6 @@ async function listReminders(msg) {
 }
 
 
-///xp system
-async function addXP(msg) {
-
-    if (!msg.from.endsWith("@g.us")) return;
-
-    const userId = msg.author || msg.from;
-    const groupId = msg.from;
-
-    // 🔥 FIX: Define 'author' here so it can be used below
-    const author = userId.split("@")[0]; 
-
-    let user = db.data.xp.find(
-        u => u.userId === userId && u.groupId === groupId
-    );
-
-    if (!user) {
-        user = {
-            userId,
-            groupId,
-            xp: 0,
-            messages: 0,
-            level: 1
-        };
-        db.data.xp.push(user);
-    }
-
-    // Store old level 
-    const oldLevel = user.level;
-
-    user.xp += 5;
-    user.messages += 1;
-
-    user.level = Math.floor(user.xp / 100) + 1;
-    
-    const today = new Date().toISOString().split("T")[0];
-
-    let daily = db.data.dailyStats.find(
-        d => d.userId === userId &&
-             d.groupId === groupId &&
-             d.date === today
-    );
-
-    if (!daily) {
-        daily = {
-            userId,
-            groupId,
-            date: today,
-            messages: 0
-        };
-        db.data.dailyStats.push(daily);
-    }
-
-    daily.messages += 1;
-
-    // 🎉 Level up check
-    if (user.level > oldLevel) {
-        // Now 'author' exists, so this will work!
-        await msg.reply(`🎉 LEVEL UP! @${author} is now Level ${user.level} 🔥`);
-    }
-
-    await db.write();
-}
-///rankk
-
-
-async function showRank(msg) {
-
-    const groupId = msg.from;
-
-    const groupUsers = db.data.xp
-        .filter(u => u.groupId === groupId)
-        .sort((a, b) => b.xp - a.xp)
-        .slice(0, 10);
-
-    if (!groupUsers.length) {
-        await msg.reply("No rankings yet.");
-        return;
-    }
-
-    let reply = "🏆 *CYBERBOT LEADERBOARD* 🏆\n\n";
-
-    for (let i = 0; i < groupUsers.length; i++) {
-
-        const u = groupUsers[i];
-
-        // 🔥 Fetch contact
-        const contact = await client.getContactById(u.userId);
-
-        const name =
-            contact.pushname ||
-            contact.name ||
-            u.userId.split("@")[0];
-
-        const medal =
-            i === 0 ? "🥇" :
-            i === 1 ? "🥈" :
-            i === 2 ? "🥉" :
-            "⭐";
-
-        reply += `${medal} ${name} — Level ${u.level} — ${u.xp} XP\n`;
-    }
-
-    await msg.reply(reply);
-    return true;
-}
-
-//statss
-
-
-async function showStats(msg) {
-
-    const groupId = msg.from;
-
-    const groupUsers = db.data.xp
-        .filter(u => u.groupId === groupId)
-        .sort((a, b) => b.messages - a.messages);
-
-    if (!groupUsers.length) {
-        await msg.reply("No stats yet.");
-        return;
-    }
-
-    const topUser = groupUsers[0];
-
-    let reply = `
-💬 Most Active Member 💬
-
-👑 Messages: ${topUser.messages}
-⭐ XP: ${topUser.xp}
-🏅 Level: ${topUser.level}
-`;
-
-    await msg.reply(reply);
-    return true;
-}
-
-///restart
-
-async function restartAI(msg) {
-
-    if (!isAdmin(msg)) {
-        await msg.reply("⛔ You are not authorized.");
-        return true;
-    }
-
-    await msg.reply("♻️ Restarting CyberBot...");
-
-    process.exit(1);
-}
 
 ////YT LINK SENDER
 async function handleYTLink(msg, cleanMessage) {
@@ -2465,53 +2157,7 @@ async function deleteWork(msg, cleanMessage) {
 }
 
 
-///vid download
-async function handleDownload(msg) {
-    const args = msg.body.split(" ");
-    let url = args.length > 1 ? args[1].trim() : null;
-    
-    if (!url || !url.startsWith("http")) {
-        await msg.reply("❌ Usage:\n.download <youtube / instagram link>");
-        return;
-    }
 
-    // Strip tracking parameters (?igsh=) to ensure clean API processing
-    url = url.split("?")[0];
-
-    await msg.reply("⬇️ Fetching video from local server... please wait.");
-
-    try {
-        // Ping your private Cobalt Docker container on port 9000
-        const response = await axios.post('http://localhost:9000/', {
-            url: url
-        }, {
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            }
-        });
-
-        // Cobalt returns the processed, direct media link in the 'url' property
-        const directVideoUrl = response.data.url; 
-
-        if (!directVideoUrl) {
-            await msg.reply("⚠️ Could not extract the video link. The content might be fully private.");
-            return;
-        }
-
-        // WhatsApp Web JS downloads the media straight from the URL
-        const media = await MessageMedia.fromUrl(directVideoUrl, { unsafeMime: true });
-        
-        // Send the video back to the chat
-        await client.sendMessage(msg.from, media, {
-            caption: "🎬 Downloaded instantly via private server!"
-        });
-
-    } catch (error) {
-        console.error("Local API Error:", error.response ? error.response.data : error.message);
-        await msg.reply("⚠️ Download failed. Ensure your Cobalt Docker container is still running.");
-    }
-}
 //done msg to all gropu
 
 async function generateUpdateMessage(updateText) {
@@ -2567,10 +2213,8 @@ ${updateText}
         return `🟢 CYBERBOT UPDATE\n\n${updateText}`;
     }
 }
-///exam prep function
-
+// 🎓 AI STUDY GUIDE GENERATOR (.prep)
 async function handleExamPrep(msg, cleanMessage) {
-    // Expected format: .prep toc 1
     const args = cleanMessage.replace(".prep", "").trim().split(" ");
     
     if (args.length < 2) {
@@ -2581,9 +2225,8 @@ async function handleExamPrep(msg, cleanMessage) {
     const subject = args[0].toLowerCase();
     const unit = args[1];
 
-    // Check if we have the questions in the database
     if (!examDB[subject] || !examDB[subject][unit]) {
-        await msg.reply(`❌ Database miss. I don't have the guaranteed questions for ${subject.toUpperCase()} Unit ${unit} yet.`);
+        await msg.reply(`❌ Database miss. I don't have the official syllabus and past questions mapped for ${subject.toUpperCase()} Unit ${unit} yet.`);
         return true;
     }
 
@@ -2591,22 +2234,22 @@ async function handleExamPrep(msg, cleanMessage) {
     const twoMarksText = unitData.twoMarks.map((q, i) => `${i+1}. ${q}`).join("\n");
     const sixteenMarksText = unitData.sixteenMarks.map((q, i) => `${i+1}. ${q}`).join("\n");
 
-    await msg.reply(`🧠 Accessing ${subject.toUpperCase()} Unit ${unit} Mainframe...\nAnalyzing the exact university questions. Generating crash course... ⏳`);
+    await msg.reply(`📚 Accessing ${subject.toUpperCase()} Unit ${unit} Academic Database...\nAnalyzing past university question patterns. Generating your AI Study Guide... ⏳`);
 
     try {
         const systemPrompt = `
-You are CyberBot, an elite, charismatic academic hacker. 
-Your goal is to help a college student pass their exam tomorrow. 
-The university exam will ONLY contain questions from the list provided below.
+You are CampusAssist, a highly professional and intelligent academic tutor. 
+Your goal is to help an engineering student revise effectively for their upcoming university exam. 
+The student needs to study the following core topics and commonly asked questions from their syllabus.
 
 Task:
-1. Provide a "10-Minute Crash Course" summary of the core concepts needed to understand these specific questions.
-2. Provide punchy, easy-to-memorize answers for the 2-mark questions.
-3. Give a 3-step strategy on how to tackle the 16-mark questions.
+1. Provide a concise "10-Minute Study Guide" summarizing the core concepts needed to answer these specific questions.
+2. Provide clear, accurate, and easy-to-remember explanations for the 2-mark definitions.
+3. Give a structured, step-by-step strategy (bullet points, flow of concepts) on how to structure the 16-mark essays.
 
-Tone: Dominant, high IQ, mentor vibe. Use Thunglish occasionally (e.g., "Listen macha", "This is easy da"). Keep formatting clean for WhatsApp.
+Tone: Professional, encouraging, highly structured, and easy to read. Keep formatting clean for WhatsApp. Do not use slang.
 
-Here are the guaranteed questions:
+Here are the key academic questions to cover:
 [2-MARKS]
 ${twoMarksText}
 
@@ -2614,16 +2257,15 @@ ${twoMarksText}
 ${sixteenMarksText}
         `.trim();
 
-        // Call Groq AI using your existing setup
         const response = await axios.post(
             "https://api.groq.com/openai/v1/chat/completions",
             {
-                model: MODEL, // using your defined Groq model
+                model: MODEL,
                 messages: [
                     { role: "system", content: systemPrompt },
-                    { role: "user", content: "Teach me. I have an exam tomorrow." }
+                    { role: "user", content: "Please generate my study guide for tomorrow's exam." }
                 ],
-                temperature: 0.6,
+                temperature: 0.5, // Lowered temperature for more factual, less "creative" responses
                 max_tokens: 1500,
             },
             {
@@ -2638,23 +2280,45 @@ ${sixteenMarksText}
         const reply = response.data?.choices?.[0]?.message?.content?.trim();
         
         if (reply) {
-            await msg.reply(reply);
+            await msg.reply(`🎓 *AI STUDY GUIDE: ${subject.toUpperCase()} UNIT ${unit}*\n━━━━━━━━━━━━━━━━━━━━\n${reply}`);
             
-            // 🔥 Step 4: Auto-Schedule the Morning Reminder
             scheduleMorningRevision(msg.from, subject, unit);
-            await msg.reply(`⏰ P.S. I've set a system alarm. I will wake you up with a quick revision reminder tomorrow morning at 6:00 AM IST. Get some sleep.`);
+            await msg.reply(`⏰ *Study Routine Set:* I have scheduled a quick automated revision reminder for tomorrow morning at 6:00 AM IST. Good luck with your preparation!`);
         }
 
         return true;
 
     } catch (error) {
         console.error("Prep Engine Error:", error);
-        await msg.reply("⚠️ Neural link to Groq failed. Try again in a minute.");
+        await msg.reply("⚠️ Our academic AI server is currently busy. Please try again in a moment.");
         return true;
     }
 }
 
+// 🌅 PROFESSIONAL MORNING REVISION CALL
+function scheduleMorningRevision(userId, subject, unit) {
+    const job = schedule.scheduleJob({ rule: '0 6 * * *', tz: 'Asia/Kolkata' }, async function() {
+        const wakeupMsg = `
+🌅 *CAMPUSASSIST WAKE UP CALL* 🌅
+━━━━━━━━━━━━━━━━━━━━
+Good morning! Your ${subject.toUpperCase()} exam is today. 
 
+Quick mental check for Unit ${unit}:
+- Review the 2-mark definitions we discussed yesterday. 
+- For the 16-mark questions, remember to clearly draw your diagrams and structure your answers with clear side-headings. 
+
+You are well-prepared. Best of luck on your exam! 🎓
+        `.trim();
+
+        try {
+            await client.sendMessage(userId, wakeupMsg);
+        } catch (err) {
+            console.log("Failed to send morning revision to:", userId);
+        }
+
+        job.cancel();
+    });
+}
 //exam revision function
 function scheduleMorningRevision(userId, subject, unit) {
     // 🔥 Force 6:00 AM in Indian Standard Time
