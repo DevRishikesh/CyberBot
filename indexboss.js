@@ -582,17 +582,18 @@ if (pdfSessions[msg.from] && msg.hasMedia) {
     }
 });
 
-// 📡 Broadcast maintance to all groups in DB
+// 📡 Broadcast maintenance/alerts to all groups directly from WhatsApp
 async function broadcastToAllGroups(message) {
-
-    const groups = [...new Set(db.data.xp.map(u => u.groupId))];
-
-    for (const groupId of groups) {
-        try {
-            await client.sendMessage(groupId, message);
-        } catch (err) {
-            console.log("Broadcast failed for:", groupId);
+    try {
+        const chats = await client.getChats();
+        const groups = chats.filter(chat => chat.isGroup);
+        
+        for (const group of groups) {
+            await client.sendMessage(group.id._serialized, message);
+            await new Promise(resolve => setTimeout(resolve, 500)); // Anti-spam delay
         }
+    } catch (err) {
+        console.log("Broadcast failed:", err.message);
     }
 }
 
@@ -1611,9 +1612,10 @@ async function sendCyberNews() {
     const news = await fetchCyberNews();
     if (!news.length) return;
 
-    const groups = [...new Set(db.data.xp.map(u => u.groupId))];
+    const chats = await client.getChats();
+    const groups = chats.filter(chat => chat.isGroup);
 
-    for (const groupId of groups) {
+    for (const group of groups) {
 
         let message = `
 ╔══════════════════╗
@@ -1817,10 +1819,11 @@ ${labText}${taskText}
 Have a productive day! 🚀
     `.trim();
 
-    // Broadcast to all active groups
-    const groups = [...new Set(db.data.xp.map(u => u.groupId))];
-    for (const groupId of groups) {
-        await client.sendMessage(groupId, message);
+    // Broadcast to all active groups natively
+    const chats = await client.getChats();
+    const groups = chats.filter(chat => chat.isGroup);
+    for (const group of groups) {
+        await client.sendMessage(group.id._serialized, message);
     }
 
     // 🔥 DB Cleanup: Instantly delete today's tasks from the database!
