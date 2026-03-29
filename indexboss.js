@@ -498,6 +498,14 @@ function isAdmin(msg) {
     const sender = (msg.author || msg.from).replace("@lid", "");
     return admins.includes(sender);
 }
+/// HOD Check
+function isHOD(msg) {
+    // You can define HOD_NUMBERS in your .env file separated by commas
+    // Fallback to BOT_ADMINS if HOD_NUMBERS isn't set
+    const hods = (process.env.HOD_NUMBERS || process.env.BOT_ADMINS).split(",");
+    const sender = (msg.author || msg.from).replace("@lid", "");
+    return hods.includes(sender);
+}
 //storge for pdf conversion
 const pdfSessions = {};
 //msg get
@@ -658,6 +666,9 @@ if (/^list reminders\b/.test(cleanMessage)) {
 if (cleanMessage === ".convert") return await startConvertSession(msg);
 if (cleanMessage === "done") return await finishConvertSession(msg);
     // 📢 Admin Cloud Announcement
+if (cleanMessage === ".hodstats") {
+    return await handleHODStats(msg);
+}
 // ==========================================
     // 3. SMART ENGINES & KEYWORD TRIGGERS
     // ==========================================
@@ -2547,7 +2558,9 @@ async function handleCGPA(msg, cleanMessage) {
         session.sem = sem.toString();
         session.subjects = cyberSecuritySyllabus[session.sem].subjects.filter(s => s.type !== "other");
         session.step = "collecting_grades";
-        session.currentSubIndex = 0;
+        session.currentSubIndex = 0;if (cleanMessage === ".hodstats") {
+    return await handleHODStats(msg);
+}
 
         await askNextSubject(msg, session);
         return true;
@@ -2701,6 +2714,72 @@ Keep it sharp, specific to Cyber Security domain, and motivational. Use Thunglis
 
     } catch (err) {
         await msg.reply("⚠️ SWOT engine failed. But your CGPA is calculated above!");
+    }
+}
+
+// 📊 HOD ANALYTICS ENGINE
+async function handleHODStats(msg) {
+    // 1. Authorization Gate
+    if (!isHOD(msg)) {
+        await msg.reply("⛔ *Access Denied.* Only the Head of Department (HOD) can access this analytics dashboard.");
+        return true;
+    }
+
+    // 2. Ensure it's used in a group to get participants
+    const chat = await msg.getChat();
+    if (!chat.isGroup) {
+        await msg.reply("⚠️ Please use `.hodstats` inside a class group to view student engagement.");
+        return true;
+    }
+
+    await msg.reply("📊 Extracting group analytics... ⏳");
+
+    try {
+        // 3. Get Total Students
+        const totalStudents = chat.participants.length;
+
+        // 4. Calculate Active Users Today
+        const today = new Date().toISOString().split("T")[0];
+        
+        // Filter DB for today's messages in this specific group
+        const groupStatsToday = db.data.dailyStats.filter(
+            d => d.groupId === chat.id._serialized && d.date === today
+        );
+
+        const activeUsersCount = groupStatsToday.length;
+        const inactiveUsersCount = totalStudents - activeUsersCount;
+
+        // 5. Calculate Total Message Activity
+        const totalMessages = groupStatsToday.reduce((sum, user) => sum + user.messages, 0);
+
+        // 6. Calculate Engagement Percentage
+        let engagementPercent = 0;
+        if (totalStudents > 0) {
+            engagementPercent = ((activeUsersCount / totalStudents) * 100).toFixed(1);
+        }
+
+        // 7. Format the Report (CyberBot Style)
+        const report = `
+🎯 *HOD ANALYTICS DASHBOARD* 🎯
+━━━━━━━━━━━━━━━━━━━━
+📝 *Group:* ${chat.name}
+
+👥 *Total Students:* ${totalStudents}
+🟢 *Active Today:* ${activeUsersCount}
+🔴 *Inactive Today:* ${inactiveUsersCount}
+💬 *Total Messages:* ${totalMessages}
+🔥 *Engagement Rate:* ${engagementPercent}%
+━━━━━━━━━━━━━━━━━━━━
+_Data dynamically pulled from today's session logs._
+        `.trim();
+
+        await chat.sendMessage(report);
+        return true;
+
+    } catch (error) {
+        console.error("HOD Stats Error:", error);
+        await msg.reply("⚠️ System Error: Failed to generate HOD Analytics.");
+        return true;
     }
 }
 client.initialize();
