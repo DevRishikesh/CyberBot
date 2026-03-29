@@ -713,6 +713,9 @@ if (cleanMessage === ".hodstats") {
 if (cleanMessage === ".botstats") {
     return await handleBotStats(msg);
 }
+if (cleanMessage.startsWith(".hodannounce ")) {
+        return await handleHODAnnounce(msg, cleanMessage);
+    }
     // 📅 SMART EXAM DATE INTERCEPTOR (IAT-2)
     const isAskingDate = cleanMessage.includes("when") || cleanMessage.includes("date") || cleanMessage.includes("which day") || cleanMessage.includes("what day");
     const examSubjects = ['toc', 'aiml', 'dmss', 'ess', 'oss', 'ccs'];
@@ -2874,6 +2877,66 @@ _All systems operating at peak efficiency, Architect._ 😎⚡
     } catch (error) {
         console.error("Bot Stats Error:", error);
         await msg.reply("⚠️ System Error: Failed to pull diagnostics.");
+        return true;
+    }
+}
+// 📢 GLOBAL HOD ANNOUNCEMENT ENGINE (.hodannounce)
+async function handleHODAnnounce(msg, cleanMessage) {
+    // 1. Authorization Gate
+    if (!isHOD(msg)) {
+        await msg.reply("⛔ *Access Denied.* Only the Head of Department (HOD) can broadcast global announcements.");
+        return true;
+    }
+
+    // 2. Extract the payload using msg.body to preserve UPPERCASE and punctuation
+    const announcementText = msg.body.slice(msg.body.toLowerCase().indexOf(".hodannounce") + 12).trim();
+
+    if (!announcementText) {
+        await msg.reply("⚠️ Missing payload.\n*Usage:* `.hodannounce <your message here>`\n*Example:* `.hodannounce Tomorrow is a declared holiday.`");
+        return true;
+    }
+
+    await msg.reply("🚨 Compiling message... Initiating global broadcast ⏳");
+
+    try {
+        // 3. Format the Official Alert
+        const formattedAnnouncement = `
+🚨 *OFFICIAL DEPARTMENT ANNOUNCEMENT* 🚨
+━━━━━━━━━━━━━━━━━━━━
+${announcementText}
+━━━━━━━━━━━━━━━━━━━━
+_— Broadcasted via CyberBot Admin Portal_
+        `.trim();
+
+        // 4. Fetch all chats and strictly filter official groups
+        const chats = await client.getChats();
+        const groups = chats.filter(chat => chat.isGroup && chat.id._serialized.endsWith('@g.us'));
+
+        if (groups.length === 0) {
+            await msg.reply("⚠️ Broadcast failed: No active class groups found in network.");
+            return true;
+        }
+
+        let sentCount = 0;
+
+        // 5. Blast it to the network safely
+        for (const group of groups) {
+            // Check if group actually has people in it
+            if (group.participants && group.participants.length > 0) {
+                await client.sendMessage(group.id._serialized, formattedAnnouncement);
+                sentCount++;
+                // Anti-spam delay so WhatsApp doesn't flag the bot
+                await new Promise(resolve => setTimeout(resolve, 800)); 
+            }
+        }
+
+        // 6. Confirm success back to the HOD
+        await msg.reply(`✅ *Broadcast Deployed!*\nSuccessfully transmitted to ${sentCount} active class groups.`);
+        return true;
+
+    } catch (error) {
+        console.error("HOD Announce Error:", error);
+        await msg.reply("⚠️ System Error: Network broadcast failed.");
         return true;
     }
 }
