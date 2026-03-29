@@ -1640,7 +1640,7 @@ async function sendCyberNews() {
 — CyberBot Intel
 ━━━━━━━━━━━━━━━━━━`;
 
-        await client.sendMessage(groupId, message.trim());
+        await client.sendMessage(group.id._serialized, message.trim());
     }
 }
 // 🔥 Daily Cyber News at 8 PM IST
