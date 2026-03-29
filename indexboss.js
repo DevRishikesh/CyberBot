@@ -311,6 +311,33 @@ const examDB = {
     }
 };
 
+// 🎓 CYBERBOT ACADEMIC DOSSIER DATABASE
+const academicRecordsDB = [
+    { 
+        id: "101", 
+        name: "Rishikesh Ragav", 
+        attendance: 92, 
+        arrears: 0,
+        marks: { IAT1: 85, IAT2: 90, Model: 88 },
+        events: ["Cyber Security Hackathon (1st Place)", "Paper Presentation Erode"]
+    },
+    { 
+        id: "102", 
+        name: "ronaldo", 
+        attendance: 78, 
+        arrears: 1,
+        marks: { IAT1: 65, IAT2: 70, Model: 68 },
+        events: ["Web Dev Workshop"]
+    },
+    { 
+        id: "103", 
+        name: "Runithkumar", 
+        attendance: 85, 
+        arrears: 0,
+        marks: { IAT1: 75, IAT2: 80, Model: 78 },
+        events: ["NSS Camp", "Sports Meet"]
+    }
+];
 
 const cyberSecuritySyllabus = {
     "1": {
@@ -721,6 +748,17 @@ if (cleanMessage === ".hodstats") {
 if (cleanMessage === ".botstats") {
     return await handleBotStats(msg);
 }
+// 👁️ Student Academic Profile Lookup
+    if (cleanMessage.startsWith(".profile ")) {
+        return await handleStudentProfile(msg, cleanMessage);
+    }
+// 📝 PTM Communication Log
+    if (cleanMessage.startsWith(".logptm ")) {
+        return await handleLogPTM(msg, cleanMessage);
+    }
+    if (cleanMessage.startsWith(".ptmlogs ")) {
+        return await handleGetPTMLogs(msg, cleanMessage);
+    }
 // 📚 Syllabus Tracker
     if (cleanMessage.startsWith(".coverage ")) {
         return await handleUpdateCoverage(msg, cleanMessage);
@@ -3058,6 +3096,189 @@ async function handleCheckSyllabus(msg, cleanMessage) {
 
     await msg.reply(report);
     return true;
+}
+// 📝 FACULTY: LOG PTM COMMUNICATION (.logptm 22CS01 call Spoke about attendance)
+async function handleLogPTM(msg, cleanMessage) {
+    if (!isFaculty(msg)) {
+        await msg.reply("⛔ *Access Denied.* Only authorized faculty can log parent communications.");
+        return true;
+    }
+
+    // Expected format: .logptm <StudentID> <Type> <Notes...>
+    // Types: call, msg, meeting, alert
+    const args = cleanMessage.split(" ");
+    
+    if (args.length < 4) {
+        await msg.reply("⚠️ *Format Error*\nPlease use: `.logptm <StudentID> <Type> <Details>`\n*Types allowed:* call, msg, meet, alert\n*Example:* `.logptm 22CS01 call Father promised to check assignments.`");
+        return true;
+    }
+
+    const studentId = args[1].toUpperCase();
+    const type = args[2].toLowerCase();
+    
+    // Validate the communication type
+    const validTypes = ["call", "msg", "meet", "alert"];
+    if (!validTypes.includes(type)) {
+        await msg.reply(`❌ *Invalid Type.* Must be one of: ${validTypes.join(", ")}`);
+        return true;
+    }
+
+    // The rest of the message is the actual notes (preserves their original text from msg.body)
+    // We slice from the original body to keep capitalization and punctuation!
+    const commandPrefix = `.logptm ${args[1]} ${args[2]} `;
+    // Find where the notes actually start in the raw message
+    const rawMatchIndex = msg.body.toLowerCase().indexOf(commandPrefix);
+    
+    let notes = "";
+    if (rawMatchIndex !== -1) {
+        notes = msg.body.slice(rawMatchIndex + commandPrefix.length).trim();
+    } else {
+        // Fallback if there are weird spaces
+        notes = args.slice(3).join(" ");
+    }
+
+    // Initialize DB if it doesn't exist
+    if (!db.data.ptmLogs) db.data.ptmLogs = [];
+
+    const now = new Date();
+    const timestamp = now.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+    let sender = (msg.author || msg.from).replace(/@c\.us|@lid/g, "");
+
+    // Push the record to the database
+    db.data.ptmLogs.push({
+        studentId: studentId,
+        type: type,
+        notes: notes,
+        timestamp: timestamp,
+        loggedBy: sender
+    });
+
+    await db.write();
+
+    // Fun emojis based on type
+    const typeIcon = type === "call" ? "📞" : type === "msg" ? "💬" : type === "meet" ? "🤝" : "🚨";
+
+    await msg.reply(`✅ *PTM Log Saved*\n🆔 Student: ${studentId}\n${typeIcon} Type: ${type.toUpperCase()}\n📝 Notes securely recorded.`);
+    return true;
+}
+
+
+// 🔍 FACULTY: RETRIEVE PTM LOGS (.ptmlogs 22CS01)
+async function handleGetPTMLogs(msg, cleanMessage) {
+    if (!isFaculty(msg)) {
+        await msg.reply("⛔ *Access Denied.* Only authorized faculty can access PTM records.");
+        return true;
+    }
+
+    const args = cleanMessage.split(" ");
+    if (args.length < 2) {
+        await msg.reply("⚠️ *Format Error*\nPlease use: `.ptmlogs <StudentID>`\n*Example:* `.ptmlogs 22CS01`");
+        return true;
+    }
+
+    const studentId = args[1].toUpperCase();
+
+    if (!db.data.ptmLogs || db.data.ptmLogs.length === 0) {
+        await msg.reply("📭 The PTM database is currently empty.");
+        return true;
+    }
+
+    // Find all logs for this specific student, sorted newest first
+    const studentLogs = db.data.ptmLogs
+        .filter(log => log.studentId === studentId)
+        .reverse(); // Newest records at the top
+
+    if (studentLogs.length === 0) {
+        await msg.reply(`⚠️ No communication history found for student ID: *${studentId}*`);
+        return true;
+    }
+
+    let report = `📂 *PTM DOSSIER: ${studentId}*\n━━━━━━━━━━━━━━━━━━━━\n`;
+
+    studentLogs.forEach((log, index) => {
+        const typeIcon = log.type === "call" ? "📞" : log.type === "msg" ? "💬" : log.type === "meet" ? "🤝" : "🚨";
+        
+        report += `${typeIcon} *${log.type.toUpperCase()}* | 🕒 ${log.timestamp}\n`;
+        report += `📝 _"${log.notes}"_\n`;
+        report += `━━━━━━━━━━━━━━━━━━━━\n`;
+    });
+
+    report += `📊 *Total Records:* ${studentLogs.length}`;
+
+    await msg.reply(report.trim());
+    return true;
+}
+// 👁️ HOD/FACULTY: STUDENT PROFILE LOOKUP (.profile 24CS101 or .profile Rishi)
+async function handleStudentProfile(msg, cleanMessage) {
+    // 1. Authorization Gate (Faculty, HOD, and Architect only)
+    if (!isFaculty(msg) && !isHOD(msg) && !isAdmin(msg)) {
+        await msg.reply("⛔ *RESTRICTED ACCESS.* Only authorized faculty can view academic dossiers.");
+        return true;
+    }
+
+    // 2. Extract the search query
+    const query = cleanMessage.replace(".profile ", "").trim().toLowerCase();
+
+    if (!query) {
+        await msg.reply("⚠️ *Format Error*\nPlease use: `.profile <RollNo>` or `.profile <Name>`\n*Example:* `.profile 24CS101` or `.profile Rishikesh`");
+        return true;
+    }
+
+    await msg.reply(`🔍 Scanning database for \`${query.toUpperCase()}\`... ⏳`);
+
+    try {
+        // 3. Search Engine: Look for exact ID match OR partial Name match
+        const student = academicRecordsDB.find(s => 
+            s.id.toLowerCase() === query || 
+            s.name.toLowerCase().includes(query)
+        );
+
+        if (!student) {
+            await msg.reply(`❌ *No Record Found.*\nCould not locate any student matching "${query.toUpperCase()}" in the academic database.`);
+            return true;
+        }
+
+        // 4. Formatting the Data (Calculations & Visuals)
+        let attendanceAlert = student.attendance < 75 ? "🔴 (CRITICAL)" : student.attendance < 85 ? "🟡 (WARNING)" : "🟢 (SAFE)";
+        let arrearAlert = student.arrears > 0 ? `🚨 ${student.arrears} Arrears` : "✅ All Clear";
+        
+        // Format Marks
+        let marksDisplay = `▪️ IAT-1: ${student.marks.IAT1}%\n▪️ IAT-2: ${student.marks.IAT2}%\n▪️ Model: ${student.marks.Model}%`;
+        
+        // Format Events
+        let eventsDisplay = student.events.length > 0 
+            ? student.events.map(e => `🏆 ${e}`).join("\n") 
+            : "No events recorded.";
+
+        // 5. Build the Master Dossier
+        const dossier = `
+👁️ *STUDENT DOSSIER EXTRACTED* 👁️
+━━━━━━━━━━━━━━━━━━━━
+👤 *Name:* ${student.name}
+🆔 *Roll No:* ${student.id}
+
+📊 *ACADEMIC STATUS*
+▪️ Attendance: ${student.attendance}% ${attendanceAlert}
+▪️ Standing: ${arrearAlert}
+
+📝 *INTERNAL PERFORMANCE*
+${marksDisplay}
+
+🚀 *CO-CURRICULAR / EVENTS*
+${eventsDisplay}
+━━━━━━━━━━━━━━━━━━━━
+_— CyberBot Academic Intelligence_
+        `.trim();
+
+        // 6. Deliver the payload
+        await msg.reply(dossier);
+        return true;
+
+    } catch (error) {
+        console.error("Profile Lookup Error:", error);
+        await msg.reply("⚠️ System Error: Failed to retrieve student dossier.");
+        return true;
+    }
 }
 client.initialize();
 
