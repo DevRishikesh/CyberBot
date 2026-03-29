@@ -657,6 +657,63 @@ if (/^list reminders\b/.test(cleanMessage)) {
 if (cleanMessage === ".convert") return await startConvertSession(msg);
 if (cleanMessage === "done") return await finishConvertSession(msg);
     // 📢 Admin Cloud Announcement
+
+// 🎭 ==========================================
+    // HACKATHON DEMO CHEAT CODES (Admin Only)
+    // ==========================================
+
+    // 1. Force Morning Broadcast
+    if (cleanMessage === ".demomorning") {
+        if (!isAdmin(msg)) return true;
+        await sendMorningDayOrder();
+        await msg.reply("✅ [DEMO] Morning broadcast fired to all groups.");
+        return true;
+    }
+
+    // 2. Force Cyber News
+    if (cleanMessage === ".demonews") {
+        if (!isAdmin(msg)) return true;
+        await sendCyberNews();
+        await msg.reply("✅ [DEMO] Cyber news broadcast fired.");
+        return true;
+    }
+
+    // 3. Force Birthday Message (Simulating today is someone's birthday)
+    if (cleanMessage === ".demobday") {
+        if (!isAdmin(msg)) return true;
+        
+        const bdayMessage = `
+🎉 *CYBERBOT BIRTHDAY ALERT* 🎉
+━━━━━━━━━━━━━━━━━━━━━━
+Everyone wish a massive Happy Birthday to *Vasu Devan and Rishikesh Ragav*! 🎂🔥
+
+May your day be full of good vibes, zero errors, and a lot of celebrations. Party hard macha! 😎⚡
+━━━━━━━━━━━━━━━━━━━━━━
+        `.trim();
+
+        await broadcastToAllGroups(bdayMessage);
+        await msg.reply("✅ [DEMO] Birthday alert fired.");
+        return true;
+    }
+
+    // 4. Force Evening Preview
+    if (cleanMessage === ".demoevening") {
+        if (!isAdmin(msg)) return true;
+        
+        let nextDay = db.data.currentDayOrder + 1;
+        if (nextDay > MAX_DAY_ORDER) nextDay = 1;
+        const scheduleData = dayOrderSchedule[nextDay];
+        
+        let labText = scheduleData.hasLab 
+            ? `👥 *BATCH 1:*\n🔬 Lab: ${scheduleData.labB1}\n\n👥 *BATCH 2:*\n🔬 Lab: ${scheduleData.labB2}` 
+            : `🔬 *Lab:* No Lab Tomorrow`;
+
+        const eveningMsg = `🌙 *EVENING BRIEFING* 🌙\n━━━━━━━━━━━━━━━━━━━━\nGet your bags ready for tomorrow!\n\n📅 *Tomorrow is Day Order:* ${nextDay}\n📚 *Classes:* ${scheduleData.subjects}\n\n${labText}\n━━━━━━━━━━━━━━━━━━━━\nRest well. ⚡`;
+        
+        await broadcastToAllGroups(eveningMsg);
+        await msg.reply("✅ [DEMO] Evening broadcast fired.");
+        return true;
+    }
 		// 🚧 ENTER MAINTENANCE MODE
 if (cleanMessage === ".maintenance") {
 
