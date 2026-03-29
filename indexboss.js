@@ -523,8 +523,7 @@ const pdfSessions = {};
 
 client.on('message', async msg => {
 
-    const chat = await msg.getChat();
-
+  
 
     // 🔥 ADD XP (Always happens in groups, even if bot ignores the msg)
    const chat = await msg.getChat();
