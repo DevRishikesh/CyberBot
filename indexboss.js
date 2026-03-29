@@ -10,7 +10,7 @@ require('dotenv').config();
 const schedule = require("node-schedule");
 const chrono = require("chrono-node");
 const reminders = {};
-const GROQ_API_KEY = process.env.GEMINI_API_KEY;
+const GROQ_API_KEY = process.env.GEMINI_API_KEY2;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY2;
 const yts = require("yt-search");
 const Parser = require('rss-parser');
