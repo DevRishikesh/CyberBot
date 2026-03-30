@@ -49,7 +49,7 @@ client.on('ready', () => {
    
    // schedule.scheduleJob
  
-    /Auto-Birthday Wisher at 7:00 AM IST
+    //Auto-Birthday Wisher at 7:00 AM IST
     schedule.scheduleJob({ rule: '0 0 * * *', tz: 'Asia/Kolkata' }, async function () {
         const today = new Date();
         const dd = String(today.getDate()).padStart(2, '0');
