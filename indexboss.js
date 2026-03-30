@@ -3200,7 +3200,7 @@ _— CyberBot Academic Intelligence_
     }
 }
 
-// 📢 FACULTY: BULLETPROOF 2ND YEAR BROADCAST (.announce2nd)
+//FACULTY:  2ND YEAR BROADCAST WITH MEDIA (.announce2nd)
 async function handleSecondYearAnnounce(msg, cleanMessage) {
     // 1. Authorization Gate
     if (!isFaculty(msg)) {
@@ -3208,49 +3208,72 @@ async function handleSecondYearAnnounce(msg, cleanMessage) {
         return true;
     }
 
-    // 2. Extract the payload
-    const announcementText = msg.body.slice(msg.body.toLowerCase().indexOf(".announce2nd") + 12).trim();
+    // 2. Extract the text payload (if any)
+    let announcementText = msg.body.slice(msg.body.toLowerCase().indexOf(".announce2nd") + 12).trim();
 
-    if (!announcementText) {
-        await msg.reply("⚠️ Missing payload.\n*Usage:* `.announce2nd <message>`");
+    // 3. Media Interceptor: Check if they attached a file OR replied to a file
+    let mediaMsg = msg;
+    if (msg.hasQuotedMsg) {
+        const quotedMsg = await msg.getQuotedMessage();
+        if (quotedMsg.hasMedia) {
+            mediaMsg = quotedMsg;
+        }
+    }
+
+    const hasAttachment = mediaMsg.hasMedia;
+
+    // 4. Failsafe: Prevent empty broadcasts
+    if (!announcementText && !hasAttachment) {
+        await msg.reply("⚠️ Missing payload.\n*Usage:* `.announce2nd <message>` OR attach a file/image and write `.announce2nd` in the caption.");
         return true;
     }
 
-    await msg.reply("🚨 Compiling message for 2nd-year groups... Initiating strict-ID broadcast ⏳");
+    await msg.reply("🚨 Compiling message and media for 2nd-year groups... Initiating strict-ID broadcast ⏳");
 
     try {
-        const formattedAnnouncement = `
-📢 *2nd YEAR FACULTY ANNOUNCEMENT* 📢
-━━━━━━━━━━━━━━━━━━━━
-${announcementText}
-━━━━━━━━━━━━━━━━━━━━
-_— Broadcasted via CyberBot_
-        `.trim();
+        // 5. Format the Text Announcement
+        let formattedAnnouncement = "";
+        if (announcementText) {
+            formattedAnnouncement = `📢 *2nd YEAR FACULTY ANNOUNCEMENT* 📢\n━━━━━━━━━━━━━━━━━━━━\n${announcementText}\n━━━━━━━━━━━━━━━━━━━━\n_— Broadcasted via CyberBot_`;
+        } else {
+            // Default caption if they just send a file without typing a message
+            formattedAnnouncement = `📢 *2nd YEAR FACULTY ANNOUNCEMENT*\n_— Attached File/Media_`; 
+        }
 
-       
+        // 6. Download the Media (if it exists)
+        let mediaToSend = null;
+        if (hasAttachment) {
+            mediaToSend = await mediaMsg.downloadMedia();
+        }
+
+        // 7. The Target IDs
         const targetGroupIds = [
-            "120363406309881818@g.us", // Example: 2nd Year CSE A
-            "120363407680969602@g.us"  // Example: 2nd Year CSE B
+            "120363406309881818@g.us", // 2nd Year CSE A
+            "120363407680969602@g.us"  // 2nd Year CSE B
         ];
 
-        // Fetch all chats
+        // Fetch all chats and filter
         const chats = await client.getChats();
-        
-        // strictly filter by the exact IDs in our list
         const secondYearGroups = chats.filter(chat => 
             chat.isGroup && targetGroupIds.includes(chat.id._serialized)
         );
 
         if (secondYearGroups.length === 0) {
-            await msg.reply("⚠️ Broadcast failed: None of the target Group IDs were found. Is the bot added to those groups?");
+            await msg.reply("⚠️ Broadcast failed: None of the target Group IDs were found.");
             return true;
         }
 
         let sentCount = 0;
 
-        // Blast it to the targeted groups safely
+        // 8. Blast the Payload (Text + Media)
         for (const group of secondYearGroups) {
-            await client.sendMessage(group.id._serialized, formattedAnnouncement);
+            if (mediaToSend) {
+                // Send the file and use the announcement text as the caption
+                await client.sendMessage(group.id._serialized, mediaToSend, { caption: formattedAnnouncement });
+            } else {
+                // No file, just send the text
+                await client.sendMessage(group.id._serialized, formattedAnnouncement);
+            }
             sentCount++;
             await new Promise(resolve => setTimeout(resolve, 800)); // Anti-spam delay
         }
@@ -3260,7 +3283,7 @@ _— Broadcasted via CyberBot_
 
     } catch (error) {
         console.error("2nd Year Announce Error:", error);
-        await msg.reply("⚠️ System Error: Network broadcast failed.");
+        await msg.reply("⚠️ System Error: Network broadcast failed. File might be too large or corrupted.");
         return true;
     }
 }
