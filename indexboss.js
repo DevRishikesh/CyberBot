@@ -751,6 +751,24 @@ if (cleanMessage === ".botstats") {
 if (cleanMessage.startsWith(".announce2nd ")) {
         return await handleSecondYearAnnounce(msg, cleanMessage);
     }
+	// 🔍 ADMIN: Get all Group IDs
+    if (cleanMessage === ".getgroups") {
+        if (!isAdmin(msg)) {
+            await msg.reply("⛔ Admin only.");
+            return true;
+        }
+        
+        const chats = await client.getChats();
+        const groups = chats.filter(chat => chat.isGroup);
+        
+        let report = "📂 *YOUR WHATSAPP GROUP IDs*\n━━━━━━━━━━━━━━━━━━━━\n";
+        groups.forEach(g => {
+            report += `📌 *Name:* ${g.name}\n🔑 *ID:* ${g.id._serialized}\n\n`;
+        });
+        
+        await msg.reply(report);
+        return true;
+    }
 // Syllabus Tracker
     if (cleanMessage.startsWith(".coverage ")) {
         return await handleUpdateCoverage(msg, cleanMessage);
