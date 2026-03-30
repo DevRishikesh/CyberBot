@@ -748,7 +748,7 @@ if (cleanMessage === ".botstats") {
         return await handleGetPTMLogs(msg, cleanMessage);
     }
 //send msges to all 2nd year groups
-if (cleanMessage.startsWith(".send2nd ")) {
+if (cleanMessage.startsWith(".send2nd")) {
         return await handleSecondYearAnnounce(msg, cleanMessage);
     }
 	// 🔍 ADMIN: Get all Group IDs
