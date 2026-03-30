@@ -701,6 +701,9 @@ if (/^\.stats\b/.test(cleanMessage)) {
 if (/^list reminders\b/.test(cleanMessage)) {
     return await listReminders(msg);
 }
+if (cleanMessage === ".heyyy") {
+    return await handleHello(msg);
+}
 
 // Admin Holiday Pause System
     if (cleanMessage === ".pause") {
@@ -2745,7 +2748,9 @@ Keep it sharp, specific to Cyber Security domain, and motivational. Use Thunglis
         await msg.reply("⚠️ SWOT engine failed. But your CGPA is calculated above!");
     }
 }
-
+async function handleHello(msg){
+	await msg.reply("Welcome Nafisa");
+}
 // GLOBAL HOD ANALYTICS ENGINE (Private DM Version)
 async function handleHODStats(msg) {
     // 1. Authorization Gate
