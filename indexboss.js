@@ -740,6 +740,9 @@ if (cleanMessage === ".botstats") {
     if (cleanMessage.startsWith(".profile ")) {
         return await handleStudentProfile(msg, cleanMessage);
     }
+	if (cleanMessage.startsWith(".Hello")){
+		return await handleWelcome(msg, cleanMessage);
+	}
 // PTM Communication Log
     if (cleanMessage.startsWith(".logptm ")) {
         return await handleLogPTM(msg, cleanMessage);
@@ -906,6 +909,7 @@ if (cleanMessage.startsWith(".donemaintenance")) {
         return true;
     }
 
+	
     // 1. Extract the text inside the double quotes
     let updateNotes = "General system upgrades and security patches.";
     const match = msg.body.match(/"([^"]+)"/);
@@ -1771,6 +1775,10 @@ async function listReminders(msg) {
     await msg.reply(reply.trim());
 
     return true;
+}
+
+async function handleWelcome(msg, cleanMessage){
+	await msg.reply("Welcome Nafisa");
 }
 ////YT LINK SENDER
 async function handleYTLink(msg, cleanMessage) {
