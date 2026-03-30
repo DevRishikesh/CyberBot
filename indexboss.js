@@ -74,9 +74,6 @@ May your day be full of good vibes, zero errors, and a lot of celebrations. Part
         }
     });
 
-    // ==========================================
-    // 🛑 THE MASTER SCHEDULE ENGINE (V2)
-    // ==========================================
 
     // Ensure DB flags exist on startup
     if (db.data.isSaturdayWorking === undefined) {
@@ -86,9 +83,9 @@ May your day be full of good vibes, zero errors, and a lot of celebrations. Part
         db.data.isSchedulePaused = false;
     }
 
-    // 🛑 1. FRIDAY 5:00 PM - Ask the Architect about Saturday
+    // 1. FRIDAY 5:00 PM - Ask the Architect about Saturday
     schedule.scheduleJob({ rule: '0 17 * * 5', tz: 'Asia/Kolkata' }, async function () {
-        if (db.data.isSchedulePaused) return; // Skip asking if on holiday
+        if (db.data.isSchedulePaused) return; 
 
         const admins = process.env.BOT_ADMINS.split(",");
         if (admins.length > 0) {
@@ -112,11 +109,11 @@ If you don't reply, I will assume it is a HOLIDAY.
         }
     });
 
-    // 🌙 2. EVENING 7:00 PM - Tomorrow's Schedule Broadcast (Sun to Fri)
+    // EVENING 7:00 PM - Tomorrow's Schedule Broadcast (Sun to Fri)
     schedule.scheduleJob({ rule: '0 19 * * 0-5', tz: 'Asia/Kolkata' }, async function () {
-        if (db.data.isSchedulePaused) return; // 🔥 Pause Check
+        if (db.data.isSchedulePaused) return; //Pause Check
 
-        const todayDayOfWeek = new Date().getDay(); // 0 is Sun, 5 is Fri
+        const todayDayOfWeek = new Date().getDay(); 
         
         // If it's Friday and Saturday is NOT working, send weekend msg
         if (todayDayOfWeek === 5 && !db.data.isSaturdayWorking) {
@@ -142,7 +139,7 @@ If you don't reply, I will assume it is a HOLIDAY.
         await broadcastToAllGroups(msg);
     });
 
-    // ⚙️ 3. NIGHT 12:00 AM - Auto-Update Day Order in DB (Sun to Fri)
+    // NIGHT 12:00 AM - Auto-Update Day Order in DB (Sun to Fri)
     schedule.scheduleJob({ rule: '0 0 * * 0-5', tz: 'Asia/Kolkata' }, async function () {
         if (db.data.isSchedulePaused) return; // 🔥 Pause Check
 
@@ -431,7 +428,6 @@ const cyberSecuritySyllabus = {
         ]
     }
 };
-//bdays
 //  CYBERBOT BIRTHDAY DATABASE
 const studentsDB = [
     { name: "ABDUL RAHIM R", dob: "10-09" },
@@ -596,7 +592,7 @@ client.on('message', async msg => {
             if (media) {
                 mediaCache.set(msg.id._serialized, media);
                 
-                // 🧹 Memory Management: Delete from cache after 15 minutes to save RAM
+                // M`emory Management: Delete from cache after 15 minutes to save RAM
                 setTimeout(() => {
                     mediaCache.delete(msg.id._serialized);
                 }, 15 * 60 * 1000);
@@ -641,11 +637,11 @@ if (pdfSessions[msg.from] && msg.hasMedia) {
 
         await msg.reply(`📸 Image added (${pdfSessions[msg.from].length})`);
 
-        return; // 🔥 IMPORTANT: stop other commands (AI etc.)
+        return; //  IMPORTANT: stop other commands (AI etc.)
     }
 }
 
-    // 🚀 Execute the command
+    //  Execute the command
     const handled = await routeCommand(msg, cleanMessage);
 
     // If mentioned but command failed (and it wasn't a private chat)
@@ -657,7 +653,7 @@ if (pdfSessions[msg.from] && msg.hasMedia) {
     }
 });
 
-// 📡 Broadcast maintenance/alerts to all groups directly from WhatsApp
+//  Broadcast maintenance/alerts to all groups directly from WhatsApp
 async function broadcastToAllGroups(message) {
     try {
         const chats = await client.getChats();
@@ -675,10 +671,8 @@ async function broadcastToAllGroups(message) {
 
 
     async function routeCommand(msg, cleanMessage) {
-    // ==========================================
-    // 1. EXACT COMMANDS (System, Stats, Menus)
-    // ==========================================
-// 🔥 CORE SYSTEM COMMANDS (Safe Matching)
+
+// CORE SYSTEM COMMANDS (Safe Matching)
 
 if (/^\/?help\b/.test(cleanMessage)) {
     return await handleHelp(msg);
@@ -708,7 +702,7 @@ if (/^list reminders\b/.test(cleanMessage)) {
     return await listReminders(msg);
 }
 
-// 🛑 Admin Holiday Pause System
+// Admin Holiday Pause System
     if (cleanMessage === ".pause") {
         if (!isAdmin(msg)) {
             await msg.reply("⛔ Admin only.");
@@ -742,18 +736,18 @@ if (cleanMessage === ".hodstats") {
 if (cleanMessage === ".botstats") {
     return await handleBotStats(msg);
 }
-// 👁️ Student Academic Profile Lookup
+// Student Academic Profile Lookup
     if (cleanMessage.startsWith(".profile ")) {
         return await handleStudentProfile(msg, cleanMessage);
     }
-// 📝 PTM Communication Log
+// PTM Communication Log
     if (cleanMessage.startsWith(".logptm ")) {
         return await handleLogPTM(msg, cleanMessage);
     }
     if (cleanMessage.startsWith(".ptmlogs ")) {
         return await handleGetPTMLogs(msg, cleanMessage);
     }
-// 📚 Syllabus Tracker
+// Syllabus Tracker
     if (cleanMessage.startsWith(".coverage ")) {
         return await handleUpdateCoverage(msg, cleanMessage);
     }
@@ -763,7 +757,7 @@ if (cleanMessage === ".botstats") {
 if (cleanMessage.startsWith(".hodannounce ")) {
         return await handleHODAnnounce(msg, cleanMessage);
     }
-    // 📅 SMART EXAM DATE INTERCEPTOR (IAT-2)
+    //  SMART EXAM DATE INTERCEPTOR (IAT-2)
     const isAskingDate = cleanMessage.includes("when") || cleanMessage.includes("date") || cleanMessage.includes("which day") || cleanMessage.includes("what day");
     const examSubjects = ['toc', 'aiml', 'dmss', 'ess', 'oss', 'ccs'];
     
@@ -794,10 +788,7 @@ if (cleanMessage.startsWith(".hodannounce ")) {
         await msg.reply(replyText);
         return true;
     }
-// 🎭 ==========================================
-    // HACKATHON DEMO CHEAT CODES (Admin Only)
-    // ==========================================
-
+//demo comments
     // 1. Force Morning Broadcast
     if (cleanMessage === ".demomorning") {
         if (!isAdmin(msg)) return true;
@@ -850,7 +841,7 @@ May your day be full of good vibes, zero errors, and a lot of celebrations. Part
         await msg.reply("✅ [DEMO] Evening broadcast fired.");
         return true;
     }
-		// 🚧 ENTER MAINTENANCE MODE
+		//  ENTER MAINTENANCE MODE
 if (cleanMessage === ".maintenance") {
 
     if (!isAdmin(msg)) {
@@ -885,7 +876,7 @@ This is controlled.
 }
 
 
-// 🟢 EXIT MAINTENANCE MODE & AI BROADCAST
+// EXIT MAINTENANCE MODE & AI BROADCAST
 if (cleanMessage.startsWith(".donemaintenance")) {
 
     if (!isAdmin(msg)) {
@@ -1023,7 +1014,7 @@ if (cleanMessage.includes(".setday")) {
     await msg.reply(`✅ Day Order manually set to ${newDay}`);
     return true;
 }
-// 📢 Admin Work Assignment (.work) -> Saves to Database
+// Admin Work Assignment (.work) -> Saves to Database
     if (cleanMessage.startsWith(".work ")) {
         if (!isAdmin(msg)) {
             await msg.reply("⛔ Access Denied. Only the Architect can assign work.");
@@ -1068,9 +1059,7 @@ db.data.tasks.push({
 
         return true; 
     }
-    // ==========================================
-    // 2. PREFIX COMMANDS (Tools, OSINT, AI)
-    // ==========================================
+// osint comments
 
 	if (cleanMessage.startsWith(".prep ")) return await handleExamPrep(msg, cleanMessage);
 
@@ -1100,7 +1089,7 @@ db.data.tasks.push({
         await msg.reply(replyMsg);
         return true;
     }
-	// 🔮 Tomorrow's Preview Command
+	//  Tomorrow's Preview Command
     if (cleanMessage === ".tomorrow" || cleanMessage === "tomorrow") {
         let currentDay = db.data.currentDayOrder;
         let nextDay = currentDay + 1;
@@ -1120,7 +1109,7 @@ db.data.tasks.push({
         return true;
     }
 
-    // 🛑 Admin Saturday Override Command
+    // Admin Saturday Override Command
     if (cleanMessage.startsWith(".sat ")) {
         if (!isAdmin(msg)) {
             await msg.reply("⛔ Admin only.");
@@ -1152,7 +1141,7 @@ db.data.tasks.push({
         const handled = await handleQB(msg, cleanMessage);
         if (handled) return true;
     }
-	// 2. 🔥 Check Dynamic Files (New Uploaded Method)
+	// 2. Check Dynamic Files (New Uploaded Method)
     const dynamicFileFound = await handleDynamicRetrieval(msg, cleanMessage);
     if (dynamicFileFound) return true;
     if (/(github link|source code|your repo|ur repo|send repo|give repo|drop repo|repo link)/.test(cleanMessage)) {
@@ -1166,7 +1155,7 @@ db.data.tasks.push({
     if (cleanMessage.includes("record")) return await handleRecord(msg);
     if (cleanMessage.includes("answer")) return await handleAnswer(msg, cleanMessage);
     if (cleanMessage.includes("ask")) return await handleask(msg, cleanMessage);
-	// 📂 Master Directory Command
+	// Master Directory Command
     if (cleanMessage === ".list" || cleanMessage === "list" || cleanMessage === "/list") {
         return await handleListResources(msg);
     }
@@ -1210,7 +1199,7 @@ if (cgpaHandled) return true;
     return await handleAI(msg, cleanMessage);
 }
 
-// 🔥 Helper function so you don't repeat code
+//  Helper function so you don't repeat code
 async function sendDocument(msg, filename, replyText) {
     const filePath = path.join(__dirname, 'media', filename);
     const media = MessageMedia.fromFilePath(filePath);
@@ -1219,7 +1208,7 @@ async function sendDocument(msg, filename, replyText) {
     return true;
 }
 
-// 🧠 The Smart Academic Engine
+//  The Smart Academic Engine
 async function handleQB(msg, cleanMessage) {
     // THE MATRIX: Define the exact keywords needed to trigger each file
     const academicDB = [
@@ -1244,7 +1233,7 @@ async function handleQB(msg, cleanMessage) {
         { keys: ['ess', '3', 'qb'], file: 'ESS UNIT 3 QB.pdf', text: '🌍 Extracting ESS Unit 3...' }
     ];
 
-    // 🚀 THE ENGINE: Loop through the matrix and check user input
+    //  THE ENGINE: Loop through the matrix and check user input
     for (const item of academicDB) {
         // This checks if EVERY keyword in the array exists in the user's messy text
         const isMatch = item.keys.every(keyword => cleanMessage.includes(keyword));
@@ -1254,7 +1243,7 @@ async function handleQB(msg, cleanMessage) {
         }
     }
 
-    // 🌍 SPECIAL CASE: ESS Unit 2 (Because it has multiple files)
+    //  SPECIAL CASE: ESS Unit 2 (Because it has multiple files)
     if (['ess', '2', 'qb'].every(keyword => cleanMessage.includes(keyword))) {
         await msg.reply("🌍 Extracting ESS Unit 2 (Multiple files detected)...");
         await sendDocument(msg, 'ESS UNIT 2 QB.pdf', "");
@@ -1270,7 +1259,7 @@ async function handleQB(msg, cleanMessage) {
 //Timetable
 async function handleTimetable(msg, cleanMessage) {
     
-    // 🧠 The Smart Timetable Engine Matrix
+    // The Smart Timetable Engine Matrix
     const timetableDB = [
         // IAT Timetables
         { keys: ['iat', '1', 'timetable'], file: 'iattb.jpeg', text: '📅 Extracting IAT-1 Schedule...' },
@@ -1281,7 +1270,7 @@ async function handleTimetable(msg, cleanMessage) {
         { keys: ['regular', 'timetable'], file: 'tb.jpeg', text: '📅 Extracting Class Timetable...' }
     ];
 
-    // 🚀 THE ENGINE: Loop through the matrix
+    // THE ENGINE: Loop through the matrix
     for (const item of timetableDB) {
         // Checks if every required keyword exists in the user's messy text
         const isMatch = item.keys.every(keyword => cleanMessage.includes(keyword));
@@ -1296,7 +1285,7 @@ async function handleTimetable(msg, cleanMessage) {
         }
     }
 
-    // 🌍 THE FALLBACK: If they are lazy and just type "timetable" or "schedule"
+    // THE FALLBACK: If they are lazy and just type "timetable" or "schedule"
     if (cleanMessage.includes("timetable") || cleanMessage.includes("schedule")) {
         const filePath = path.join(__dirname, 'media', 'tb.jpeg');
         const media = MessageMedia.fromFilePath(filePath);
@@ -1537,10 +1526,10 @@ RESPONSE RULES (ALWAYS FOLLOW)
             response.data?.choices?.[0]?.message?.content?.trim() ||
             "Hmm... brain glitch aagiduchu 😅";
 
-        // 🔥 Safety Trim (double protection)
-        if (reply.length > 500) {
-            reply = reply.slice(0, 500) + "...";
-        }
+        // Safety Trim (double protection)
+      //  if (reply.length > 500) {
+       //     reply = reply.slice(0, 500) + "...";
+       // }
 
         await sendWithTyping(msg, reply);
         return true;
@@ -1561,7 +1550,7 @@ function getTemperature(q) {
     return 0.75;
 }
 
-// 🔥 HELP MENU FUNCTION
+//  HELP MENU FUNCTION
 async function handleHelp(msg) {
 
     const helpMenu = `
@@ -1652,7 +1641,7 @@ async function handleReminder(msg, cleanMessage) {
         return true;
     }
 
-    // 🔥 TIMEZONE FIX: Auto-append "IST" if the user didn't type it
+    // TIMEZONE FIX: Auto-append "IST" if the user didn't type it
     // This forces the parser to treat "5pm" as "5pm IST" instead of server time.
     const parsingText = text.toLowerCase().includes("ist") ? text : text + " IST";
     
@@ -1730,9 +1719,6 @@ async function listReminders(msg) {
 
     return true;
 }
-
-
-
 ////YT LINK SENDER
 async function handleYTLink(msg, cleanMessage) {
 
@@ -1747,7 +1733,7 @@ async function handleYTLink(msg, cleanMessage) {
         return true;
     }
 
-    // 🔥 Force channel filter
+    // Force channel filter
     const finalQuery = `${query} 4g silver academy`;
 
     try {
@@ -1773,59 +1759,7 @@ async function handleYTLink(msg, cleanMessage) {
     }
 }
 
-
-///10pm msg
-async function sendDailyLeaderboard() {
-
-    const today = new Date().toISOString().split("T")[0];
-
-    const groups = [...new Set(db.data.dailyStats.map(d => d.groupId))];
-
-    for (const groupId of groups) {
-
-        const todaysData = db.data.dailyStats
-            .filter(d => d.groupId === groupId && d.date === today)
-            .sort((a, b) => b.messages - a.messages)
-            .slice(0, 5);
-
-        if (!todaysData.length) continue;
-
-        let totalMessages = todaysData.reduce((sum, u) => sum + u.messages, 0);
-
-        let reply = "🌙✨ *DAILY LEADERBOARD OF THE DAY* ✨🌙\n\n";
-
-        for (let i = 0; i < todaysData.length; i++) {
-
-            const u = todaysData[i];
-            const contact = await client.getContactById(u.userId);
-
-            const name =
-                contact.pushname ||
-                contact.name ||
-                u.userId.split("@")[0];
-
-            const medal =
-                i === 0 ? "👑🥇" :
-                i === 1 ? "🥈" :
-                i === 2 ? "🥉" :
-                "⭐";
-
-            reply += `${medal} ${name}\n   💬 ${u.messages} messages\n\n`;
-        }
-
-        reply += "━━━━━━━━━━━━━━━\n";
-        reply += `📊 Total Messages Today: ${totalMessages}\n`;
-        reply += "🔥 Resetting at midnight...\n";
-        reply += "━━━━━━━━━━━━━━━";
-
-        await client.sendMessage(groupId, reply);
-    }
-    return true;
-    // restart
-}
-
-
-// 🔥 Reset daily stats at Midnight IST
+// Reset daily stats at Midnight IST
 schedule.scheduleJob({ rule: '0 0 * * *', tz: 'Asia/Kolkata' }, async function () {
     const today = new Date().toISOString().split("T")[0];
 
@@ -1864,7 +1798,6 @@ async function fetchCyberNews() {
     }
 }
 //create news
-//create news
 async function sendCyberNews() {
 
     const news = await fetchCyberNews();
@@ -1901,7 +1834,7 @@ async function sendCyberNews() {
         await client.sendMessage(group.id._serialized, message.trim());
     }
 }
-// 🔥 Daily Cyber News at 8 PM IST
+// Daily Cyber News at 8 PM IST
 schedule.scheduleJob({ rule: '0 20 * * *', tz: 'Asia/Kolkata' }, async function () {
     await sendCyberNews();
 });
@@ -1983,53 +1916,7 @@ async function handleIPLookup(msg, cleanMessage) {
 }
 
 
-//encode decode
 
-async function handleEncode(msg, cleanMessage) {
-    // We use msg.body here to keep the exact uppercase/lowercase formatting
-    // indexOf finds where the command ends, so we only grab the payload
-    const originalText = msg.body.slice(msg.body.toLowerCase().indexOf(".encode") + 7).trim();
-    
-    if (!originalText) {
-        await msg.reply("[-] SYS_ERR: Missing payload to encode.\nUsage: .encode <text>");
-        return true;
-    }
-
-    // Using utf-8 ensures it can encode symbols and emojis properly too
-    const encoded = Buffer.from(originalText, 'utf-8').toString('base64');
-    await msg.reply(`[+] Encoded Payload:\n\`\`\`${encoded}\`\`\``);
-    return true;
-}
-
-async function handleDecode(msg, cleanMessage) {
-    const originalText = msg.body.slice(msg.body.toLowerCase().indexOf(".decode") + 7).trim();
-    
-    if (!originalText) {
-        await msg.reply("[-] SYS_ERR: Missing payload to decode.\nUsage: .decode <base64_string>");
-        return true;
-    }
-
-    const decoded = Buffer.from(originalText, 'base64').toString('utf-8');
-    await msg.reply(`[+] Decrypted Payload:\n\`\`\`${decoded}\`\`\``);
-    return true;
-}
-
-// 💻 GitHub Repo Dispatcher
-async function handleRepo(msg) {
-    const repoText = `
-[+] REPOSITORY LOCATED
-━━━━━━━━━━━━━━━━━━━━
-Architect: Vasu Devan
-
-Access the core source code here:
-🔗 https://github.com/DevRishikesh/CyberBot
-
-Fork it if you want, but don't forget to star it. ⚡
-    `.trim();
-
-    await sendWithTyping(msg, repoText);
-    return true;
-}
 
 //broadcast function
 async function sendMorningDayOrder() {
@@ -2045,7 +1932,7 @@ async function sendMorningDayOrder() {
     const dd = String(today.getDate()).padStart(2, '0');
     const todayStr = `${yyyy}-${mm}-${dd}`;
 
-    // 🔥 Find tasks assigned for today
+    // Find tasks assigned for today
     const todaysTasks = db.data.tasks.filter(t => t.date === todayStr);
     
     let taskText = "";
@@ -2064,7 +1951,6 @@ async function sendMorningDayOrder() {
         labText = `🔬 *Lab:* No Lab Today\n🎒 *Bring:* Just yourself and your brain cells`;
     }
 
-    // Combine everything into the final Morning Message
     const message = `
 🌅 *WAKE UP! COLLEGE UPDATE* 🌅
 ━━━━━━━━━━━━━━━━━━━━
@@ -2077,72 +1963,29 @@ ${labText}${taskText}
 Have a productive day! 🚀
     `.trim();
 
-    // Broadcast to all active groups natively
     const chats = await client.getChats();
     const groups = chats.filter(chat => chat.isGroup);
     for (const group of groups) {
         await client.sendMessage(group.id._serialized, message);
     }
 
-    // 🔥 DB Cleanup: Instantly delete today's tasks from the database!
-    // We ONLY delete tasks here. We DO NOT change the Day Order yet.
     db.data.tasks = db.data.tasks.filter(t => t.date !== todayStr);
-    
-    // Also clear out any old forgotten tasks (just in case)
+
     db.data.tasks = db.data.tasks.filter(t => new Date(t.date) > new Date(todayStr));
     
     await db.write();
 }
 
 
-// 🎨 Sticker Maker Function
-async function handleSticker(msg) {
-    let mediaMsg = msg;
 
-    // Check if the user is replying to a media message
-    if (msg.hasQuotedMsg) {
-        const quotedMsg = await msg.getQuotedMessage();
-        if (quotedMsg.hasMedia) {
-            mediaMsg = quotedMsg;
-        }
-    }
-
-    if (!mediaMsg.hasMedia) {
-        await msg.reply("❌ Send an image/video with caption .sticker OR reply .sticker to an image.");
-        return true;
-    }
-
-    try {
-        // 1. Download the media (image/gif/video)
-        const media = await mediaMsg.downloadMedia();
-
-        // 2. Send it back as a sticker
-        await client.sendMessage(msg.from, media, {
-            sendMediaAsSticker: true,
-            stickerAuthor: "CyberBot",   // The small text at the bottom
-            stickerName: "Rishhhiii"    // The bold text title
-        });
-
-    } catch (error) {
-        console.error("Sticker Error:", error);
-        await msg.reply("⚠️ Error converting media. Make sure the video is short (under 10s).");
-    }
-    
-    return true;
-}
-
-
-
-// 📂 SMART UPLOAD (Saves File + Remembers It)
+// SMART UPLOAD (Saves File + Remembers It)
 async function handleUpload(msg) {
     
-    // 1. Security Check
     if (!isAdmin(msg)) {
         await msg.reply("⛔ Access Denied. Only Admins can upload.");
         return true;
     }
 
-    // 2. Get the file (from attachment or reply)
     let mediaMsg = msg;
     if (msg.hasQuotedMsg) {
         mediaMsg = await msg.getQuotedMessage();
@@ -2153,8 +1996,6 @@ async function handleUpload(msg) {
         return true;
     }
 
-    // 3. Get the custom name (This becomes the keywords!)
-    // Example: .upload oss unit 1 qb
     let customName = msg.body.replace(/^\.upload\s*/i, "").trim();
 
     if (!customName) {
@@ -2164,24 +2005,14 @@ async function handleUpload(msg) {
 
     try {
         const media = await mediaMsg.downloadMedia();
-        
-        // 4. Create a clean filename
-        // We keep the original extension (pdf, jpg, etc.)
         const extension = media.mimetype.split("/")[1].split(";")[0]; 
         const filename = `${customName}.${extension}`;
-        
-        // 5. Save the file to 'media' folder
         const mediaDir = path.join(__dirname, 'media');
         if (!fs.existsSync(mediaDir)) fs.mkdirSync(mediaDir);
         
         const filePath = path.join(mediaDir, filename);
         fs.writeFileSync(filePath, media.data, 'base64');
-
-        // 6. 🔥 SAVE TO DATABASE (The Magic Part)
-        // We split the name into keywords: "oss unit 1 qb" -> ["oss", "unit", "1", "qb"]
         const keywords = customName.toLowerCase().split(" ");
-
-        // Remove old entry if it exists (to update files)
         db.data.files = db.data.files.filter(f => f.filename !== filename);
 
         db.data.files.push({
@@ -2203,26 +2034,15 @@ async function handleUpload(msg) {
 }
 
 
-// 🧠 DYNAMIC FILE FINDER (Smart Context Edition)
+// DYNAMIC FILE FINDER (Smart Context Edition)
 async function handleDynamicRetrieval(msg, cleanMessage) {
-    
-    // Safety check for empty DB
     if (!db.data.files || db.data.files.length === 0) return false;
-
-    // 1. Filter out long questions immediately
-    // If you ask "what is the difference between a process and a driver", that's 10 words.
-    // If the file is just "driver" (1 keyword), we shouldn't send it.
-    // Rule: If message is longer than 7 words, assume it's a question for AI.
     const msgWordCount = cleanMessage.split(" ").length;
     if (msgWordCount > 7) return false; 
-
-    // 2. Find matches
     let matches = [];
 
     for (const fileData of db.data.files) {
         if (!fileData.keywords || fileData.keywords.length === 0) continue;
-
-        // Check if ALL keywords exist
         const isMatch = fileData.keywords.every(keyword => 
             cleanMessage.toLowerCase().includes(keyword.toLowerCase())
         );
@@ -2234,21 +2054,13 @@ async function handleDynamicRetrieval(msg, cleanMessage) {
 
     if (matches.length === 0) return false;
 
-    // 3. Sort by Specificity (Best Match)
     matches.sort((a, b) => b.keywords.length - a.keywords.length);
     const bestMatch = matches[0];
 
-    // 4. 🔥 STRICT MODE CHECK
-    // If the user says "what is driver", that's 3 words. The file "driver" is 1 keyword.
-    // We only allow a small "buffer" of extra words (like "send", "give", "please").
-    // If the message has way more words than the filename, ignore it.
-    
-    // Allow max 3 extra words (e.g. "send [file] please" is ok)
     if (msgWordCount > bestMatch.keywords.length + 3) {
-        return false; // Too much extra text, let the AI handle it
+        return false; 
     }
 
-    // 5. Send the file
     const filePath = path.join(__dirname, 'media', bestMatch.filename);
     
     if (fs.existsSync(filePath)) {
@@ -2344,7 +2156,7 @@ async function finishConvertSession(msg) {
 
 
 
-// 🔎 OSINT: Malicious Link Scanner (.find)
+// OSINT: Malicious Link Scanner (.find)
 async function handleLinkCheck(msg, cleanMessage) {
     const urlToCheck = msg.body.slice(msg.body.toLowerCase().indexOf(".find") + 5).trim();
 
@@ -2369,7 +2181,7 @@ async function handleLinkCheck(msg, cleanMessage) {
             headers: { 
                 "Content-Type": "application/x-www-form-urlencoded",
                 "User-Agent": "CyberBot-OSINT/2.0 (Node.js)",
-                // 🔥 INJECTING THE AUTH KEY HERE
+                // INJECTING THE AUTH KEY HERE
                 "Auth-Key": process.env.URLHAUS_API_KEY 
             },
             timeout: 10000
@@ -2476,62 +2288,8 @@ async function deleteWork(msg, cleanMessage) {
 
 
 
-//done msg to all gropu
 
-async function generateUpdateMessage(updateText) {
-
-    try {
-
-        const prompt = `
-You are the system announcer for CyberBot.
-
-Turn the following update notes into a stylish WhatsApp announcement.
-
-Rules:
-- Keep it short
-- Use emojis
-- Make it feel like a system upgrade announcement
-- Format nicely
-
-Updates:
-${updateText}
-`;
-
-        const response = await axios.post(
-            "https://api.groq.com/openai/v1/chat/completions",
-            {
-                model: MODEL,
-                messages: [
-                    { role: "system", content: "You create cool system update announcements." },
-                    { role: "user", content: prompt }
-                ],
-                temperature: 0.6,
-                max_tokens: 200
-            },
-            {
-                headers: {
-                    "Authorization": `Bearer ${GROQ_API_KEY}`,
-                    "Content-Type": "application/json"
-                }
-            }
-        );
-
-        let reply = response.data?.choices?.[0]?.message?.content?.trim();
-
-        if (!reply) {
-            return `🟢 CYBERBOT UPDATE\n\n${updateText}`;
-        }
-
-        return reply;
-
-    } catch (error) {
-
-        console.log("AI Update Error:", error.message);
-
-        return `🟢 CYBERBOT UPDATE\n\n${updateText}`;
-    }
-}
-// 🎓 AI STUDY GUIDE GENERATOR (.prep)
+// AI STUDY GUIDE GENERATOR (.prep)
 async function handleExamPrep(msg, cleanMessage) {
     const args = cleanMessage.replace(".prep", "").trim().split(" ");
     
@@ -2613,7 +2371,7 @@ ${sixteenMarksText}
     }
 }
 
-// 🌅 PROFESSIONAL MORNING REVISION CALL
+// PROFESSIONAL MORNING REVISION CALL
 function scheduleMorningRevision(userId, subject, unit) {
     const job = schedule.scheduleJob({ rule: '0 6 * * *', tz: 'Asia/Kolkata' }, async function() {
         const wakeupMsg = `
@@ -2658,7 +2416,7 @@ Go dominate the paper. 🔥
             console.log("Failed to send morning revision to:", userId);
         }
 
-        // 🔥 SELF-DESTRUCT: Cancel the job after it runs so it only happens once
+        // SELF-DESTRUCT: Cancel the job after it runs so it only happens once
         job.cancel();
     });
 }
@@ -2735,9 +2493,6 @@ async function handleMeme(msg) {
         return true;
     }
 }
-
-//cgpa cal
-
 // Store ongoing CGPA sessions
 const cgpaSession = {};
 
@@ -2930,7 +2685,7 @@ Keep it sharp, specific to Cyber Security domain, and motivational. Use Thunglis
     }
 }
 
-// 📊 GLOBAL HOD ANALYTICS ENGINE (Private DM Version)
+// GLOBAL HOD ANALYTICS ENGINE (Private DM Version)
 async function handleHODStats(msg) {
     // 1. Authorization Gate
     if (!isHOD(msg)) {
@@ -2998,7 +2753,7 @@ async function handleHODStats(msg) {
         return true;
     }
 }
-// ⚙️ SYSTEM ARCHITECT DIAGNOSTICS (.botstats)
+// SYSTEM ARCHITECT DIAGNOSTICS (.botstats)
 async function handleBotStats(msg) {
     // 1. Strict Architect Gate
     if (!isAdmin(msg)) {
@@ -3050,7 +2805,7 @@ _All systems operating at peak efficiency, Architect._ 😎⚡
         return true;
     }
 }
-// 📢 GLOBAL HOD ANNOUNCEMENT ENGINE (.hodannounce)
+// GLOBAL HOD ANNOUNCEMENT ENGINE (.hodannounce)
 async function handleHODAnnounce(msg, cleanMessage) {
     // 1. Authorization Gate
     if (!isHOD(msg)) {
@@ -3110,7 +2865,7 @@ _— Broadcasted via CyberBot Admin Portal_
         return true;
     }
 }
-// 👨‍🏫 FACULTY: UPDATE SYLLABUS (.coverage aiml b 3 100)
+// FACULTY: UPDATE SYLLABUS (.coverage aiml b 3 100)
 async function handleUpdateCoverage(msg, cleanMessage) {
     if (!isFaculty(msg)) {
         await msg.reply("⛔ *Access Denied.* Only authorized faculty can update the syllabus tracker.");
@@ -3158,7 +2913,7 @@ async function handleUpdateCoverage(msg, cleanMessage) {
 }
 
 
-// 🎯 HOD: CHECK SYLLABUS (.checksyll aiml b)
+// HOD: CHECK SYLLABUS (.checksyll aiml b)
 async function handleCheckSyllabus(msg, cleanMessage) {
     if (!isHOD(msg) && !isAdmin(msg)) {
         await msg.reply("⛔ *Access Denied.* Only the HOD can generate syllabus reports.");
@@ -3214,7 +2969,7 @@ async function handleCheckSyllabus(msg, cleanMessage) {
     await msg.reply(report);
     return true;
 }
-// 📝 FACULTY: LOG PTM COMMUNICATION (.logptm 22CS01 call Spoke about attendance)
+// FACULTY: LOG PTM COMMUNICATION (.logptm 22CS01 call Spoke about attendance)
 async function handleLogPTM(msg, cleanMessage) {
     if (!isFaculty(msg)) {
         await msg.reply("⛔ *Access Denied.* Only authorized faculty can log parent communications.");
@@ -3280,7 +3035,7 @@ async function handleLogPTM(msg, cleanMessage) {
 }
 
 
-// 🔍 FACULTY: RETRIEVE PTM LOGS (.ptmlogs 22CS01)
+//FACULTY: RETRIEVE PTM LOGS (.ptmlogs 22CS01)
 async function handleGetPTMLogs(msg, cleanMessage) {
     if (!isFaculty(msg)) {
         await msg.reply("⛔ *Access Denied.* Only authorized faculty can access PTM records.");
@@ -3303,7 +3058,7 @@ async function handleGetPTMLogs(msg, cleanMessage) {
     // Find all logs for this specific student, sorted newest first
     const studentLogs = db.data.ptmLogs
         .filter(log => log.studentId === studentId)
-        .reverse(); // Newest records at the top
+        .reverse(); 
 
     if (studentLogs.length === 0) {
         await msg.reply(`⚠️ No communication history found for student ID: *${studentId}*`);
@@ -3325,15 +3080,13 @@ async function handleGetPTMLogs(msg, cleanMessage) {
     await msg.reply(report.trim());
     return true;
 }
-// 👁️ HOD/FACULTY: STUDENT PROFILE LOOKUP (.profile 24CS101 or .profile Rishi)
+
 async function handleStudentProfile(msg, cleanMessage) {
-    // 1. Authorization Gate (Faculty, HOD, and Architect only)
     if (!isFaculty(msg) && !isHOD(msg) && !isAdmin(msg)) {
         await msg.reply("⛔ *RESTRICTED ACCESS.* Only authorized faculty can view academic dossiers.");
         return true;
     }
 
-    // 2. Extract the search query
     const query = cleanMessage.replace(".profile ", "").trim().toLowerCase();
 
     if (!query) {
@@ -3344,7 +3097,6 @@ async function handleStudentProfile(msg, cleanMessage) {
     await msg.reply(`🔍 Scanning database for \`${query.toUpperCase()}\`... ⏳`);
 
     try {
-        // 3. Search Engine: Look for exact ID match OR partial Name match
         const student = academicRecordsDB.find(s => 
             s.id.toLowerCase() === query || 
             s.name.toLowerCase().includes(query)
@@ -3355,19 +3107,18 @@ async function handleStudentProfile(msg, cleanMessage) {
             return true;
         }
 
-        // 4. Formatting the Data (Calculations & Visuals)
+        
         let attendanceAlert = student.attendance < 75 ? "🔴 (CRITICAL)" : student.attendance < 85 ? "🟡 (WARNING)" : "🟢 (SAFE)";
         let arrearAlert = student.arrears > 0 ? `🚨 ${student.arrears} Arrears` : "✅ All Clear";
         
-        // Format Marks
+        
         let marksDisplay = `▪️ IAT-1: ${student.marks.IAT1}%\n▪️ IAT-2: ${student.marks.IAT2}%\n▪️ Model: ${student.marks.Model}%`;
         
-        // Format Events
+        
         let eventsDisplay = student.events.length > 0 
             ? student.events.map(e => `🏆 ${e}`).join("\n") 
             : "No events recorded.";
 
-        // 5. Build the Master Dossier
         const dossier = `
 👁️ *STUDENT DOSSIER EXTRACTED* 👁️
 ━━━━━━━━━━━━━━━━━━━━
@@ -3386,8 +3137,6 @@ ${eventsDisplay}
 ━━━━━━━━━━━━━━━━━━━━
 _— CyberBot Academic Intelligence_
         `.trim();
-
-        // 6. Deliver the payload
         await msg.reply(dossier);
         return true;
 
