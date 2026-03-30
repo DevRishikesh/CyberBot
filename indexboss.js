@@ -1553,76 +1553,89 @@ function getTemperature(q) {
 //  HELP MENU FUNCTION
 async function handleHelp(msg) {
 
-    const helpMenu = `
-🤖 *CYBERBOT COMMAND CENTER*
-━━━━━━━━━━━━━━━━━━━━
 
-🔍 *OSINT & RECON TOOLS*
-- .ip <address>     → Geolocate any IP
-- .encode <text>    → Base64 encode
-- .decode <text>    → Base64 decode
-- .find <url>       → Malware link scanner
+const helpMenu = `
+╔═══════════════════════════════╗
+     🤖 CAMPUSASSIST AI
+     PSV College of Engineering
+╚═══════════════════════════════╝
 
-🧠 *AI MODES*
-- /ai <question>    → Deep AI (Gemini 2.0)
-- Just tag the bot  → Chat AI (Groq personality)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🏫  CAMPUS GUIDE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Just ask anything about the college.
+▸ "where is the restroom in kalam block?"
+▸ "how to get bonafide certificate?"
+▸ "where is the canteen?"
+▸ "what time does college start?"
+▸ "where is the exam cell?"
 
-📅 *DAY ORDER SYSTEM*
-- .today            → Today's timetable + lab info
-- .tomorrow         → Preview next day's schedule
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📅  DAY ORDER & SCHEDULE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+.today          → Today's schedule + lab info
+.tomorrow       → Tomorrow's preview
+class timetable → Class timetable image
+IAT 1 timetable → IAT schedule image
+IAT 2 timetable → IAT schedule image
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📚  ACADEMICS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[sub] [unit] qb → Get question bank PDF
+  ↳ e.g: oss unit 2 qb | aiml unit 1 qb
 
-📚 *QUESTION BANKS*
-Send any combo like: oss unit 1 qb
-Subjects: oss / aiml / toc / ccs / ess
-Units: 1 / 2 / 3
+.prep [sub] [unit] → AI exam crash course
+  ↳ e.g: .prep toc 2 | .prep oss 1
 
-🎓 *EXAM PREP (AI Crash Course)*
-- .prep <subject> <unit>
-  Example: .prep toc 2
+.cgpa           → CGPA calculator + AI SWOT
 
-📅 *TIMETABLE*
-- class timetable
-- IAT 1 timetable
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⏰  REMINDERS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+remain [time] [task] → Set a reminder
+  ↳ e.g: remain tomorrow 5pm submit record
+list reminders       → View active reminders
 
-🎥 *YOUTUBE SEARCH*
-- send link for <topic> yt video
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎥  SEARCH & FILES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+send link for [topic] yt video → YT link
+.list           → All available resources
+[keywords]      → Smart file retrieval
 
-⏰ *REMINDERS*
-- remain tomorrow 5pm submit assignment
-- remain in 2 hours drink water
-- list reminders
 
-🎨 *MEDIA TOOLS*
-- .sticker          → Convert image to sticker
-- .download <url>   → Download YouTube/Insta video
-- .convert          → Start image-to-PDF converter
-  (send images, then type: done)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👩‍🏫  FACULTY ONLY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+.profile [name/roll]         → Student dossier
+.logptm [ID] [type] [notes]  → Log PTM contact
+.ptmlogs [studentID]         → View PTM history
+.coverage [sub] [sec] [unit] [%] → Log syllabus
 
-🏆 *XP & LEADERBOARD*
-- .rank             → Group leaderboard
-- .stats            → Most active member
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👨‍💼  HOD ONLY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+.hodstats                    → Live dept analytics
+.checksyll [sub] [sec]       → Syllabus coverage %
+.hodannounce [message]       → Broadcast to all groups
 
-🎂 *BIRTHDAYS*
-- .listbday         → This month's birthdays
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👑  ADMIN ONLY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+.work [date] [task]     → Schedule a task
+.listwork               → View scheduled tasks
+.delwork [id]           → Delete a task
+.setday [1-6]           → Force set day order
+.sat yes/no             → Mark Saturday working
+.upload [name]          → Upload & save a file
+.pause / .resume        → Pause broadcasts
+.botstats               → System diagnostics
 
-👑 *ADMIN ONLY*
-- .work <date> <task>   → Schedule a task
-- .listwork             → View scheduled tasks
-- .delwork <id>         → Delete a task
-- .setday <1-6>         → Force set day order
-- .sat yes/no           → Mark Saturday working/holiday
-- .upload <name>        → Upload & save a file
-- .maintenance          → Enter maintenance mode
-- .donemaintenance "notes" → Exit + AI broadcast
-- .restartai            → Restart bot
-- update                → Send live update msg
-
-━━━━━━━━━━━━━━━━━━━━
-⚡ Built with intelligence.
-🔥 Powered by chaos.
-😎 Dominate the chat.
-    `.trim();
-
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🤖 CampusAssist AI · PSV College
+⚡ One bot. Every role. Zero friction.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`.trim();
     await sendWithTyping(msg, helpMenu);
     return true;
 }
