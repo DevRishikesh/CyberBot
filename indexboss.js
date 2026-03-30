@@ -706,6 +706,10 @@ if (cleanMessage === ".heyyy") {
 }
 
 // Admin Holiday Pause System
+	 if (cleanMessage === ".hiii") {
+            await msg.reply("Welcome nafisaaa");
+            return true;
+        }
     if (cleanMessage === ".pause") {
         if (!isAdmin(msg)) {
             await msg.reply("⛔ Admin only.");
