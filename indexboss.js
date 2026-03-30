@@ -748,7 +748,7 @@ if (cleanMessage === ".botstats") {
         return await handleGetPTMLogs(msg, cleanMessage);
     }
 //send msges to all 2nd year groups
-if (cleanMessage.startsWith(".announce2nd ")) {
+if (cleanMessage.startsWith(".send2nd ")) {
         return await handleSecondYearAnnounce(msg, cleanMessage);
     }
 	// 🔍 ADMIN: Get all Group IDs
@@ -3227,11 +3227,10 @@ ${announcementText}
 _— Broadcasted via CyberBot_
         `.trim();
 
-        // 🎯 THE BULLETPROOF ID LIST
-        // Replace these dummy IDs with your actual Group IDs from the .getgroups command
+       
         const targetGroupIds = [
-            "120363123456789012@g.us", // Example: 2nd Year CSE A
-            "120363987654321098@g.us"  // Example: 2nd Year CSE B
+            "120363406309881818@g.us", // Example: 2nd Year CSE A
+            "120363407680969602@g.us"  // Example: 2nd Year CSE B
         ];
 
         // Fetch all chats
