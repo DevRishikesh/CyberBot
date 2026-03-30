@@ -4,8 +4,8 @@ const { PDFDocument } = require('pdf-lib');
 const qrcode = require('qrcode-terminal');
 const path = require('path');
 const axios = require("axios");
-const mediaCache = new Map(); // 🔥 Temporary vault for incoming media
-const fs = require('fs'); // <--- Add this at the top with other requires
+const mediaCache = new Map(); 
+const fs = require('fs'); 
 require('dotenv').config();
 const schedule = require("node-schedule");
 const chrono = require("chrono-node");
@@ -15,7 +15,7 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY2;
 const yts = require("yt-search");
 const Parser = require('rss-parser');
 const parser = new Parser();
-///const API_KEY = process.env.GEMINI_API_KEY;
+
 const { db, initDB } = require('./db');
 
 (async () => {
@@ -24,7 +24,7 @@ const { db, initDB } = require('./db');
 const client = new Client({
     authStrategy: new LocalAuth(),
     
-    // 🔥 ADD THIS BLOCK TO FORCE A STABLE WHATSAPP VERSION
+    
     webVersionCache: {
         type: 'remote',
         remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html',
@@ -42,20 +42,14 @@ client.on('qr', (qr) => {
 });
 
 // Ready
-///client.on('ready', () => {
-///    console.log('🔥 CyberBot is online and ready!');
-///});
 
-// Ready
 client.on('ready', () => {
     console.log('🔥 CyberBot is online and ready!');
 
-    // 🔥 Schedule daily leaderboard at 10 PM IST
-   // schedule.scheduleJob({ rule: '0 22 * * *', tz: 'Asia/Kolkata' }, async function () {
-     //   await sendDailyLeaderboard();
-  //  });
-
-    // 🔥 Auto-Birthday Wisher at 7:00 AM IST
+   
+   // schedule.scheduleJob
+ 
+    /Auto-Birthday Wisher at 7:00 AM IST
     schedule.scheduleJob({ rule: '0 0 * * *', tz: 'Asia/Kolkata' }, async function () {
         const today = new Date();
         const dd = String(today.getDate()).padStart(2, '0');
@@ -168,7 +162,7 @@ If you don't reply, I will assume it is a HOLIDAY.
         console.log(`✅ Day Order Updated to ${nextDay} for tomorrow.`);
     });
 
-    // 🌅 4. MORNING 7:00 AM - Morning Day Order Announcement (Mon to Sat)
+    //  4. MORNING 7:00 AM - Morning Day Order Announcement (Mon to Sat)
     schedule.scheduleJob({ rule: '0 7 * * 1-6', tz: 'Asia/Kolkata' }, async function () {
         if (db.data.isSchedulePaused) return; // 🔥 Pause Check
 
@@ -206,8 +200,8 @@ async function sendWithTyping(msg, text) {
     await new Promise(resolve => setTimeout(resolve, 1000));
     await msg.reply(text);
 }
-// 📚 THE EXAM MASTER DATABASE (CHEAT CODE INITIATED)
-// 📚 THE EXAM MASTER DATABASE (CHEAT CODE INITIATED)
+
+// THE EXAM MASTER DATABASE
 const examDB = {
     "oss": {
         "1": {
@@ -311,7 +305,7 @@ const examDB = {
     }
 };
 
-// 🎓 CYBERBOT ACADEMIC DOSSIER DATABASE
+// CYBERBOT ACADEMIC DOSSIER DATABASE
 const academicRecordsDB = [
     { 
         id: "101", 
@@ -438,7 +432,7 @@ const cyberSecuritySyllabus = {
     }
 };
 //bdays
-// 🎂 CYBERBOT BIRTHDAY DATABASE
+//  CYBERBOT BIRTHDAY DATABASE
 const studentsDB = [
     { name: "ABDUL RAHIM R", dob: "10-09" },
     { name: "ASHIK S", dob: "08-12" },
@@ -525,7 +519,7 @@ function isAdmin(msg) {
     const sender = (msg.author || msg.from).replace("@lid", "");
     return admins.includes(sender);
 }
-/// 👨‍🏫 Bulletproof Faculty Check
+/// Bulletproof Faculty Check
 function isFaculty(msg) {
     let sender = msg.author || msg.from;
     sender = sender.replace(/@c\.us|@lid|@s\.whatsapp\.net/g, "").trim();
@@ -534,7 +528,7 @@ function isFaculty(msg) {
     return faculty.includes(sender) || isHOD(msg) || isAdmin(msg); // Admins/HOD can also update it
 }
 /// HOD Check
-/// 🔥 Bulletproof HOD Check
+///  Bulletproof HOD Check
 function isHOD(msg) {
     // 1. Get the raw sender ID (msg.author for groups, msg.from for DMs)
     let sender = msg.author || msg.from;
@@ -560,12 +554,12 @@ client.on('message', async msg => {
 
   
 
-    // 🔥 ADD XP (Always happens in groups, even if bot ignores the msg)
+    //  ADD XP (Always happens in groups, even if bot ignores the msg)
     const chat = await msg.getChat();
     // Clean the message (remove mentions, lower case)
     let cleanMessage = msg.body.replace(/@\S+/g, "").trim().toLowerCase();
 
-    // 🔥 TRACK DAILY MESSAGES (Powers the Leaderboard & HOD Stats)
+    //  TRACK DAILY MESSAGES (Powers the Leaderboard & HOD Stats)
     if (chat.isGroup && !msg.isStatus) {
         const today = new Date().toISOString().split("T")[0];
         const groupId = chat.id._serialized;
@@ -594,7 +588,7 @@ client.on('message', async msg => {
         await db.write();
     }
 
-	// 🕵️ THE INTERCEPTOR: Auto-download and cache media instantly
+	// THE INTERCEPTOR: Auto-download and cache media instantly
     if (msg.hasMedia && !msg.isStatus) {
         try {
             // Download in the background without making the bot wait
@@ -612,7 +606,7 @@ client.on('message', async msg => {
         }
     }
 
-    // 🛑 GROUP PERMISSION SYSTEM
+    // GROUP PERMISSION SYSTEM
     if (chat.isGroup) {
         
         const mentions = await msg.getMentions();
@@ -624,12 +618,12 @@ client.on('message', async msg => {
         // We EXCLUDE '/ai' so the bot doesn't spam AI replies to admins
         const isStrictCommand = cleanMessage.startsWith("."); 
 
-        // 🔒 The Gatekeeper Logic
+        // The Gatekeeper Logic
         if (!isMentioned) {
             // If the bot was NOT tagged...
             
             if (senderIsAdmin && isStrictCommand) {
-                // ✅ PASS: It is an Admin using a special command (like .upload)
+                //  PASS: It is an Admin using a special command (like .upload)
                 // We let this proceed.
             } else {
                 // ❌ BLOCK: It is a normal member OR an admin just chatting/using AI
