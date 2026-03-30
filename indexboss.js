@@ -747,6 +747,10 @@ if (cleanMessage === ".botstats") {
     if (cleanMessage.startsWith(".ptmlogs ")) {
         return await handleGetPTMLogs(msg, cleanMessage);
     }
+//send msges to all 2nd year groups
+if (cleanMessage.startsWith(".announce2nd ")) {
+        return await handleSecondYearAnnounce(msg, cleanMessage);
+    }
 // Syllabus Tracker
     if (cleanMessage.startsWith(".coverage ")) {
         return await handleUpdateCoverage(msg, cleanMessage);
@@ -992,7 +996,25 @@ CyberBot never rests 😎🔥
         await msg.reply(updateText);
         return true;
     }
-		// 🔥 Admin - Change Day Order
+		//Admin - Change Day Order
+// ADMIN: Get all Group IDs
+    if (cleanMessage === ".getgroups") {
+        if (!isAdmin(msg)) {
+            await msg.reply("⛔ Admin only.");
+            return true;
+        }
+        
+        const chats = await client.getChats();
+        const groups = chats.filter(chat => chat.isGroup);
+        
+        let report = "📂 *YOUR WHATSAPP GROUP IDs*\n━━━━━━━━━━━━━━━━━━━━\n";
+        groups.forEach(g => {
+            report += `📌 *Name:* ${g.name}\n🔑 *ID:* ${g.id._serialized}\n\n`;
+        });
+        
+        await msg.reply(report);
+        return true;
+    }
 if (cleanMessage.includes(".setday")) {
 
     if (!isAdmin(msg)) {
@@ -3156,6 +3178,72 @@ _— CyberBot Academic Intelligence_
     } catch (error) {
         console.error("Profile Lookup Error:", error);
         await msg.reply("⚠️ System Error: Failed to retrieve student dossier.");
+        return true;
+    }
+}
+
+// 📢 FACULTY: BULLETPROOF 2ND YEAR BROADCAST (.announce2nd)
+async function handleSecondYearAnnounce(msg, cleanMessage) {
+    // 1. Authorization Gate
+    if (!isFaculty(msg)) {
+        await msg.reply("⛔ *Access Denied.* Only authorized faculty can broadcast to year-specific groups.");
+        return true;
+    }
+
+    // 2. Extract the payload
+    const announcementText = msg.body.slice(msg.body.toLowerCase().indexOf(".announce2nd") + 12).trim();
+
+    if (!announcementText) {
+        await msg.reply("⚠️ Missing payload.\n*Usage:* `.announce2nd <message>`");
+        return true;
+    }
+
+    await msg.reply("🚨 Compiling message for 2nd-year groups... Initiating strict-ID broadcast ⏳");
+
+    try {
+        const formattedAnnouncement = `
+📢 *2nd YEAR FACULTY ANNOUNCEMENT* 📢
+━━━━━━━━━━━━━━━━━━━━
+${announcementText}
+━━━━━━━━━━━━━━━━━━━━
+_— Broadcasted via CyberBot_
+        `.trim();
+
+        // 🎯 THE BULLETPROOF ID LIST
+        // Replace these dummy IDs with your actual Group IDs from the .getgroups command
+        const targetGroupIds = [
+            "120363123456789012@g.us", // Example: 2nd Year CSE A
+            "120363987654321098@g.us"  // Example: 2nd Year CSE B
+        ];
+
+        // Fetch all chats
+        const chats = await client.getChats();
+        
+        // strictly filter by the exact IDs in our list
+        const secondYearGroups = chats.filter(chat => 
+            chat.isGroup && targetGroupIds.includes(chat.id._serialized)
+        );
+
+        if (secondYearGroups.length === 0) {
+            await msg.reply("⚠️ Broadcast failed: None of the target Group IDs were found. Is the bot added to those groups?");
+            return true;
+        }
+
+        let sentCount = 0;
+
+        // Blast it to the targeted groups safely
+        for (const group of secondYearGroups) {
+            await client.sendMessage(group.id._serialized, formattedAnnouncement);
+            sentCount++;
+            await new Promise(resolve => setTimeout(resolve, 800)); // Anti-spam delay
+        }
+
+        await msg.reply(`✅ *Broadcast Deployed!*\nSuccessfully transmitted to ${sentCount} strictly targeted group(s).`);
+        return true;
+
+    } catch (error) {
+        console.error("2nd Year Announce Error:", error);
+        await msg.reply("⚠️ System Error: Network broadcast failed.");
         return true;
     }
 }
